@@ -1,0 +1,31 @@
+# /bin/sh
+# ----------------Parameters---------------------- #
+#$ -S /bin/sh
+#$ -pe mthread 4
+#$ -q sThM.q
+#$ -l mres=48G,h_data=12G,h_vmem=12G,himem
+#$ -cwd
+#$ -j y
+#$ -N project
+#$ -o project.log
+#
+# ----------------Modules------------------------- #
+module load bioinformatics/cutadapt/4.7
+#
+# ----------------Your Commands------------------- #
+#
+echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
+echo + NSLOTS = $NSLOTS
+#
+
+primerF=$"1" 
+primerR=$"2" 
+
+
+cutadapt \
+-e 0.2 --discard-untrimmed --minimum-length 30 -n 2 -O 3 --cores=0 \
+-g "path_to_forward_primer" -G "path_to_forward_primer" \
+-o paste0(data/working/trimmed_sequences/",sample.names[i],"_trimmed_R1.fastq
+-p paste0("data/working/trimmed_sequences/",sample.names[i],"_trimmed_R2.fastqgz"),
+#
+echo = `date` job $JOB_NAME done
