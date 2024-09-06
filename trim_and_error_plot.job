@@ -1,9 +1,9 @@
 # /bin/sh
 # ----------------Parameters---------------------- #
 #$ -S /bin/sh
-#$ -pe mthread 4
-#$ -q sThM.q
-#$ -l mres=48G,h_data=12G,h_vmem=12G,himem
+#$ -pe mthread 8
+#$ -q sThC.q
+#$ -l mres=8G,h_data=1G,h_vmem=1G
 #$ -cwd
 #$ -j y
 #$ -N project
@@ -11,6 +11,7 @@
 #
 # ----------------Modules------------------------- #
 module load bioinformatics/cutadapt/4.7
+module load tools/R/4.4.1
 #
 # ----------------Your Commands------------------- #
 #
@@ -18,14 +19,28 @@ echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
 echo + NSLOTS = $NSLOTS
 #
 
-primerF=$"1" 
-primerR=$"2" 
+data="$1"
+primerF="$2" 
+primerR="$3" 
 
 
-cutadapt \
--e 0.2 --discard-untrimmed --minimum-length 30 -n 2 -O 3 --cores=0 \
--g "path_to_forward_primer" -G "path_to_forward_primer" \
--o paste0(data/working/trimmed_sequences/",sample.names[i],"_trimmed_R1.fastq
--p paste0("data/working/trimmed_sequences/",sample.names[i],"_trimmed_R2.fastqgz"),
-#
+for x in ${data}/raw/*_R1*; do
+  sample=`basename ${x}`
+  name=`echo ${sample%%_*}`  
+  namepre=`echo ${sample%_R*}`
+  namepost=`echo ${sample#*_R[1-2]*}`
+
+  cutadapt \
+  -g file:${primerF} \
+  -G file:${primerR} \
+  -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed --report=minimal \
+  -o ${data}/trimmed_reads/${name}_trimmed_R1.fastq.gz \
+  -p ${data}/trimmed_reads/${name}_trimmed_R2.fastq.gz \
+  ${data}/raw/${namepre}_R1${namepost} \
+  ${data}/raw/${namepre}_R2${namepost}
+done
+
+Rscript ${data}
+
+
 echo = `date` job $JOB_NAME done
