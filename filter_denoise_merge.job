@@ -1,0 +1,27 @@
+# /bin/sh
+# ----------------Parameters---------------------- #
+#$ -S /bin/sh
+#$ -pe mthread 12
+#$ -q sThC.q
+#$ -l mres=96G,h_data=8G,h_vmem=8G
+#$ -cwd
+#$ -j y
+#$ -N denoise
+#$ -o logs/denoise.log
+#
+# ----------------Modules------------------------- #
+module load tools/R/4.4.1
+#
+# ----------------Your Commands------------------- #
+#
+echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
+echo + NSLOTS = $NSLOTS
+#
+
+trimmed="$1"
+truncF="$2"
+truncR="$3"
+data="$4"
+
+
+Rscript filter_denoise_merge.R
