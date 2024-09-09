@@ -6,7 +6,6 @@
 # Load all R packages you may need if not coming directly from the previous
 # step.
 library(dada2)
-library(digest)
 library(tidyverse)
 library(seqinr)
 
