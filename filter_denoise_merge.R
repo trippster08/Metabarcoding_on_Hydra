@@ -2,29 +2,30 @@
 library(dada2)
 library(tidyverse)
 library(seqinr)
+library(digest)
 
 ## Trim Reads ==================================================================
-
-trimmed <- "data/working/trimmed_reads"
-data <- Sys.getenv("data")
-truncF <- Sys.getenv("truncF")
-truncR <- Sys.getenv("truncR")
 numcores <- Sys.getenv("NSLOTS")
+args <- commandArgs(trailingOnly = TRUE)
+trimmed <- args[1]
+truncF <- as.numeric(args[2])
+truncR <- as.numeric(args[3])
+
+
+# This creates two vectors. One contains the names for forward reads (R1, called
+# fnFs) and the other for reverse reads (R2, called fnRs).
+fnFs <- sort(list.files(trimmed, pattern = "_R1.fastq.gz", full.names = TRUE))
+fnRs <- sort(list.files(trimmed, pattern = "_R2.fastq.gz", full.names = TRUE))
 
 # Create a list of sample names
-trimmed.reads <- list.files(trimmed[str_detect(trimmed, "R1.fastq.gz")])
-sample.names <- sapply(strsplit(basename(trimmed.reads), "_"), `[`, 1)
-
+sample.names <- sapply(strsplit(basename(fnFs), "_"), `[`, 1)
 
 # This creates files for the reads that will be quality filtered with dada2
 # in the next step.
-filtFs <- file.path(trimmed, "filtered", paste0(sample.names, "_F_filt.fastq.gz"))
-filtRs <- file.path(trimmed, "filtered", paste0(sample.names, "_R_filt.fastq.gz"))
+filtFs <- file.path("../data/working", "filtered", paste0(sample.names, "_F_filt.fastq.gz"))
+filtRs <- file.path("../data/working", "filtered", paste0(sample.names, "_R_filt.fastq.gz"))
 
-# This inserts sample names to these newly created files. You'll notice that in
-# the environment pane, the description of filtFs and filtRs goes from
-# "chr [1:N]" to "Named chr [1:N]"
-names(filtFs) <- sample.names
+# This inserts sample names to these newly created files. 
 names(filtRs) <- sample.names
 
 # This filters all reads depending upon the quality (as assigned by the user)
@@ -62,13 +63,20 @@ out <- filterAndTrim(
   rm.phix = TRUE,
   truncQ = 2,
   compress = TRUE,
-  multithread = 8
+  multithread = TRUE
 )
 
 # Usually we don't have that many samples, so I just look at "out" in its
 # entirety, but if there are lots of samples, just look at the first 6.
 out
-head(out)
+write.table(
+  out,
+  file="../data/results/filtered_reads.tsv",
+  quote = FALSE,
+  sep = "\t",
+  row.names = TRUE,
+  col.names = NA
+)
 
 # After filtering, if there are any samples that have no remaining reads
 # (i.e. reads.out = 0), you will get the following error running learnErrors:
@@ -168,12 +176,6 @@ dadaRs <- dada(
   verbose = TRUE
 )
 
-# This looks at the dada-class list of objects that was created by the "dada"
-# command. It gives a brief summary of the denoising results, and gives some
-# parameters values used.
-dadaFs[[1]]
-dadaRs[[1]]
-
 ## Merge Paired Sequences ======================================================
 
 # Here we merge the paired reads. merged calls for the forward denoising result
@@ -198,10 +200,6 @@ merged <- mergePairs(
   verbose = TRUE
 )
 
-# Inspect the merged sequences from the data.frame of the first sample (and the
-# 6th sample).
-head(merged[[1]])
-head(merged[[6]])
 
 ## Create Feature-Table =======================================================
 
@@ -216,22 +214,6 @@ seqtab <- makeSequenceTable(merged)
 # This describes the dimensions of the table just made
 dim(seqtab)
 
-# This shows the length of the representative sequences (ASV's). Typically,
-# there are a lot of much longer and much shorter sequences.
-table(nchar(getSequences(seqtab)))
-
-# If we want to remove the "excessively" long or short sequences, we can do so
-# here. The lengths used here are arbitrary. I'm not sure how to justify a
-# cut-off, to be honest. You can sometimes see the a pattern here corresponding
-# to codon position for protein-coding genes (there are more ASV's in multiples
-# of three), so you may cut where the pattern is no longer visible (i.e. there
-# are not more reads in lengths in multiples of threes than at other lengths).
-# I tend not to remove any ASV's at this point
-
-# In this example, we only keep reads between 298 and 322 bp in length.
-seqtab313 <- seqtab[, nchar(colnames(seqtab)) %in% 298:322]
-dim(seqtab313)
-table(nchar(getSequences(seqtab313)))
 
 ## Remove Chimeric Sequences ===================================================
 
@@ -245,3 +227,122 @@ seqtab.nochim <- removeBimeraDenovo(
 )
 # We look at the dimensions of the new sequence-table
 dim(seqtab.nochim)
+
+## Track Reads Through Dada2 Process ===========================================
+
+# Here, we look at how many reads made it through each step. This is similar to
+# the stats table that we look at in Qiime2. I've added a column to the typical
+# tutorial version of this that gives us the percentage of reads that made it
+# through the process. This is a good quick way to see if something is wrong
+# (i.e. only a small proportion make it through).
+getN <- function(x) sum(getUniques(x))
+track <- cbind(
+  out, 
+  sapply(dadaFs, getN),
+  sapply(dadaRs, getN),
+  sapply(merged, getN),
+  rowSums(seqtab.nochim),
+  100 * (rowSums(seqtab.nochim) / out[, 1]))
+
+# If processing a single sample, remove the sapply calls: e.g. replace
+# sapply(dadaFs, getN) with getN(dadaFs)
+colnames(track) <- c("input", "filtered", "denoisedF", "denoisedR", "merged", "nonchim", "%kept")
+rownames(track) <- sample.names
+
+# Export this table as a .tsv
+write.table(
+  track,
+  file="../data/results/track_reads.tsv",
+  quote = FALSE,
+  sep = "\t",
+  row.names = TRUE,
+  col.names = NA
+)
+
+## Examine Sequence Lengths ====================================================
+
+# This shows the length of the representative sequences (ASV's). Typically,
+# there are a lot of much longer and much shorter sequences.
+seq.length.table <- table(nchar(getSequences(seqtab.nochim)))
+# Export this table as a .tsv
+write.table(
+  seq.length.table,
+  file="../data/results/ASV_lengths_table.tsv",
+  quote = FALSE,
+  sep = "\t",
+  row.names = TRUE,
+  col.names = NA
+)
+
+## Create And Use md5 Hash =====================================================
+# To create a Sequence list with md5 hash instead of ASVs, we first need to
+# create a list of md5 hash's of all ASV's.
+
+# This makes a new vector containing all the ASV's (unique sequences) returned
+# by dada2. We are going to use this list to create md5 hashes. Use whatever
+#  table you will later use for your analyses (e.g. seqtab.nochim)
+repseq <- getSequences(seqtab.nochim)
+
+# Use the program digest (in a For Loop) to create a new vector containing the
+# unique md5 hashes of the representative sequences (ASV's). This results in
+# identical feature names to those assigned in Qiime2.
+repseq.md5 <- c()
+for (i in seq_along(repseq)) {
+  repseq.md5[i] <- digest(
+    repseq[i],
+    serialize = FALSE,
+    algo = "md5"
+  )
+}
+
+# Add md5 hash to the sequence-table from the DADA2 analysis.
+seqtab.nochim.md5 <- seqtab.nochim
+colnames(seqtab.nochim.md5) <- repseq.md5
+
+# Create an md5/ASV table, with each row as an ASV and it's representative md5
+# hash.
+repseq.md5.asv <- tibble(repseq.md5, repseq)
+# Rename column headings
+colnames(repseq.md5.asv) <- c("md5", "ASV")
+
+# Transpose the sequence-table, and convert the result into a tibble.
+seqtab.nochim.transpose.md5 <- as_tibble(t(seqtab.nochim.md5), rownames = "ASV")
+
+## Export Feature-Table with md5 Hash =========================================
+# This exports a feature-table: row of ASV's (shown as a md5 hash instead
+# of sequence), columns of samples, and values = number of reads. With this
+# table you will also need a file that relates each ASV to it's representative
+# md5 hash. We download this in the next section.
+
+write.table(
+  seqtab.nochim.transpose.md5,
+  file = "../data/results/feature-table_md5.tsv",
+  quote = FALSE,
+  sep = "\t",
+  row.names = TRUE,
+  col.names = NA
+)
+
+## Export Representative Sequences table/fasta =================================
+# Here we export our our representative sequences, either as a fasta (with the
+# md5 hash as the ASV name), or as a table with ASV and md5 hash as columns.
+
+# This exports all the ASVs in fasta format, with ASV hash as the sequence
+# name. This is analogous to the representative sequence output in Qiime2.
+write.fasta(
+  sequences = as.list(repseq.md5.asv$ASV),
+  names = repseq.md5.asv$md5,
+  open = "w",
+  as.string = FALSE,
+  file.out = "../data/results/rep-seq.fas"
+)
+
+# This exports all the ASVs and their respective md5 hashes as a two-column
+# table.
+write.table(
+  repseq.md5.asv,
+  file = "../data/results/representative_sequence_table_md5.tsv",
+  quote = FALSE,
+  sep = "\t",
+  row.names = FALSE
+)
