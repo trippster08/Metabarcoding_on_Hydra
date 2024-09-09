@@ -40,7 +40,7 @@ for x in ${data}/raw/*_R1*; do
   ${data}/raw/${namepre}_R2${namepost}
 done
 
-Rscript ${data}
+Rscript quality_plot.R
 
 
 echo = `date` job $JOB_NAME done
