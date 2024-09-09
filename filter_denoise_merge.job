@@ -17,11 +17,11 @@ module load tools/R/4.4.1
 echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
 echo + NSLOTS = $NSLOTS
 #
-
 trimmed="$1"
 truncF="$2"
 truncR="$3"
-data="$4"
-
-
+#
 Rscript filter_denoise_merge.R
+
+#
+echo = `date` job $JOB_NAME done
