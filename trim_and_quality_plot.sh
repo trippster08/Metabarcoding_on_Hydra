@@ -43,7 +43,7 @@ else
   fi    
 fi
 
-mkdir ${data}/trimmed_reads
+mkdir -p ${data}/working/trimmed_reads
 
 
 qsub -o logs/cutadapt.log \
