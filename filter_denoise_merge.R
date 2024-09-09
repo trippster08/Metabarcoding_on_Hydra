@@ -1,10 +1,20 @@
 # TRIM FILTER DENOISE MERGE ####################################################
 library(dada2)
 library(tidyverse)
+library(seqinr)
 
 ## Trim Reads ==================================================================
 
 trimmed <- "data/working/trimmed_reads"
+data <- Sys.getenv("data")
+truncF <- Sys.getenv("truncF")
+truncR <- Sys.getenv("truncR")
+numcores <- Sys.getenv("NSLOTS")
+
+# Create a list of sample names
+trimmed.reads <- list.files(trimmed[str_detect(trimmed, "R1.fastq.gz")])
+sample.names <- sapply(strsplit(basename(trimmed.reads), "_"), `[`, 1)
+
 
 # This creates files for the reads that will be quality filtered with dada2
 # in the next step.
@@ -46,9 +56,9 @@ out <- filterAndTrim(
   filtFs,
   fnRs,
   filtRs,
-  truncLen = c(0, 0),
+  truncLen = c(truncF, truncR),
   maxN = 0,
-  maxEE = c(4, 4),
+  maxEE = c(6, 6),
   rm.phix = TRUE,
   truncQ = 2,
   compress = TRUE,
@@ -74,7 +84,7 @@ head(out)
 # samples with reads (i.e. the description for filtFs and filtRs goes from
 # "Named chr [1:N]" to "Named chr [1:N-(# of empty samples)]).
 exists <- file.exists(filtFs) & file.exists(filtRs)
-exists
+length(exists)
 filtFs <- filtFs[exists]
 filtRs <- filtRs[exists]
 
@@ -116,9 +126,21 @@ errR <- learnErrors(
 # to look at here are to make sure that each black line is a good fit to the
 # observed error rates, and that estimated error rates decrease with increased
 # quality.
-plotErrors(errF, nominalQ = TRUE)
-plotErrors(errR, nominalQ = TRUE)
+error.plots.F <- plotErrors(errF, nominalQ = TRUE)
+error.plots.R <- plotErrors(errR, nominalQ = TRUE)
 
+ggsave(
+  "../data/working/errorplotsF.pdf",
+  plot = error.plots.F,
+  width = 9,
+  height = 9
+)
+ggsave(
+  "../data/working/errorplotsR.pdf",
+  plot = error.plots.R,
+  width = 9,
+  height = 9
+)
 
 ## Denoising ===================================================================
 
