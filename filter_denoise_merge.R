@@ -71,7 +71,7 @@ out <- filterAndTrim(
 out
 write.table(
   out,
-  file="../data/results/filtered_reads.tsv",
+  file="../data/working/filtered_reads.tsv",
   quote = FALSE,
   sep = "\t",
   row.names = TRUE,
@@ -252,7 +252,7 @@ rownames(track) <- sample.names
 # Export this table as a .tsv
 write.table(
   track,
-  file="../data/results/track_reads.tsv",
+  file="../data/working/track_reads.tsv",
   quote = FALSE,
   sep = "\t",
   row.names = TRUE,
@@ -267,7 +267,7 @@ seq.length.table <- table(nchar(getSequences(seqtab.nochim)))
 # Export this table as a .tsv
 write.table(
   seq.length.table,
-  file="../data/results/ASV_lengths_table.tsv",
+  file="../data/working/ASV_lengths_table.tsv",
   quote = FALSE,
   sep = "\t",
   row.names = TRUE,
