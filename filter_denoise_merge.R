@@ -20,6 +20,34 @@ fnRs <- sort(list.files(trimmed, pattern = "_R2.fastq.gz", full.names = TRUE))
 # Create a list of sample names
 sample.names <- sapply(strsplit(basename(fnFs), "_"), `[`, 1)
 
+# Make sure all sample files contain reads. Samples with size of 50 bytes or
+# below do not have any reads, and this will break the pipeline later if these
+# samples are not removed.
+file.size(fnFs)
+
+# If you have sample files with no reads, you must remove both the forward and
+# reverse reads, regardless if one has reads (although if one is empty,
+# the other should be as well).
+
+### Remove empty sample files --------------------------------------------------
+# This saves the R1 fastq for the sample file only if both the R1 and R2 sample
+# files have reads.
+fnFs.exists <- fnFs[file.size(fnFs) > 50 & file.size(fnRs) > 50]
+
+
+# This saves the R2 fastq for the sample file only if both the R1 and R2 sample
+# files have reads.
+fnRs.exists <- fnRs[file.size(fnFs) > 50 & file.size(fnRs) > 50]
+
+
+# Redefine fnFs and fnRs as only the existing read files, and check
+fnFs <- fnFs.exists
+fnRs <- fnRs.exists
+file.size(fnFs)
+
+# Update your samples names
+sample.names <- sapply(strsplit(basename(fnFs), "_"), `[`, 1)
+
 # This creates files for the reads that will be quality filtered with dada2
 # in the next step.
 filtFs <- file.path("../data/working", "filtered", paste0(sample.names, "_F_filt.fastq.gz"))
