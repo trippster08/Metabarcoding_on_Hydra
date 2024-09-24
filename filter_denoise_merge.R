@@ -53,7 +53,8 @@ sample.names <- sapply(strsplit(basename(fnFs), "_"), `[`, 1)
 filtFs <- file.path("../data/working", "filtered", paste0(sample.names, "_F_filt.fastq.gz"))
 filtRs <- file.path("../data/working", "filtered", paste0(sample.names, "_R_filt.fastq.gz"))
 
-# This inserts sample names to these newly created files. 
+# This inserts sample names to these newly created files.
+names(filtFs) <- sample.names
 names(filtRs) <- sample.names
 
 # This filters all reads depending upon the quality (as assigned by the user)
