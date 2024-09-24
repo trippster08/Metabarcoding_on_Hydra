@@ -1,9 +1,9 @@
 # /bin/sh
 # ----------------Parameters---------------------- #
 #$ -S /bin/sh
-#$ -pe mthread 12
-#$ -q sThC.q
-#$ -l mres=96G,h_data=8G,h_vmem=8G
+#$ -pe mthread 20
+#$ -q mThC.q
+#$ -l mres=120G,h_data=6G,h_vmem=6G
 #$ -cwd
 #$ -j y
 #$ -N denoise
@@ -21,7 +21,7 @@ trimmed="$1"
 truncF="$2"
 truncR="$3"
 #
-Rscript filter_denoise_merge.R
+Rscript filter_denoise_merge.R ${trimmed} ${truncF} ${truncR}
 
 #
 echo = `date` job $JOB_NAME done
