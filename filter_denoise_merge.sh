@@ -23,6 +23,7 @@ then
   exit
 fi
 
+mkdir ${trimmed}/../../results
 
 qsub -o logs/denoise.log \
   -N denoise \
