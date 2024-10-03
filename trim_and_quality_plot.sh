@@ -54,4 +54,4 @@ mkdir -p ${data}/working/trimmed_reads
 
 qsub -o logs/cutadapt.log \
   -N cutadapt \
-trim.job ${data} ${primerF} ${primerR}
+trim_and_quality_plot.job ${data} ${primerF} ${primerR}
