@@ -22,8 +22,8 @@ echo + NSLOTS = $NSLOTS
 data="$1"
 primer1F="$2" 
 primer1R="$3" 
-
-
+primerFrc="$4"
+primerRrc="$5"
 
 for x in ${data}/raw/*_R1*; do
   sample=`basename ${x}`
@@ -31,6 +31,9 @@ for x in ${data}/raw/*_R1*; do
   namepre=`echo ${sample%_R*}`
   namepost=`echo ${sample#*_R[1-2]*}`
 
+if
+  [[ -z $4 ]]
+then
   cutadapt \
   -g file:${primerF} \
   -G file:${primerR} \
@@ -39,6 +42,19 @@ for x in ${data}/raw/*_R1*; do
   -p ${data}/working/trimmed_reads/${name}_trimmed_R2.fastq.gz \
   ${data}/raw/${namepre}_R1${namepost} \
   ${data}/raw/${namepre}_R2${namepost}
+else
+  cutadapt \
+  -g file:${primerF} \
+  -a file:${primerRrc} \
+  -G file:${primerR} \
+  -A file:${primerFrc} \
+  -e 0.2 --minimum-length 30 --cores=$NSLOTS -n 2 -O 3 --discard-untrimmed --report=minimal \
+  -o ${data}/working/trimmed_reads/${name}_trimmed_R1.fastq.gz \
+  -p ${data}/working/trimmed_reads/${name}_trimmed_R2.fastq.gz \
+  ${data}/raw/${namepre}_R1${namepost} \
+  ${data}/raw/${namepre}_R2${namepost}
+fi
+
 done
 
 Rscript quality_plot.R
