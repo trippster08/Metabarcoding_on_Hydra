@@ -24,6 +24,8 @@ primer1F="$2"
 primer1R="$3" 
 primerFrc="$4"
 primerRrc="$5"
+gene1="$6"
+gene2="$7"
 
 for x in ${data}/raw/*_R1*; do
   sample=`basename ${x}`
@@ -38,8 +40,8 @@ then
   -g file:${primerF} \
   -G file:${primerR} \
   -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed --report=minimal \
-  -o ${data}/working/trimmed_reads/${name}_trimmed_R1.fastq.gz \
-  -p ${data}/working/trimmed_reads/${name}_trimmed_R2.fastq.gz \
+  -o ${data}/working/trimmed_reads/{name}/${name}_trimmed_R1.fastq.gz \
+  -p ${data}/working/trimmed_reads/{name}/${name}_trimmed_R2.fastq.gz \
   ${data}/raw/${namepre}_R1${namepost} \
   ${data}/raw/${namepre}_R2${namepost}
 else
@@ -49,15 +51,15 @@ else
   -G file:${primerR} \
   -A file:${primerFrc} \
   -e 0.2 --minimum-length 30 --cores=$NSLOTS -n 2 -O 3 --discard-untrimmed --report=minimal \
-  -o ${data}/working/trimmed_reads/${name}_trimmed_R1.fastq.gz \
-  -p ${data}/working/trimmed_reads/${name}_trimmed_R2.fastq.gz \
+  -o ${data}/working/trimmed_reads/{name}/${name}_trimmed_R1.fastq.gz \
+  -p ${data}/working/trimmed_reads/{name}/${name}_trimmed_R2.fastq.gz \
   ${data}/raw/${namepre}_R1${namepost} \
   ${data}/raw/${namepre}_R2${namepost}
 fi
 
 done
 
-Rscript quality_plot.R
+Rscript quality_plot_multigene.R ${gene1} ${gene2}
 
 
 echo = `date` job $JOB_NAME done
