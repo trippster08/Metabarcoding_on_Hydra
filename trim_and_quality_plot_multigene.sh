@@ -53,9 +53,12 @@ then
   fi    
 fi
 
-mkdir -p ${data}/working/trimmed_reads ${data}/working/filtered_reads
-
+mkdir -p \
+${data}/working/trimmed_reads/${gene1} \
+${data}/working/filtered_reads/${gene1} \
+${data}/working/trimmed_reads/${gene2} \
+${data}/working/filtered_reads/${gene2} \
 
 qsub -o logs/cutadapt.log \
   -N cutadapt \
-trim_and_quality_plot_multigene.job ${raw} ${data} ${primerF} ${primerR} ${primerFrc} ${primerRrc}
+trim_and_quality_plot_multigene.job ${raw} ${data} ${primerF} ${primerR} ${primerFrc} ${primerRrc} ${gene1} ${gene2}
