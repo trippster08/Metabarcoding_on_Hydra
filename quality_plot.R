@@ -24,8 +24,20 @@ numcores <- Sys.getenv("NSLOTS")
 
 # This creates two vectors. One contains the names for forward reads (R1, called
 # fnFs) and the other for reverse reads (R2, called fnRs).
-fnFs <- sort(list.files(trimmed, pattern = "_R1.fastq.gz", full.names = TRUE))
-fnRs <- sort(list.files(trimmed, pattern = "_R2.fastq.gz", full.names = TRUE))
+fnFs <- sort(
+  list.files(
+    trimmed,
+    pattern = "_R1.fastq.gz",
+    full.names = TRUE
+  )
+)
+fnRs <- sort(
+  list.files(
+    trimmed,
+    pattern = "_R2.fastq.gz",
+    full.names = TRUE
+  )
+)
 sample.names <- sapply(strsplit(fnFs, "_"), `[`, 1)
 
 # Make sure you have the correct number of samples, and that they match the
@@ -47,12 +59,16 @@ file.size(fnFs)
 ### Remove empty sample files --------------------------------------------------
 # This saves the R1 fastq for the sample file only if both the R1 and R2 sample
 # files have reads.
-fnFs.exists <- fnFs[file.size(fnFs) > 50 & file.size(fnRs) > 50]
+fnFs.exists <- fnFs[
+  file.size(fnFs) > 50 & file.size(fnRs) > 50
+]
 length(fnFs.exists)
 
 # This saves the R2 fastq for the sample file only if both the R1 and R2 sample
 # files have reads.
-fnRs.exists <- fnRs[file.size(fnFs) > 50 & file.size(fnRs) > 50]
+fnRs.exists <- fnRs[
+  file.size(fnFs) > 50 & file.size(fnRs) > 50
+]
 length(fnRs.exists)
 file.size(fnFs.exists)
 
@@ -68,7 +84,7 @@ sample.names <- sapply(strsplit(basename(fnFs), "_"), `[`, 1)
 nsamples <- length(sample.names)
 head(sample.names)
 
-## Filter and Trim =============================================================
+## Make Quality Plots ----------------------------------------------------------
 
 # This visualizes the quality plots. If you want to look at quality plots for
 # each individual sample, use "aggregate = FALSE", and include whichever sample
@@ -87,7 +103,11 @@ qualplotF <- plotQualityProfile(
   fnFs[1:nsamples],
   aggregate = TRUE
 )
-qualplotF <- qualplotF + scale_x_continuous(limits = c(100, 300), breaks = seq(100, 300, 10))
+qualplotF <- qualplotF +
+scale_x_continuous(
+  limits = c(100, 300),
+  breaks = seq(100, 300, 10)
+)
 ggsave(
   "../data/working/qualplotF.pdf",
   plot = qualplotF,
@@ -95,13 +115,16 @@ ggsave(
   height = 9
 )
 
-
 # Examine the reverse reads as you did the forward.
 qualplotR <- plotQualityProfile(
   fnRs[1:nsamples],
   aggregate = TRUE
 )
-qualplotR <- qualplotR + scale_x_continuous(limits = c(100, 300), breaks = seq(100, 300, 10))
+qualplotR <- qualplotR +
+scale_x_continuous(
+  limits = c(100, 300),
+  breaks = seq(100, 300, 10)
+)
 ggsave(
   "../data/working/qualplotR.pdf",
   plot = qualplotR,
