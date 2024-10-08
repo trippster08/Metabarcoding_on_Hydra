@@ -2,8 +2,6 @@
 
 This protocol is for paired-end demultiplexed miseq sequences that have sufficient overlap to merge R1 and R2, and are going to be run on Hydra, the Smithsonian Institutions High Performance Cluster. This pipeline contains multiple .job files for submission to Hydra. Each job contains all the commands necessary to a point where results can be evaluated and a decision for parameters for the next job needs to be made. For example, the first submission includes using Cutadapt to remove primers from raw reads and creating and visualizing quality plots from trimmed reads using DADA2 in R, at which point trimming parameters need to be decided.
 
-You can download this entire pipeline using this link: [Metabarcoding Pipeline - Hydra Documents](https://github.com/trippster08/Metabarcoding_on_Hydra/archive/refs/heads/main.zip). I usually download a version of this pipeline for each run I analyse (in case any changes need to be made, and so the primer folder is in the correct place) and save it in the main directory of each project.
-
 This pipeline is designed run multiple samples simultanteously on [Hydra](https://confluence.si.edu/display/HPC/High+Performance+Computing), Smithsonian's HPC, using [cutadapt](https://github.com/marcelm/cutadapt/) to remove primer from raw Illumina reads, and [DADA2](https://benjjneb.github.io/dada2/) in R to filter, trim, and denoise trimmed reads.   The pipeline assumes you have a current hydra account and are capable of accessing the SI network, either in person or through VPN. Our pipeline is specifically written for MacOS, but is compatible with Windows. See [Hydra on Windows PCs](https://confluence.si.edu/display/HPC/Logging+into+Hydra) for differences between MacOS and Windows in accessing Hydra.
 
 ## Local Computer Configuration 
@@ -39,7 +37,7 @@ This pipeline is not dependent upon the directory tree shown, so you can set up 
 mkdir -p PROJECT/data/raw PROJECT/jobs
 ```
 ### Transfer Files to Hydra 
-Transfer all the necessary files for this pipeline to your Hydra account. This includes raw read files (`*.fastq.gz`), job files (`*.job`), and shell scripts (`*.sh`).
+Transfer the pipeline to your Hydra account. This downloads a compressed file that contains all job files (`*.job`), shell scripts (`*.sh`), R scripts (`*.R`), and primer files necessary for you analysis. This command downloads a compressed file that will become a directory upon unzipping
 
 ```
 wget https://github.com/trippster08/Metabarcoding_on_Hydra/archive/refs/heads/main.zip
@@ -52,13 +50,9 @@ mv primers ..
 rm -r Metabarcoding_on_Hydra-main
 ```
 
-Your raw reads should be copied into `data/raw/`. Both job files and shell scripts should be copied into `jobs/`. I usually use scp or filezilla for file transfers. See https://confluence.si.edu/pages/viewpage.action?pageId=163152227 for help with transferring files between Hydra and your computer. 
+Your raw reads should be copied into `data/raw/`. We are working on a way to load raw read files directly from their dropbox folder into our Hydra `data/raw/` directory. In the meantime, download to your local computer and use scp or filezilla to upload to `data/raw/`. See https://confluence.si.edu/pages/viewpage.action?pageId=163152227 for help with transferring files between Hydra and your computer. 
 
 ## Running the Pipeline
-This pipeline is designed to run each program on multiple samples simultaneously. For each program, the user runs a shell script that includes a path to the directory containing your input files. This shell script creates and submits a job file to Hydra for each sample in the targeted directory. After transeferring files to Hydra, the user should navigate to their jobs directory, which contains both job files and shell scripts, typcially `/scratch/genomics/USERNAME/PROJECT/jobs/`. All shell scripts should be run from this directory. Log files for each submitted job are saved in `jobs/logs/`. 
-
-NOTE: Additional information for each program can be found in the `.job` file for each specific program. Included is program and parameter descriptions, including recommendations for alternative parameter settings. 
 
 
 
-wget https://github.com/trippster08/Metabarcoding_on_Hydra/archive/refs/heads/main.zip
