@@ -42,7 +42,14 @@ mkdir -p PROJECT/data/raw PROJECT/jobs
 Transfer all the necessary files for this pipeline to your Hydra account. This includes raw read files (`*.fastq.gz`), job files (`*.job`), and shell scripts (`*.sh`).
 
 ```
-wget https://github.com/trippster08/Metabarcoding_on_Hydra.git
+wget https://github.com/trippster08/Metabarcoding_on_Hydra/archive/refs/heads/main.zip
+```
+Next we unzip the pipeline, and move all the shell, .job, and .R files from your newly unzipped directory into the job directory and the primer folder into the main project directory. 
+```
+unzip main.zip
+mv Metabarcoding_on_Hydra-main/* .
+mv primers ..
+rm -r Metabarcoding_on_Hydra-main
 ```
 
 Your raw reads should be copied into `data/raw/`. Both job files and shell scripts should be copied into `jobs/`. I usually use scp or filezilla for file transfers. See https://confluence.si.edu/pages/viewpage.action?pageId=163152227 for help with transferring files between Hydra and your computer. 
@@ -52,3 +59,6 @@ This pipeline is designed to run each program on multiple samples simultaneously
 
 NOTE: Additional information for each program can be found in the `.job` file for each specific program. Included is program and parameter descriptions, including recommendations for alternative parameter settings. 
 
+
+
+wget https://github.com/trippster08/Metabarcoding_on_Hydra/archive/refs/heads/main.zip
