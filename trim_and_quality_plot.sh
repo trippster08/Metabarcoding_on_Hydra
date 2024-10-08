@@ -3,13 +3,9 @@
 raw="$1"
 primer="$2"
 data=${raw}/../
-
-wget https://github.com/trippster08/Metabarcoding_on_Hydra/archive/refs/heads/main.zip
-
-unzip main.zip
-mv Metabarcoding_on_Hydra-main/* .
-mv primers ..
-rm -r Metabarcoding_on_Hydra-main
+COI=("COI" "coi" "CO1" "co1" "cox1" "COX1")
+12S=("12S" "MiFish" "mifish" "Mifish" "12S_mifish" "12S_MiFish" "12s")
+18S=("18S" "l8s")
 
 if
   [[ -z "$(ls ${raw}/*.fastq.gz 2>/dev/null | grep fastq.gz)" ]]  
@@ -26,24 +22,24 @@ then
 fi
 
 if
-  [[ ${gene} == "COI" || ${gene} == "COX1" || ${gene} == "CO1" ]]
+  [[ ${gene} == ${COI} ]]
 then
   primerF=${data}"../primers/COImlIntF_spacers.fas" && \
   primerR=${data}"../primers/jgCOIR_spacers.fas"
 else
   if
-    [[ ${gene} == "12S" || ${gene} == "MiFish" ]]
+    [[ ${gene} == ${12S} ]]
   then
     primerF=${data}"../primers/MiFish_12SF_spacers.fas" && \
     primerR=${data}"../primers/MiFish_12SR_spacers.fas"
   else
     if
-      [[ ${gene} == "18S" ]]
+      [[ ${gene} == ${18S} ]]
     then
       primerF=${data}"../primers/18SF_spacers.fas" && \
       primerR=${data}"../primers/18SR_spacers.fas"
     else
-      echo 'Incorrrect primer set given. Please enter "COI", "COX1", "CO1", "12S", "MiFish", or "18S"'
+      echo 'Incorrrect primer set given. Please enter "COI", "12S", or "18S"'
       exit
     fi
   fi    
