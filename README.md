@@ -32,17 +32,20 @@ Go to the the directory assigned to you for short-term storage of large data-set
 cd /scratch/genomics/USERNAME
 ```
 Make a project-specific directory, with the following subdirectories: `jobs/` and `data/raw/`. -p allows you to create subdirectories and any parental ones that don't already exist (in this case, PROJECT). I use the same directory tree here as on my local computer, to lessen confusion. Again, replace PROJECT with your project name.
-This pipeline is not dependent upon the directory tree shown, so you can set up your space differently, if you prefer. The only two directories that are required are `/data` and `/jobs` but you can name them whatever you like, and neither necessarily have to be in any particular place.This pipeline does create seveal new directories, including `data/working/`, `data/results/`, and `jobs/logs/`. If you don't want these directories created, or want them in different places, they can be changed in the shell scripts. 
-```
-mkdir -p PROJECT/data/raw PROJECT/jobs
-```
-### Transfer Files to Hydra 
-Transfer the pipeline to your Hydra account. This downloads a compressed file that contains all job files (`*.job`), shell scripts (`*.sh`), R scripts (`*.R`), and primer files necessary for you analysis. This command downloads a compressed file that will become a directory upon unzipping
+This pipeline is not dependent upon the directory tree shown, so you can set up your space differently, if you prefer. The only two directories that are required are `/data` and `jobs/` but you can name them whatever you like, and neither necessarily have to be in any particular place.This pipeline does create seveal new directories, including `data/working/`, `data/results/`, and `jobs/logs/`. If you don't want these directories created, or want them in different places, they can be changed in the shell scripts. 
 
 ```
+mkdir -p PROJECT/data/raw PROJECT/jobs
+
+```
+### Transfer Files to Hydra 
+Transfer the pipeline to `jobs/` in your Hydra account. This downloads a compressed file that contains all job files (`*.job`), shell scripts (`*.sh`), R scripts (`*.R`), and primer definition files (`*.fas`) necessary for your analysis. This command downloads a compressed file that will become a directory upon unzipping.
+
+```
+cd jobs
 wget https://github.com/trippster08/Metabarcoding_on_Hydra/archive/refs/heads/main.zip
 ```
-Next we unzip the pipeline, and move all the shell, .job, and .R files from your newly unzipped directory into the job directory and the primer folder into the main project directory. 
+Unzip the pipeline, and move all the shell, .job, and .R files from your newly unzipped directory into the job directory and the primer folder into the main project directory. Delete the now-empty pipeline directory.
 ```
 unzip main.zip
 mv Metabarcoding_on_Hydra-main/* .
