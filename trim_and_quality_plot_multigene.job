@@ -26,6 +26,7 @@ primerFrc="$4"
 primerRrc="$5"
 gene1="$6"
 gene2="$7"
+raw="$8"
 
 for x in ${data}/raw/*_R1*; do
   sample=`basename ${x}`
