@@ -18,27 +18,36 @@ module load tools/R/4.4.1
 echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
 echo + NSLOTS = $NSLOTS
 #
-
 data="$1"
-primer1F="$2" 
-primer1R="$3" 
-primerFrc="$4"
-primerRrc="$5"
-gene1="$6"
-gene2="$7"
-raw="$8"
+gene1="$2"
+gene2="$3"
+primerF="$4" 
+primerR="$5" 
+primerFrc="$6"
+primerRrc="$7"
+
+#echo $data
+#echo $gene1
+#echo $gene2
+#echo $primerF
+#echo $primerR
+#echo $primerFrc
+#echo $primerRrc
 
 for x in ${data}/raw/*_R1*; do
   sample=`basename ${x}`
   name=`echo ${sample%*_R[1-2]*}`
   namepost=`echo ${sample#*_R[1-2]*}`
+#echo $sample
+#echo $name
+#echo $namepost
 
 if
-  [[ -z $4 ]]
+  [[ -z ${primerFrc} ]]
 then
   cutadapt \
-  -g file:${primerF} \
-  -G file:${primerR} \
+  -g file:${data}/../primers/${primerF} \
+  -G file:${data}/../primers/${primerR} \
   -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed --report=minimal \
   -o ${data}/working/trimmed_reads/{name}/${name}_trimmed_R1.fastq.gz \
   -p ${data}/working/trimmed_reads/{name}/${name}_trimmed_R2.fastq.gz \
@@ -46,10 +55,10 @@ then
   ${data}/raw/${name}_R2${namepost}
 else
   cutadapt \
-  -g file:${primerF} \
-  -a file:${primerRrc} \
-  -G file:${primerR} \
-  -A file:${primerFrc} \
+  -g file:${data}/../primers/${primerF} \
+  -a file:${data}/../primers/${primerRrc} \
+  -G file:${data}/../primers/${primerR} \
+  -A file:${data}/../primers/${primerFrc} \
   -e 0.2 --minimum-length 30 --cores=$NSLOTS -n 2 -O 3 --discard-untrimmed --report=minimal \
   -o ${data}/working/trimmed_reads/{name}/${name}_trimmed_R1.fastq.gz \
   -p ${data}/working/trimmed_reads/{name}/${name}_trimmed_R2.fastq.gz \
