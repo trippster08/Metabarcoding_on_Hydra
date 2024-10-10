@@ -30,32 +30,157 @@ trimmed.gene2 <- paste0("../data/working/trimmed_reads/", gene2)
 # gene present in the Illumina run. Again, replace each "gene1", "gene2",
 # "gene3", etc with your specific gene name.
 
+## Remove Empty or Misidentified Reads =========================================
+
+# When cutadapt moves each read to it's primer-specific directory, it also
+# sometimes misidentifies reads and places them into the wrong directory, or it
+# creates files for the incorrect gene (e.g. creating a file for gene1 reads in
+# the gene2 directory) but does not put any reads into that file (so it ends up
+# being an empty file). Misidentified reads so far have proven to be low-quality
+# or problematic reads, and always get filtered out in subsequent steps, but I
+# still like to remove these reads from analyses, but keep them just in case.
+
+# Check to see how many wrong-gene occurances there are for gene1. Replace
+# "gene1" with your first gene name, and "gene2" with your second gene name
+# for all instances below and save the names of the samples
+# with these misidentifications. 
+mismatches.gene1 <- sort(
+  list.files(
+    paste0("../data/working/trimmed_reads/", gene1),
+    pattern = gene2,
+    full.names = TRUE
+  )
+)
+mismatches.gene1
+# Check to see how many items are in mismatches.gene1
+print(paste(
+  "Here are the number of reads from which the",
+  gene2,
+  "primer was removed from samples that were supposed to contain only",
+  gene1,
+  "amplicons",
+  sep = " "
+  )
+)
+length(mismatches.gene1)
+
+# Check the file size of these files to get an estimate of the number of reads
+# each micro-contaminate has. If file sizes are < 1kb, it contains less than
+# 20 reads (and file sizes below 50 are empty). If you have any files that are
+# signficantly larger, you may have contamination issues.
+print(paste(
+  "Here are the file sizes for trimmed reads from which the",
+  gene1,
+  "primer was removed from samples that were supposed to contain only",
+  gene2,
+  "amplicons",
+  sep = " "
+  )
+)
+file.size(mismatches.gene1)
+
+# Move all the misidentified/empty files into a newly created "misID_gene1"
+# directory. file.rename moves the files you want to move, and deletes them from
+# their original directory.
+file.rename(
+  from = mismatches.gene1,
+  to = paste0(
+    "../data/working/trimmed_reads/mismatches/",
+    basename(mismatches.gene1)
+  )
+)
+# Check to make sure the removal worked. You should get "character(0)".
+list.files(
+  paste0("../data/working/trimmed_reads/", gene1),
+  pattern = gene2,
+  full.names = TRUE
+)
+# Repeat this process with your second gene. Make sure to reverse the path to
+# your trimmed reads, and "pattern=" arguments
+
+mismatches.gene2 <- sort(
+  list.files(
+    paste0("../data/working/trimmed_reads/", gene2),
+    pattern = gene1,
+    full.names = TRUE
+  )
+)
+# Check to see how many items are in mismatches.gene1
+print(paste(
+  "Here are the number of trimmed reads from which the",
+  gene2,
+  "primer was removed from samples that were supposed to contain only",
+  gene1,
+  "amplicons",
+  sep = " "
+  )
+)
+length(mismatches.gene1)
+# Check the file size of these files to get an estimate of the number of reads
+# each micro-contaminate has. If file sizes are < 1kb, it contains less than
+# 20 reads (and file sizes below 50 are empty). If you have any files that are
+# signficantly larger, you may have contamination issues.
+print(paste(
+  "Here are the file sizes for trimmed reads from which the",
+  gene2,
+  "primer was removed from samples that were supposed to contain only",
+  gene1,
+  "amplicons",
+  sep = " "
+  )
+)
+file.size(mismatches.gene2)
+
+# Move all the misidentified/empty files into a newly created "misID_gene1"
+# directory. file.rename moves the files you want to move, and deletes them from
+# their original directory.
+file.rename(
+  mismatches.gene2,
+  to = paste0(
+    "../data/working/trimmed_reads/mismatches/",
+    basename(mismatches.gene2)
+  )
+)
+
+
+list.files(
+  paste0("../data/working/trimmed_reads/", gene2),
+  pattern = gene1,
+  full.names = TRUE
+)
+
+
+
 ## Gene1 =======================================================================
 # This creates two vectors. One contains the names for forward reads (R1, called
 # fnFs) and the other for reverse reads (R2, called fnRs).
 fnFs.gene1 <- sort(
   list.files(
     trimmed.gene1,
-    pattern = "_R1.fastq.gz",
+    pattern = "_R1.fastq",
     full.names = TRUE
   )
 )
+
 fnRs.gene1 <- sort(
   list.files(
     trimmed.gene1,
-    pattern = "_R2.fastq.gz",
+    pattern = "_R2.fastq",
     full.names = TRUE
   )
 )
-sample.names.gene1 <- sapply(strsplit(fnFs.gene1, "_"), `[`, 1)
 
+sample.names.gene1 <- sapply(strsplit(fnFs.gene1, "_trimmed"), `[`, 1)
+fnFs.gene1
+fnRs.gene1
+sample.names.gene1
 # Make sure you have the correct number of samples, and that they match the
 # number of sample names in the list you made previously.
 length(fnFs.gene1)
 length(fnRs.gene1)
 length(sample.names.gene1)
 nsamples.gene1 <- length(sample.names.gene1)
-
+nsamples.gene1
 # Make sure all sample files contain reads. Samples with size of 50 bytes or
 # below do not have any reads, and this will break the pipeline later if these
 # samples are not removed.
@@ -89,10 +214,10 @@ length(fnRs.gene1)
 file.size(fnFs.gene1)
 
 # Update your samples names
-sample.names.gene1 <- sapply(strsplit(basename(fnFs.gene1), "_"), `[`, 1)
+sample.names.gene1 <- sapply(strsplit(basename(fnFs.gene1), "_trimmed"), `[`, 1)
 nsamples.gene1 <- length(sample.names.gene1)
-head(sample.names.gene1)
-
+length(sample.names.gene1)
+nsamples.gene1
 ### Make Quality Plots ---------------------------------------------------------
 
 # This visualizes the quality plots. If you want to look at quality plots for
@@ -108,6 +233,7 @@ head(sample.names.gene1)
 # For these plots, the green line is the mean quality score at that position,
 # the orange lines are the quartiles (solid for median, dashed for 25% and 75%)
 # and the red line represents the proportion of reads existing at that position.
+
 qualplotF.gene1 <- plotQualityProfile(
   fnFs.gene1[1:nsamples.gene1],
   aggregate = TRUE
@@ -132,14 +258,26 @@ scale_x_continuous(
 ### Export Quality Plots -------------------------------------------------------
 
 ggsave(
-  paste0("../data/working/qualplotF_", gene1, ".pdf"),
+  paste0(
+    "../data/results/",
+    gene1,
+    "/qualplotF_",
+    gene1,
+    ".pdf"
+  ),
   plot = qualplotF.gene1,
   width = 9,
   height = 9
 )
 
 ggsave(
-  paste0("../data/working/qualplotR_", gene1, ".pdf"),
+  paste0(
+    "../data/results/",
+    gene1,
+    "/qualplotF_",
+    gene1,
+    ".pdf"
+  ),
   plot = qualplotR.gene1,
   width = 9,
   height = 9
@@ -151,18 +289,18 @@ ggsave(
 fnFs.gene2 <- sort(
   list.files(
     trimmed.gene2,
-    pattern = "_R1.fastq.gz",
+    pattern = "_R1.fastq",
     full.names = TRUE
   )
 )
 fnRs.gene2 <- sort(
   list.files(
     trimmed.gene2,
-    pattern = "_R2.fastq.gz",
+    pattern = "_R2.fastq",
     full.names = TRUE
   )
 )
-sample.names.gene2 <- sapply(strsplit(fnFs.gene2, "_"), `[`, 1)
+sample.names.gene2 <- sapply(strsplit(fnFs.gene2, "_trimmed"), `[`, 1)
 
 # Make sure you have the correct number of samples, and that they match the
 # number of sample names in the list you made previously.
@@ -204,7 +342,7 @@ length(fnRs.gene2)
 file.size(fnFs.gene2)
 
 # Update your samples names
-sample.names.gene2 <- sapply(strsplit(basename(fnFs.gene2), "_"), `[`, 1)
+sample.names.gene2 <- sapply(strsplit(basename(fnFs.gene2), "_trimmed"), `[`, 1)
 nsamples.gene2 <- length(sample.names.gene2)
 head(sample.names.gene2)
 
@@ -247,14 +385,26 @@ scale_x_continuous(
 ### Export Quality Plots -------------------------------------------------------
 
 ggsave(
-  paste0("../data/working/qualplotF_", gene2, ".pdf"),
+  paste0(
+    "../data/results/",
+    gene2,
+    "/qualplotF_",
+    gene2,
+    ".pdf"
+  ),
   plot = qualplotF.gene2,
   width = 9,
   height = 9
 )
 
 ggsave(
-  paste0("../data/working/qualplotR_", gene2, ".pdf"),
+  paste0(
+    "../data/results/",
+    gene2,
+    "/qualplotF_",
+    gene2,
+    ".pdf"
+  ),
   plot = qualplotR.gene2,
   width = 9,
   height = 9
