@@ -81,6 +81,8 @@ ${data}/working/filtered_reads/${gene1} \
 ${data}/working/trimmed_reads/${gene2} \
 ${data}/working/filtered_reads/${gene2} \
 ${data}/working/trimmed_reads/mismatches \
+${data}/results\${gene1} \
+${data}/results\${gene2}
 
 qsub -o logs/cutadapt.log \
   -N cutadapt \
