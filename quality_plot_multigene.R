@@ -24,7 +24,35 @@ numcores <- Sys.getenv("NSLOTS")
 gene1 <- args[1]
 gene2 <- args[2]
 trimmed.gene1 <- paste0("../data/working/trimmed_reads/", gene1)
+trimmed.gene1.R1 <- sort(
+  list.files(
+    trimmed.gene1,
+    pattern = "_R1.fastq",
+    full.names = TRUE
+  )
+)
+trimmed.gene1.R2 <- sort(
+  list.files(
+    trimmed.gene1,
+    pattern = "_R2.fastq",
+    full.names = TRUE
+  )
+)
 trimmed.gene2 <- paste0("../data/working/trimmed_reads/", gene2)
+trimmed.gene2.R1 <- sort(
+  list.files(
+    trimmed.gene2,
+    pattern = "_R1.fastq",
+    full.names = TRUE
+  )
+)
+trimmed.gene2.R2 <- sort(
+  list.files(
+    trimmed.gene2,
+    pattern = "_R2.fastq",
+    full.names = TRUE
+  )
+)
 
 # We will now run the rest of this section in multiple times, once for each
 # gene present in the Illumina run. Again, replace each "gene1", "gene2",
@@ -32,26 +60,62 @@ trimmed.gene2 <- paste0("../data/working/trimmed_reads/", gene2)
 
 ## Remove Empty or Misidentified Reads =========================================
 
-# When cutadapt moves each read to it's primer-specific directory, it also
-# sometimes misidentifies reads and places them into the wrong directory, or it
+# When cutadapt searches for primers, it removes any reads for which it cannot
+# find primers to remove. Some samples (especially blanks) often end up with no
+# reads left in the file, but cutadapt still creates a trimmed R1 and R2 file
+# for that sample. DADA2 chokes on empty files, so we need to remove these.
+
+# Also, when cutadapt moves each read to it's primer-specific directory, it
+# sometimes misidentifies reads and places them into the wrong directory, and it
 # creates files for the incorrect gene (e.g. creating a file for gene1 reads in
 # the gene2 directory) but does not put any reads into that file (so it ends up
 # being an empty file). Misidentified reads so far have proven to be low-quality
 # or problematic reads, and always get filtered out in subsequent steps, but I
 # still like to remove these reads from analyses, but keep them just in case.
 
+### Remove empty sample files --------------------------------------------------
+# Make sure all sample files contain reads. Samples with size of 50 bytes or
+# below do not have any reads, and this will break the pipeline later if these
+# samples are not removed.
+
+# If you have sample files with no reads, you must remove both the forward and
+# reverse reads, regardless if one has reads (although if one is empty,
+# the other should be as well).
+
+
+# This saves the gene1 R1 and R2 fastq sample files only if both the R1 and R2
+# sample files have reads.
+trimmed.noreads.gene1.R1 <- trimmed.gene1.R1[sapply(trimmed.gene1.R1, file.size) < 50]
+length(trimmed.noreads.gene1.R1)
+file.remove(trimmed.noreads.gene1.R1)
+
+trimmed.noreads.gene1.R2 <- trimmed.gene1.R2[sapply(trimmed.gene1.R2, file.size) < 50]
+length(trimmed.noreads.gene1.R2)
+file.remove(trimmed.noreads.gene1.R2)
+
+# This saves the gene2 R1 and R2 fastq sample files only if both the R1 and R2
+# sample files have reads.
+trimmed.noreads.gene2.R1 <- trimmed.gene2.R1[sapply(trimmed.gene2.R1, file.size) < 50]
+length(trimmed.noreads.gene2.R1)
+file.remove(trimmed.noreads.gene2.R1)
+trimmed.noreads.gene2.R2 <- trimmed.gene2.R2[sapply(trimmed.gene2.R2, file.size) < 50]
+length(trimmed.noreads.gene2.R2)
+file.remove(trimmed.noreads.gene2.R2)
+
+### Remove mistmatched reads----------------------------------------------------
 # Check to see how many wrong-gene occurances there are for gene1. Replace
 # "gene1" with your first gene name, and "gene2" with your second gene name
 # for all instances below and save the names of the samples
 # with these misidentifications. 
 mismatches.gene1 <- sort(
   list.files(
-    paste0("../data/working/trimmed_reads/", gene1),
+    trimmed.gene1,
     pattern = gene2,
     full.names = TRUE
   )
 )
-mismatches.gene1
+#mismatches.gene1
+
 # Check to see how many items are in mismatches.gene1
 print(paste(
   "Here are the number of reads from which the",
@@ -70,16 +134,16 @@ length(mismatches.gene1)
 # signficantly larger, you may have contamination issues.
 print(paste(
   "Here are the file sizes for trimmed reads from which the",
-  gene1,
-  "primer was removed from samples that were supposed to contain only",
   gene2,
+  "primer was removed from samples that were supposed to contain only",
+  gene1,
   "amplicons",
   sep = " "
   )
 )
 file.size(mismatches.gene1)
 
-# Move all the misidentified/empty files into a newly created "misID_gene1"
+# Move all the misidentified/empty files into a newly created "mismatches"
 # directory. file.rename moves the files you want to move, and deletes them from
 # their original directory.
 file.rename(
@@ -89,12 +153,7 @@ file.rename(
     basename(mismatches.gene1)
   )
 )
-# Check to make sure the removal worked. You should get "character(0)".
-list.files(
-  paste0("../data/working/trimmed_reads/", gene1),
-  pattern = gene2,
-  full.names = TRUE
-)
+
 # Repeat this process with your second gene. Make sure to reverse the path to
 # your trimmed reads, and "pattern=" arguments
 
@@ -108,23 +167,23 @@ mismatches.gene2 <- sort(
 # Check to see how many items are in mismatches.gene1
 print(paste(
   "Here are the number of trimmed reads from which the",
-  gene2,
-  "primer was removed from samples that were supposed to contain only",
   gene1,
+  "primer was removed from samples that were supposed to contain only",
+  gene2,
   "amplicons",
   sep = " "
   )
 )
-length(mismatches.gene1)
+length(mismatches.gene2)
 # Check the file size of these files to get an estimate of the number of reads
 # each micro-contaminate has. If file sizes are < 1kb, it contains less than
 # 20 reads (and file sizes below 50 are empty). If you have any files that are
 # signficantly larger, you may have contamination issues.
 print(paste(
   "Here are the file sizes for trimmed reads from which the",
-  gene2,
-  "primer was removed from samples that were supposed to contain only",
   gene1,
+  "primer was removed from samples that were supposed to contain only",
+  gene2,
   "amplicons",
   sep = " "
   )
@@ -141,15 +200,6 @@ file.rename(
     basename(mismatches.gene2)
   )
 )
-
-
-list.files(
-  paste0("../data/working/trimmed_reads/", gene2),
-  pattern = gene1,
-  full.names = TRUE
-)
-
-
 
 ## Gene1 =======================================================================
 # This creates two vectors. One contains the names for forward reads (R1, called
@@ -171,53 +221,24 @@ fnRs.gene1 <- sort(
 )
 
 sample.names.gene1 <- sapply(strsplit(fnFs.gene1, "_trimmed"), `[`, 1)
-fnFs.gene1
-fnRs.gene1
-sample.names.gene1
+#fnFs.gene1
+#fnRs.gene1
+#sample.names.gene1
 # Make sure you have the correct number of samples, and that they match the
 # number of sample names in the list you made previously.
-length(fnFs.gene1)
-length(fnRs.gene1)
-length(sample.names.gene1)
+#length(fnFs.gene1)
+#length(fnRs.gene1)
+#length(sample.names.gene1)
 nsamples.gene1 <- length(sample.names.gene1)
+print(paste(
+  "Here are the number of",
+  gene1,
+  "samples that will be analyzed with DADA2:",
+  sep = " "
+  )
+)
 nsamples.gene1
-# Make sure all sample files contain reads. Samples with size of 50 bytes or
-# below do not have any reads, and this will break the pipeline later if these
-# samples are not removed.
-file.size(fnFs.gene1)
 
-# If you have sample files with no reads, you must remove both the forward and
-# reverse reads, regardless if one has reads (although if one is empty,
-# the other should be as well).
-
-### Remove empty sample files --------------------------------------------------
-# This saves the R1 fastq for the sample file only if both the R1 and R2 sample
-# files have reads.
-fnFs.exists.gene1 <- fnFs.gene1[
-  file.size(fnFs.gene1) > 50 & file.size(fnRs.gene1) > 50
-]
-length(fnFs.exists.gene1)
-
-# This saves the R2 fastq for the sample file only if both the R1 and R2 sample
-# files have reads.
-fnRs.exists.gene1 <- fnRs.gene1[
-  file.size(fnFs.gene1) > 50 & file.size(fnRs.gene1) > 50
-]
-length(fnRs.exists.gene1)
-file.size(fnFs.exists.gene1)
-
-# Redefine fnFs and fnRs as only the existing read files, and check
-fnFs.gene1 <- fnFs.exists.gene1
-fnRs.gene1 <- fnRs.exists.gene1
-length(fnFs.gene1)
-length(fnRs.gene1)
-file.size(fnFs.gene1)
-
-# Update your samples names
-sample.names.gene1 <- sapply(strsplit(basename(fnFs.gene1), "_trimmed"), `[`, 1)
-nsamples.gene1 <- length(sample.names.gene1)
-length(sample.names.gene1)
-nsamples.gene1
 ### Make Quality Plots ---------------------------------------------------------
 
 # This visualizes the quality plots. If you want to look at quality plots for
@@ -274,7 +295,7 @@ ggsave(
   paste0(
     "../data/results/",
     gene1,
-    "/qualplotF_",
+    "/qualplotR_",
     gene1,
     ".pdf"
   ),
@@ -304,47 +325,20 @@ sample.names.gene2 <- sapply(strsplit(fnFs.gene2, "_trimmed"), `[`, 1)
 
 # Make sure you have the correct number of samples, and that they match the
 # number of sample names in the list you made previously.
-length(fnFs.gene2)
-length(fnRs.gene2)
-length(sample.names.gene2)
+#length(fnFs.gene2)
+#length(fnRs.gene2)
+#length(sample.names.gene2)
 nsamples.gene2 <- length(sample.names.gene2)
 
-# Make sure all sample files contain reads. Samples with size of 50 bytes or
-# below do not have any reads, and this will break the pipeline later if these
-# samples are not removed.
-file.size(fnFs.gene2)
+print(paste(
+  "Here are the number of",
+  gene1,
+  "samples that will be analyzed with DADA2:",
+  sep = " "
+  )
+)
+nsamples.gene2
 
-# If you have sample files with no reads, you must remove both the forward and
-# reverse reads, regardless if one has reads (although if one is empty,
-# the other should be as well).
-
-### Remove empty sample files --------------------------------------------------
-# This saves the R1 fastq for the sample file only if both the R1 and R2 sample
-# files have reads.
-fnFs.exists.gene2 <- fnFs.gene2[
-  file.size(fnFs.gene2) > 50 & file.size(fnRs.gene2) > 50
-]
-length(fnFs.exists.gene2)
-
-# This saves the R2 fastq for the sample file only if both the R1 and R2 sample
-# files have reads.
-fnRs.exists.gene2 <- fnRs.gene2[
-  file.size(fnFs.gene2) > 50 & file.size(fnRs.gene2) > 50
-]
-length(fnRs.exists.gene2)
-file.size(fnFs.exists.gene2)
-
-# Redefine fnFs and fnRs as only the existing read files, and check
-fnFs.gene2 <- fnFs.exists.gene2
-fnRs.gene2 <- fnRs.exists.gene2
-length(fnFs.gene2)
-length(fnRs.gene2)
-file.size(fnFs.gene2)
-
-# Update your samples names
-sample.names.gene2 <- sapply(strsplit(basename(fnFs.gene2), "_trimmed"), `[`, 1)
-nsamples.gene2 <- length(sample.names.gene2)
-head(sample.names.gene2)
 
 ### Make Quality Plots ---------------------------------------------------------
 
@@ -401,7 +395,7 @@ ggsave(
   paste0(
     "../data/results/",
     gene2,
-    "/qualplotF_",
+    "/qualplotR_",
     gene2,
     ".pdf"
   ),
