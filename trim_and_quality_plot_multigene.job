@@ -1,13 +1,13 @@
 # /bin/sh
 # ----------------Parameters---------------------- #
 #$ -S /bin/sh
-#$ -pe mthread 8
+#$ -pe mthread 4
 #$ -q sThC.q
-#$ -l mres=8G,h_data=1G,h_vmem=1G
+#$ -l mres=8G,h_data=2G,h_vmem=2G
 #$ -cwd
 #$ -j y
-#$ -N project
-#$ -o project.log
+#$ -N trimmed
+#$ -o trimmed.log
 #
 # ----------------Modules------------------------- #
 module load bioinformatics/cutadapt/4.7
