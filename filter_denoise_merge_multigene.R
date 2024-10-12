@@ -48,50 +48,7 @@ print(paste(
   )
 )
 head(sample.names)
-# Make sure all sample files contain reads. Samples with size of 50 bytes or
-# below do not have any reads, and this will break the pipeline later if these
-# samples are not removed.
-print(paste(
-  "Here are the sizes of the first several trimmed",
-  gene,
-  "R1 files:",
-  sep = " "
-  )
-)
-head(file.size(fnFs))
 
-# If you have sample files with no reads, you must remove both the forward and
-# reverse reads, regardless if one has reads (although if one is empty,
-# the other should be as well).
-
-### Remove empty sample files --------------------------------------------------
-# This saves the R1 fastq for the sample file only if both the R1 and R2 sample
-# files have reads.
-fnFs.exists <- fnFs[file.size(fnFs) > 50 & file.size(fnRs) > 50]
-
-
-# This saves the R2 fastq for the sample file only if both the R1 and R2 sample
-# files have reads.
-fnRs.exists <- fnRs[file.size(fnFs) > 50 & file.size(fnRs) > 50]
-
-empty.reads <- length(fnFs) - length(fnFs.exists)
-
-print(paste(
-  "Here are the number of",
-  gene,
-  "read file pairs that were empty after cutadapt filtering:",
-  sep = " "
-  )
-)
-empty.reads
-# Redefine fnFs and fnRs as only the existing read files, and check
-fnFs <- fnFs.exists
-fnRs <- fnRs.exists
-#file.size(fnFs)
-#fnFs
-#fnRs
-# Update your samples names
-sample.names <- sapply(strsplit(basename(fnFs), "_trimmed"), `[`, 1)
 
 # This creates files for the reads that will be quality filtered with dada2
 # in the next step.
@@ -155,7 +112,7 @@ out <- filterAndTrim(
   rm.phix = TRUE,
   truncQ = 2,
   compress = TRUE,
-  multithread = numcores
+  multithread = TRUE
 )
 
 # Usually we don't have that many samples, so I just look at "out" in its
@@ -190,7 +147,16 @@ write.table(
 # samples with reads (i.e. the description for filtFs and filtRs goes from
 # "Named chr [1:N]" to "Named chr [1:N-(# of empty samples)]).
 exists <- file.exists(filtFs) & file.exists(filtRs)
-length(exists)
+
+print(paste(
+  "Here are the number of",
+  gene,
+  "samples that were removed because they no longer contain reads after filtering",
+  sep = " "
+  )
+)
+length(filtFs) - length(filtFs[exists])
+
 filtFs <- filtFs[exists]
 filtRs <- filtRs[exists]
 
@@ -204,7 +170,7 @@ errF <- learnErrors(
   filtFs,
   nbases = 1e+08,
   errorEstimationFunction = loessErrfun,
-  multithread = numcores,
+  multithread = TRUE,
   randomize = FALSE,
   MAX_CONSIST = 10,
   OMEGA_C = 0,
@@ -216,7 +182,7 @@ errR <- learnErrors(
   filtRs,
   nbases = 1e+08,
   errorEstimationFunction = loessErrfun,
-  multithread = numcores,
+  multithread = TRUE,
   randomize = FALSE,
   MAX_CONSIST = 10,
   OMEGA_C = 0,
@@ -272,7 +238,7 @@ dadaFs <- dada(
   errorEstimationFunction = loessErrfun,
   selfConsist = FALSE,
   pool = FALSE,
-  multithread = numcores,
+  multithread = TRUE,
   verbose = TRUE
 )
 
@@ -282,7 +248,7 @@ dadaRs <- dada(
   errorEstimationFunction = loessErrfun,
   selfConsist = FALSE,
   pool = FALSE,
-  multithread = numcores,
+  multithread = TRUE,
   verbose = TRUE
 )
 
