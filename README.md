@@ -39,10 +39,10 @@ mkdir -p PROJECT/data/raw PROJECT/jobs
 
 ```
 ### Transfer Files to Hydra 
-Transfer the pipeline to `jobs/` in your Hydra account. This downloads a compressed file that contains all job files (`*.job`), shell scripts (`*.sh`), R scripts (`*.R`), and primer definition files (`*.fas`) necessary for your analysis. This command downloads a compressed file that will become a directory upon unzipping.
+Transfer the pipeline to `jobs/` in your Hydra account. This downloads a compressed file that contains all job files (`*.job`), shell scripts (`*.sh`), R scripts (`*.R`), and primer definition files (`*.fas`) necessary for your analysis. This command downloads a compressed file that will become a directory upon unzipping. Don't forget to move into your jobs folder first.
 
 ```
-cd jobs
+cd PROJECT/jobs
 wget https://github.com/trippster08/Metabarcoding_on_Hydra/archive/refs/heads/main.zip
 ```
 Unzip the pipeline, and move all the shell, .job, and .R files from your newly unzipped directory into the job directory and the primer folder into the main project directory. Delete the now-empty pipeline directory.
