@@ -5,7 +5,7 @@ primer="$2"
 data=${raw}/../
 COI=("COI" "coi" "CO1" "co1" "cox1" "COX1")
 12S=("12S" "MiFish" "mifish" "Mifish" "12S_mifish" "12S_MiFish" "12s")
-18S=("18S" "l8s")
+18S=("18S" "l8s", "V4", "v4")
 
 if
   [[ -z "$(ls ${raw}/*.fastq.gz 2>/dev/null | grep fastq.gz)" ]]  
