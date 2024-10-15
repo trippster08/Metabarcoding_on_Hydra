@@ -71,6 +71,7 @@ ${data}/working/trimmed_reads/${gene1}/${name}_trimmed_R1.fastq \
 ${data}/working/trimmed_reads/${gene1}/${name}_trimmed_R2.fastq \
 ${data}/working/trimmed_reads/${gene2}/${name}_trimmed_R1.fastq \
 ${data}/working/trimmed_reads/${gene2}/${name}_trimmed_R2.fastq
+
 done
 
 Rscript quality_plot_multigene.R ${gene1} ${gene2}
