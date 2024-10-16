@@ -11,8 +11,8 @@ echo ${trimmed2}
 
 
 if
-  [[ -z "$(ls ${trimmed1}/*.fastq 2>/dev/null | grep fastq)" ]] || \
-  [[ -z "$(ls ${trimmed2}/*.fastq 2>/dev/null | grep fastq)" ]]  
+  [[ -z "$(ls ${trimmed1}/*.fastq.gz 2>/dev/null | grep fastq)" ]] || \
+  [[ -z "$(ls ${trimmed2}/*.fastq.gz 2>/dev/null | grep fastq)" ]]  
 then  
   echo "Correct path to at least one of the directories holding your trimmed read files not entered"
   exit
