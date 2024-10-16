@@ -74,7 +74,7 @@ trimmed.gene2.R2 <- sort(
 # still like to remove these reads from analyses, but keep them just in case.
 
 ### Remove empty sample files --------------------------------------------------
-# Make sure all sample files contain reads. Samples with size of 50 bytes or
+# Make sure all sample files contain reads. Samples with size of 100 bytes or
 # below do not have any reads, and this will break the pipeline later if these
 # samples are not removed.
 
@@ -85,20 +85,20 @@ trimmed.gene2.R2 <- sort(
 
 # This saves the gene1 R1 and R2 fastq sample files only if both the R1 and R2
 # sample files have reads.
-trimmed.noreads.gene1.R1 <- trimmed.gene1.R1[sapply(trimmed.gene1.R1, file.size) < 50]
+trimmed.noreads.gene1.R1 <- trimmed.gene1.R1[sapply(trimmed.gene1.R1, file.size) < 100]
 length(trimmed.noreads.gene1.R1)
 file.remove(trimmed.noreads.gene1.R1)
 
-trimmed.noreads.gene1.R2 <- trimmed.gene1.R2[sapply(trimmed.gene1.R2, file.size) < 50]
+trimmed.noreads.gene1.R2 <- trimmed.gene1.R2[sapply(trimmed.gene1.R2, file.size) < 100]
 length(trimmed.noreads.gene1.R2)
 file.remove(trimmed.noreads.gene1.R2)
 
 # This saves the gene2 R1 and R2 fastq sample files only if both the R1 and R2
 # sample files have reads.
-trimmed.noreads.gene2.R1 <- trimmed.gene2.R1[sapply(trimmed.gene2.R1, file.size) < 50]
+trimmed.noreads.gene2.R1 <- trimmed.gene2.R1[sapply(trimmed.gene2.R1, file.size) < 100]
 length(trimmed.noreads.gene2.R1)
 file.remove(trimmed.noreads.gene2.R1)
-trimmed.noreads.gene2.R2 <- trimmed.gene2.R2[sapply(trimmed.gene2.R2, file.size) < 50]
+trimmed.noreads.gene2.R2 <- trimmed.gene2.R2[sapply(trimmed.gene2.R2, file.size) < 100]
 length(trimmed.noreads.gene2.R2)
 file.remove(trimmed.noreads.gene2.R2)
 
@@ -106,7 +106,7 @@ file.remove(trimmed.noreads.gene2.R2)
 # Check to see how many wrong-gene occurances there are for gene1. Replace
 # "gene1" with your first gene name, and "gene2" with your second gene name
 # for all instances below and save the names of the samples
-# with these misidentifications. 
+# with these misidentifications.
 mismatches.gene1 <- sort(
   list.files(
     trimmed.gene1,
@@ -130,7 +130,7 @@ length(mismatches.gene1)
 
 # Check the file size of these files to get an estimate of the number of reads
 # each micro-contaminate has. If file sizes are < 1kb, it contains less than
-# 20 reads (and file sizes below 50 are empty). If you have any files that are
+# 20 reads (and file sizes below 100 are empty). If you have any files that are
 # signficantly larger, you may have contamination issues.
 print(paste(
   "Here are the file sizes for trimmed reads from which the",
@@ -177,7 +177,7 @@ print(paste(
 length(mismatches.gene2)
 # Check the file size of these files to get an estimate of the number of reads
 # each micro-contaminate has. If file sizes are < 1kb, it contains less than
-# 20 reads (and file sizes below 50 are empty). If you have any files that are
+# 20 reads (and file sizes below 100 are empty). If you have any files that are
 # signficantly larger, you may have contamination issues.
 print(paste(
   "Here are the file sizes for trimmed reads from which the",
