@@ -86,22 +86,33 @@ trimmed.gene2.R2 <- sort(
 # This saves the gene1 R1 and R2 fastq sample files only if both the R1 and R2
 # sample files have reads.
 trimmed.noreads.gene1.R1 <- trimmed.gene1.R1[sapply(trimmed.gene1.R1, file.size) < 100]
-length(trimmed.noreads.gene1.R1)
 file.remove(trimmed.noreads.gene1.R1)
-
 trimmed.noreads.gene1.R2 <- trimmed.gene1.R2[sapply(trimmed.gene1.R2, file.size) < 100]
-length(trimmed.noreads.gene1.R2)
 file.remove(trimmed.noreads.gene1.R2)
 
+print(paste(
+  "Here are the samples files for",
+  gene1,
+  "which contain no reads after primer trimming",
+  sep = " "
+  )
+)
+trimmed.noreads.gene1.R1
 # This saves the gene2 R1 and R2 fastq sample files only if both the R1 and R2
 # sample files have reads.
 trimmed.noreads.gene2.R1 <- trimmed.gene2.R1[sapply(trimmed.gene2.R1, file.size) < 100]
-length(trimmed.noreads.gene2.R1)
 file.remove(trimmed.noreads.gene2.R1)
 trimmed.noreads.gene2.R2 <- trimmed.gene2.R2[sapply(trimmed.gene2.R2, file.size) < 100]
-length(trimmed.noreads.gene2.R2)
 file.remove(trimmed.noreads.gene2.R2)
 
+aprint(paste(
+  "Here are the samples files for",
+  gene2,
+  "which contain no reads after primer trimming",
+  sep = " "
+  )
+)
+trimmed.noreads.gene2.R1
 ### Remove mistmatched reads----------------------------------------------------
 # Check to see how many wrong-gene occurances there are for gene1. Replace
 # "gene1" with your first gene name, and "gene2" with your second gene name
@@ -237,7 +248,7 @@ print(paste(
   sep = " "
   )
 )
-nsamples.gene1
+#nsamples.gene1
 
 ### Make Quality Plots ---------------------------------------------------------
 
