@@ -331,7 +331,7 @@ write.table(
   file=paste0(
     "../data/results/",
     gene,
-    "/track_reads",
+    "/track_reads_",
     gene,
     ".tsv"
   ),
@@ -349,10 +349,10 @@ seq.length.table <- table(nchar(getSequences(seqtab.nochim)))
 # Export this table as a .tsv
 write.table(
   seq.length.table,
-  file=paste0(
+  file = paste0(
     "../data/results/",
     gene,
-    "/ASV_lengths_table",
+    "/ASV_lengths_table_",
     gene,
     ".tsv"
   ),
@@ -407,7 +407,7 @@ write.table(
   file = paste0(
     "../data/results/",
     gene,
-    "/feature-table_md5",
+    "/feature-table_md5_",
     gene,
     ".tsv"
   ),
@@ -431,7 +431,7 @@ write.fasta(
   file.out = paste0(
     "../data/results/",
     gene,
-    "/rep-seq",
+    "/rep-seq_",
     gene,
     ".fas"
   )
@@ -444,7 +444,7 @@ write.table(
   file = paste0(
     "../data/results/",
     gene,
-    "/representative_sequence_table_md5",
+    "/representative_sequence_table_md5_",
     gene,
     ".tsv"
   ),
