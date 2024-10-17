@@ -100,7 +100,7 @@ out <- filterAndTrim(
 out
 write.table(
   out,
-  file="../data/working/filtered_reads.tsv",
+  file = "../data/working/filtered_reads.tsv",
   quote = FALSE,
   sep = "\t",
   row.names = TRUE,
@@ -281,7 +281,7 @@ rownames(track) <- sample.names
 # Export this table as a .tsv
 write.table(
   track,
-  file="../data/working/track_reads.tsv",
+  file = "../data/working/track_reads.tsv",
   quote = FALSE,
   sep = "\t",
   row.names = TRUE,
