@@ -95,7 +95,7 @@ print(paste(
   gene1,
   "which contain no reads after primer trimming",
   sep = " "
-  )
+)
 )
 trimmed.noreads.gene1.R1
 # This saves the gene2 R1 and R2 fastq sample files only if both the R1 and R2
@@ -110,7 +110,7 @@ aprint(paste(
   gene2,
   "which contain no reads after primer trimming",
   sep = " "
-  )
+)
 )
 trimmed.noreads.gene2.R1
 ### Remove mistmatched reads----------------------------------------------------
@@ -135,7 +135,7 @@ print(paste(
   gene1,
   "amplicons",
   sep = " "
-  )
+)
 )
 length(mismatches.gene1)
 
@@ -150,7 +150,7 @@ print(paste(
   gene1,
   "amplicons",
   sep = " "
-  )
+)
 )
 file.size(mismatches.gene1)
 
@@ -183,7 +183,7 @@ print(paste(
   gene2,
   "amplicons",
   sep = " "
-  )
+)
 )
 length(mismatches.gene2)
 # Check the file size of these files to get an estimate of the number of reads
@@ -197,7 +197,7 @@ print(paste(
   gene2,
   "amplicons",
   sep = " "
-  )
+)
 )
 file.size(mismatches.gene2)
 
@@ -246,9 +246,9 @@ print(paste(
   gene1,
   "samples that will be analyzed with DADA2:",
   sep = " "
-  )
 )
-#nsamples.gene1
+)
+nsamples.gene1
 
 ### Make Quality Plots ---------------------------------------------------------
 
@@ -349,7 +349,6 @@ print(paste(
   )
 )
 nsamples.gene2
-
 
 ### Make Quality Plots ---------------------------------------------------------
 
