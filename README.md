@@ -52,15 +52,13 @@ mv primers ..
 rm -r Metabarcoding_on_Hydra-main
 ```
 
-Your raw reads should be copied into `data/raw/`. We are working on a way to load raw read files directly from their dropbox folder into our Hydra `data/raw/` directory. In the meantime, download to your local computer and use scp or filezilla to upload to `data/raw/`. See https://confluence.si.edu/pages/viewpage.action?pageId=163152227 for help with transferring files between Hydra and your computer. 
+Your raw reads should be copied into `data/raw/`. We are working on a way to load raw read files directly from their dropbox folder into our Hydra `data/raw/` directory. In the meantime, download to your local computer and use scp or filezilla to upload to `data/raw/`. See [Transferring Files to/from Hydra](https://confluence.si.edu/pages/viewpage.action?pageId=163152227) for help with transferring files between Hydra and your computer. 
 
 ## Running the Pipeline
 This pipeline runs as two shell scripts, each of which submits a job to Hydra. The first shell script submits a job to trim primer regions off all reads, and demultiplex reads by primer pair if mixed samples are run on one machine, using Cutadapt. This first job also creates quality plots for trimmed reads using DADA2 in R.  After examining the quality plots, you chose truncation values for the DADA2 filtering step and run the second shell script. This script submits a job that runs DADA2 in R, using your chosen truncation values to filter trimmed reads, then denoises, merges, and removes chimeras before outputing a feature-table and representative-sequence fasta.
 ### Preparing R
-The first time you run this pipeline, you may need to install libraries that may be needed: (`DADA2`, `tidyverse`, `seqinr`, `ape`,  `filesstrings`, and `digest`). This shell script will load the current version of R and install these libraries. You will only need to do this once. 
-```
-sh Rprep.sh
-```
+The first time you run this pipeline, you may need to install libraries that may be needed: (`DADA2`, `tidyverse`, `seqinr`, `ape`,  `filesstrings`, and `digest`). Currently, you have to do this manually, please see [Installing R libraries on Hydra](https://github.com/trippster08/Metabarcoding_on_Hydra/blob/main/Rprep.md) for directions on how to install these libraries.
+
 ### Trim Primers and Create Quality Plots
 This pipeline uses Cutadapt to remove primers from reads, remove poly-G tails if necessary, and remove short reads. The following shell script submits a job to run Cutadapt for all samples in a run on Hydra. Run this script, followed by the path to the raw reads and the gene region used. As an example, `sh trim_and_quality_plot.sh /scratch/genomics/USER/PROJECT/data/raw COI` will search for and remove "mlCOIintF/jgCOIR" from each pair of reads.
 
