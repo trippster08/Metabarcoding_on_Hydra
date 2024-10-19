@@ -7,7 +7,7 @@ Next we need to
 ```
 R
 ```
-Install BiocManager. If this is the first R library you have install, you will get an error message saying that you don't have permission, and asking if you want to install it in your personal space. Respond with `yes`. It will then
+Install BiocManager. If this is the first R library you have install, you will get an error message saying that you don't have permission, and asking if you want to install it in your personal library. Respond with `yes`.
 ```
 if (!requireNamespace("BiocManager", quietly = TRUE)){
   install.packages("BiocManager")
