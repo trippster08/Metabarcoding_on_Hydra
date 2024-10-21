@@ -13,12 +13,12 @@ if (!requireNamespace("BiocManager", quietly = TRUE)){
   install.packages("BiocManager")
 }
 ```
-Install Dada2. You may get an error telling you to install a different version of Dada2. Change "3.19" to whatever version it tells you.
+Install DADA2. You may get an error telling you to install a different version. Change "3.19" to whatever version it tells you.
 ```
 BiocManager::install("dada2", version = "3.19")
 ```
 
-Install the rest of the libraries. You will be asked for a mirror for some of the libraries. Pick whichever you prefer, I dont think it matters.
+Install the rest of the libraries. You will be asked to choose a mirror for some of the libraries. Pick whichever you prefer, I dont think it matters.
 ```
 install.packages("digest")
 install.packages("tidyverse")
