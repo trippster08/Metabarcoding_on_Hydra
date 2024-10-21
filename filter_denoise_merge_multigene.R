@@ -41,7 +41,7 @@ fnRs <- sort(
 # Create a list of sample names
 sample.names <- sapply(strsplit(basename(fnFs), "_trimmed"), `[`, 1)
 print(paste(
-  "Here are the sample names of the first 10 trimmed",
+  "Here are the sample names of the first 6 trimmed",
   gene,
   "R1 files:",
   sep = " "
