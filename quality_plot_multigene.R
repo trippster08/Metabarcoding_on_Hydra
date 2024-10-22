@@ -105,7 +105,7 @@ file.remove(trimmed.noreads.gene2.R1)
 trimmed.noreads.gene2.R2 <- trimmed.gene2.R2[sapply(trimmed.gene2.R2, file.size) < 100]
 file.remove(trimmed.noreads.gene2.R2)
 
-aprint(paste(
+print(paste(
   "Here are the samples files for",
   gene2,
   "which contain no reads after primer trimming",
