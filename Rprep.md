@@ -2,7 +2,7 @@ The first time you run this pipeline on Hydra, you need to install several R lib
 ```
 module load tools/R/4.4.1
 ```
-Next we need to 
+Next we need to start R. To do that, you just type "R".  
 
 ```
 R
@@ -24,4 +24,16 @@ install.packages("digest")
 install.packages("tidyverse")
 install.packages("seqinr")
 install.packages("ape")
+```
+After all packages have been restored, load them just to make sure they work.
+```
+library(dada2)
+library(tidyverse)
+library(digest)
+library(seqinr)
+library(ape)
+```
+If all libraries load appropriately, quit R and continue with pipeline.
+```
+q()
 ```
