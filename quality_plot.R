@@ -18,9 +18,10 @@ library(seqinr)
 # substitute your own path for the one below.
 
 # Set a path to the directory with the cutadapt-trimmed reads.
+args <- commandArgs(trailingOnly = TRUE)
 trimmed <- "../data/working/trimmed_reads"
-data <- Sys.getenv("data")
-numcores <- Sys.getenv("NSLOTS")
+data <- "../data/"
+
 
 # This creates two vectors. One contains the names for forward reads (R1, called
 # fnFs) and the other for reverse reads (R2, called fnRs).
@@ -109,7 +110,7 @@ scale_x_continuous(
   breaks = seq(100, 300, 10)
 )
 ggsave(
-  "../data/working/qualplotF.pdf",
+  "../data/results/qualplotF.pdf",
   plot = qualplotF,
   width = 9,
   height = 9
@@ -126,7 +127,7 @@ scale_x_continuous(
   breaks = seq(100, 300, 10)
 )
 ggsave(
-  "../data/working/qualplotR.pdf",
+  "../data/results/qualplotR.pdf",
   plot = qualplotR,
   width = 9,
   height = 9
