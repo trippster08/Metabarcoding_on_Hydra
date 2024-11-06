@@ -4,26 +4,19 @@ truncF="$2"
 truncR="$3"
 
 if
-  [[ -z "$(ls ${trimmed}/*.fastq.gz 2>/dev/null | grep fastq.gz)" ]]  
+  [[ -z "$(ls ${trimmed}/*.fastq.gz 2>/dev/null | grep fastq)" ]]  
 then  
   echo "Correct path to trimmed read files not entered (*.fastq.gz)"
   exit
 fi
 
 if
-  [[ -z $2 ]]
+  [[ ! ${truncF} =~ ^[0-9]+$ ]] || \
+    [[ ! ${truncR} =~ ^[0-9]+$ ]]
 then
-  echo "Length to truncate forward reads not entered (should be a number > 1)"
+  echo "At least one of the lengths-to-truncate values for (values should be a number > 1). Please enter '<path_to_trimmed_reads> <R1_truncation_value> <R2_truncation_value>" 
   exit
 fi
-if
-  [[ -z $3 ]]
-then
-  echo "Length to truncate reverse reads not entered (should be a number > 1)"
-  exit
-fi
-
-mkdir ${trimmed}/../../results
 
 qsub -o logs/denoise.log \
   -N denoise \
