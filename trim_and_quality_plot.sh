@@ -1,21 +1,20 @@
 # /bin/sh
 
 raw="$1"
-primer="$2"
+gene="$2"
 data=${raw}/../
-COI=("COI" "coi" "CO1" "co1" "cox1" "COX1")
-12S=("12S" "MiFish" "mifish" "Mifish" "12S_mifish" "12S_MiFish" "12s")
-18S=("18S" "l8s", "V4", "v4")
+COI=(COI coi CO1 co1 cox1 COX1)
+MiFish=(12S MiFish mifish Mifish 12S_mifish 12S_MiFish 12s)
+V4=(18S l8s V4 v4)
 
 if
-  [[ -z "$(ls ${raw}/*.fastq.gz 2>/dev/null | grep fastq.gz)" ]]  
-then  
+  [[ -z "$(ls ${raw}/*.fastq.gz 2>/dev/null | grep fastq.gz)" ]]; then  
   echo "Correct path to raw read files not entered (*.fastq.gz)"
   exit
 fi
 
 if
-  [[ -z $2 ]]
+  [[ -z ${gene} ]]
 then
   echo "Primer set not given (Please enter "COI", "COX1", "CO1", "12S", "MiFish", or "18S" after path to raw reads)"
   exit
