@@ -21,7 +21,31 @@ library(seqinr)
 args <- commandArgs(trailingOnly = TRUE)
 trimmed <- "../data/working/trimmed_reads"
 data <- "../data/"
+trimmed.R1 <- sort(
+  list.files(
+    trimmed,
+    pattern = "_R1.fastq.gz",
+    full.names = TRUE
+  )
+)
+trimmed.R2 <- sort(
+  list.files(
+    trimmed,
+    pattern = "_R2.fastq.gz",
+    full.names = TRUE
+  )
+)
 
+### Remove empty sample files --------------------------------------------------
+# This saves the R1 fastq for the sample file only if both the R1 and R2 sample
+# files have reads.
+trimmed.noreads.R1 <- trimmed.R1[sapply(trimmed.R1, file.size) < 100]
+file.remove(trimmed.noreads.R1)
+trimmed.noreads.R2 <- trimmed.R2[sapply(trimmed.R2, file.size) < 100]
+file.remove(trimmed.noreads.R2)
+
+print("Here are the samples files for which contain no reads after primer trimming")
+trimmed.noreads.R1
 
 # This creates two vectors. One contains the names for forward reads (R1, called
 # fnFs) and the other for reverse reads (R2, called fnRs).
@@ -39,51 +63,10 @@ fnRs <- sort(
     full.names = TRUE
   )
 )
-sample.names <- sapply(strsplit(fnFs, "_"), `[`, 1)
 
-# Make sure you have the correct number of samples, and that they match the
-# number of sample names in the list you made previously.
-length(fnFs)
-length(fnRs)
-length(sample.names)
+# Make your samples names
+sample.names <- sapply(strsplit(fnFs, "_trimmed"), `[`, 1)
 nsamples <- length(sample.names)
-
-# Make sure all sample files contain reads. Samples with size of 50 bytes or
-# below do not have any reads, and this will break the pipeline later if these
-# samples are not removed.
-file.size(fnFs)
-
-# If you have sample files with no reads, you must remove both the forward and
-# reverse reads, regardless if one has reads (although if one is empty,
-# the other should be as well).
-
-### Remove empty sample files --------------------------------------------------
-# This saves the R1 fastq for the sample file only if both the R1 and R2 sample
-# files have reads.
-fnFs.exists <- fnFs[
-  file.size(fnFs) > 50 & file.size(fnRs) > 50
-]
-length(fnFs.exists)
-
-# This saves the R2 fastq for the sample file only if both the R1 and R2 sample
-# files have reads.
-fnRs.exists <- fnRs[
-  file.size(fnFs) > 50 & file.size(fnRs) > 50
-]
-length(fnRs.exists)
-file.size(fnFs.exists)
-
-# Redefine fnFs and fnRs as only the existing read files, and check
-fnFs <- fnFs.exists
-fnRs <- fnRs.exists
-length(fnFs)
-length(fnRs)
-file.size(fnFs)
-
-# Update your samples names
-sample.names <- sapply(strsplit(basename(fnFs), "_"), `[`, 1)
-nsamples <- length(sample.names)
-head(sample.names)
 
 ## Make Quality Plots ----------------------------------------------------------
 
