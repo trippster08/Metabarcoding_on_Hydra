@@ -19,13 +19,8 @@ fnRs <- sort(list.files(trimmed, pattern = "_R2.fastq.gz", full.names = TRUE))
 
 # Create a list of sample names
 sample.names <- sapply(strsplit(basename(fnFs), "_trimmed"), `[`, 1)
-print(paste(
-  "Here are the sample names of the first 6 trimmed",
-  gene,
-  "R1 files:",
-  sep = " "
-  )
-)
+print("Here are the sample names of the first 6 trimmed R1 files:")
+
 head(sample.names)
 
 # If you have sample files with no reads, you must remove both the forward and
@@ -35,12 +30,12 @@ head(sample.names)
 ### Remove empty sample files --------------------------------------------------
 # This saves the R1 fastq for the sample file only if both the R1 and R2 sample
 # files have reads.
-fnFs.exists <- fnFs[file.size(fnFs) > 100 & file.size(fnRs) > 50]
+fnFs.exists <- fnFs[file.size(fnFs) > 100 & file.size(fnRs) > 100]
 
 
 # This saves the R2 fastq for the sample file only if both the R1 and R2 sample
 # files have reads.
-fnRs.exists <- fnRs[file.size(fnFs) > 100 & file.size(fnRs) > 50]
+fnRs.exists <- fnRs[file.size(fnFs) > 100 & file.size(fnRs) > 100]
 
 
 # Redefine fnFs and fnRs as only the existing read files, and check
