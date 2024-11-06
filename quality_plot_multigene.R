@@ -20,7 +20,6 @@ library(seqinr)
 # Set a path to the directory with the cutadapt-trimmed reads.
 
 args <- commandArgs(trailingOnly = TRUE)
-numcores <- Sys.getenv("NSLOTS")
 gene1 <- args[1]
 gene2 <- args[2]
 trimmed.gene1 <- paste0("../data/working/trimmed_reads/", gene1)
