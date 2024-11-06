@@ -104,7 +104,8 @@ out <- filterAndTrim(
   rm.phix = TRUE,
   truncQ = 2,
   compress = TRUE,
-  multithread = TRUE
+  multithread = TRUE,
+  verbose = TRUE
 )
 
 # Usually we don't have that many samples, so I just look at "out" in its
