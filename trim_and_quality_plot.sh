@@ -44,7 +44,7 @@ else
   fi    
 fi
 
-mkdir -p ${data}/working/trimmed_reads
+mkdir -p ${data}/working/trimmed_reads ${data}/results
 
 
 qsub -o logs/cutadapt.log \
