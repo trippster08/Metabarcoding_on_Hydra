@@ -26,14 +26,14 @@ trimmed.gene1 <- paste0("../data/working/trimmed_reads/", gene1)
 trimmed.gene1.R1 <- sort(
   list.files(
     trimmed.gene1,
-    pattern = "_R1.fastq",
+    pattern = "_R1.fastq.gz",
     full.names = TRUE
   )
 )
 trimmed.gene1.R2 <- sort(
   list.files(
     trimmed.gene1,
-    pattern = "_R2.fastq",
+    pattern = "_R2.fastq.gz",
     full.names = TRUE
   )
 )
@@ -41,14 +41,14 @@ trimmed.gene2 <- paste0("../data/working/trimmed_reads/", gene2)
 trimmed.gene2.R1 <- sort(
   list.files(
     trimmed.gene2,
-    pattern = "_R1.fastq",
+    pattern = "_R1.fastq.gz",
     full.names = TRUE
   )
 )
 trimmed.gene2.R2 <- sort(
   list.files(
     trimmed.gene2,
-    pattern = "_R2.fastq",
+    pattern = "_R2.fastq.gz",
     full.names = TRUE
   )
 )
