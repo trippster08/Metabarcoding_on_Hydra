@@ -113,7 +113,7 @@ out <- filterAndTrim(
 out
 write.table(
   out,
-  file = "../data/working/filtered_reads.tsv",
+  file = "../data/results/filtered_reads.tsv",
   quote = FALSE,
   sep = "\t",
   row.names = TRUE,
@@ -134,7 +134,9 @@ write.table(
 # samples with reads (i.e. the description for filtFs and filtRs goes from
 # "Named chr [1:N]" to "Named chr [1:N-(# of empty samples)]).
 exists <- file.exists(filtFs) & file.exists(filtRs)
-length(exists)
+print("Here are the number of samples that were removed because they no longer contain reads after filtering")
+length(filtFs) - length(filtFs[exists])
+
 filtFs <- filtFs[exists]
 filtRs <- filtRs[exists]
 
@@ -180,13 +182,13 @@ error.plots.F <- plotErrors(errF, nominalQ = TRUE)
 error.plots.R <- plotErrors(errR, nominalQ = TRUE)
 
 ggsave(
-  "../data/working/errorplotsF.pdf",
+  "../data/results/errorplotsF.pdf",
   plot = error.plots.F,
   width = 9,
   height = 9
 )
 ggsave(
-  "../data/working/errorplotsR.pdf",
+  "../data/results/errorplotsR.pdf",
   plot = error.plots.R,
   width = 9,
   height = 9
@@ -294,7 +296,7 @@ rownames(track) <- sample.names
 # Export this table as a .tsv
 write.table(
   track,
-  file = "../data/working/track_reads.tsv",
+  file = "../data/results/track_reads.tsv",
   quote = FALSE,
   sep = "\t",
   row.names = TRUE,
@@ -309,7 +311,7 @@ seq.length.table <- table(nchar(getSequences(seqtab.nochim)))
 # Export this table as a .tsv
 write.table(
   seq.length.table,
-  file="../data/working/ASV_lengths_table.tsv",
+  file="../data/results/ASV_lengths_table.tsv",
   quote = FALSE,
   sep = "\t",
   row.names = TRUE,
