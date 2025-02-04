@@ -49,7 +49,7 @@ Unzip the pipeline, and move all the shell, .job, and .R files from your newly u
 unzip main.zip
 mv Metabarcoding_on_Hydra-main/* .
 mv primers ..
-rm -r Metabarcoding_on_Hydra-main
+rm -r Metabarcoding_on_Hydra-main main.zip
 ```
 
 Your raw reads should be copied into `data/raw/`. We are working on a way to load raw read files directly from their dropbox folder into our Hydra `data/raw/` directory. In the meantime, download to your local computer and use scp or filezilla to upload to `data/raw/`. See [Transferring Files to/from Hydra](https://confluence.si.edu/pages/viewpage.action?pageId=163152227) for help with transferring files between Hydra and your computer. 
