@@ -37,7 +37,7 @@ primerRrc="$7"
 for x in ${data}/raw/*_R1*; do
   sample=`basename ${x}`
   name=`echo ${sample%*_R[1-2]_*}`
-  namepost=`echo ${sample#*_R[1-2]_*}`
+  namepost=`echo ${sample#*_R[1-2]*}`
 #echo $sample
 #echo $name
 #echo $namepost
