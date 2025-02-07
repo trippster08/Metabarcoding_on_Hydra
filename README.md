@@ -49,7 +49,7 @@ Unzip the pipeline, and move all the shell, .job, and .R files from your newly u
 unzip main.zip
 mv Metabarcoding_on_Hydra-main/* .
 mv primers ..
-rm -r Metabarcoding_on_Hydra-main
+rm -r Metabarcoding_on_Hydra-main main.zip
 ```
 
 Your raw reads should be copied into `data/raw/`. We are working on a way to load raw read files directly from their dropbox folder into our Hydra `data/raw/` directory. In the meantime, download to your local computer and use scp or filezilla to upload to `data/raw/`. See [Transferring Files to/from Hydra](https://confluence.si.edu/pages/viewpage.action?pageId=163152227) for help with transferring files between Hydra and your computer. 
@@ -72,7 +72,7 @@ sh trim_and_quality_plot.sh <path_to_raw_reads> <gene_region_used>
 ### Trim Primers and Create Quality Plots for Multiple-Gene Runs
 You can currently also analyse runs that contain reads two gene regions. Cutadapt will separate reads based on the primer-pair removed, and move each trimmed read into a gene-specific trimmed-reads directory. To run on multi-gene runs, run the following shell script, followed by the path to the raw reads and both gene regions used. As an example, `sh trim_and_quality_plot.sh /scratch/genomics/USER/PROJECT/data/raw COI 18S` will search for and remove "mlCOIintF/jgCOIR" and "18S_V4_F/18S_V4_R" from each pair of reads, and move those reads into trimmed_reads/COI/ or trimmed_reads/18S/ depending upon which primer pair was removed. Quality plots will then be created for these demultiplexed Gene-specific reads and saved in data/results/.
 
-We currently have primer sets for three gene regions, COI, 18S-v4, and MiFish-12S. The default names for these three regions are "COI", "18S", and "12S", but the script can take some variations of each gene name, and if you use one that is not compatible, it will give you a list of compatible names.
+We currently have primer sets for three gene regions: COI, 18S-v4, and MiFish-12S. The default names for these three regions are "COI", "18S", and "12S", but the script can take some variations of each gene name. If you use a name that is not compatible, you will be given a list of compatible names.
 
 ```
 sh trim_and_quality_plot_multigene.sh <path_to_raw_reads> <gene1_region_used> <gene2_region_used>
