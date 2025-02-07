@@ -111,6 +111,8 @@ out <- filterAndTrim(
 # Usually we don't have that many samples, so I just look at "out" in its
 # entirety, but if there are lots of samples, just look at the first 6.
 out
+
+# Export out as a tsv
 write.table(
   out,
   file = "../data/results/filtered_reads.tsv",
@@ -119,6 +121,21 @@ write.table(
   row.names = TRUE,
   col.names = NA
 )
+
+# Save all the objects created to this point
+save(
+  trimmed,
+  truncF,
+  truncR,
+  fnFs,
+  fnRs,
+  sample.names,
+  filtFs,
+  filtRs,
+  out,
+  file = "../data/results/out.Rdata"
+)
+
 
 # After filtering, if there are any samples that have no remaining reads
 # (i.e. reads.out = 0), you will get the following error running learnErrors:
@@ -219,6 +236,20 @@ dadaRs <- dada(
   multithread = TRUE,
   verbose = TRUE
 )
+
+# Save all the objects created between out and here
+save(
+  exists,
+  filtFs,
+  filtRs,
+  errF,
+  errR,
+  dadaFs,
+  dadaRs,
+  file = "../data/results/denoise.feattab.RData"
+)
+
+
 
 ## Merge Paired Sequences ======================================================
 
@@ -351,6 +382,23 @@ colnames(repseq.md5.asv) <- c("md5", "ASV")
 
 # Transpose the sequence-table, and convert the result into a tibble.
 seqtab.nochim.transpose.md5 <- as_tibble(t(seqtab.nochim.md5), rownames = "ASV")
+
+# Save all the objects created between denoise and here
+save(
+  merged,
+  seqtab,
+  seqtab.nochim,
+  getN,
+  track,
+  seq.length.table,
+  repseq,
+  repseq.md5,
+  seqtab.nochim.md5,
+  repseq.md5.asv,
+  seqtab.nochim.transpose.md5,
+  file = "../data/results/feattab.RData"
+)
+
 
 ## Export Feature-Table with md5 Hash =========================================
 # This exports a feature-table: row of ASV's (shown as a md5 hash instead
