@@ -246,7 +246,7 @@ save(
   errR,
   dadaFs,
   dadaRs,
-  file = "../data/results/denoise.feattab.RData"
+  file = "../data/results/denoise.RData"
 )
 
 
