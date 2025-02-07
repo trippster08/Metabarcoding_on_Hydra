@@ -478,7 +478,7 @@ save(
   seqtab.nochim,
   repseq.all,
   chimeras.list,
-  repseq.chimera
+  repseq.chimera,
   getN,
   track,
   seq.length.table,
