@@ -3,6 +3,7 @@ library(dada2)
 library(tidyverse)
 library(seqinr)
 library(digest)
+#library(cgwtools)
 
 ## Trim Reads ==================================================================
 numcores <- Sys.getenv("NSLOTS")
@@ -77,6 +78,7 @@ names(filtFs) <- sample.names
 names(filtRs) <- sample.names
 #filtFs
 #filtRs
+
 # This filters all reads depending upon the quality (as assigned by the user)
 # and trims the ends off the reads for all samples as determined by the quality
 # plots. It also saves into "out" the number of reads in each sample that were
@@ -115,9 +117,13 @@ out <- filterAndTrim(
   multithread = TRUE
 )
 
+
+
 # Usually we don't have that many samples, so I just look at "out" in its
 # entirety, but if there are lots of samples, just look at the first 6.
 out
+
+# Export out as a tsv
 write.table(
   out,
   file=paste0(
@@ -131,6 +137,27 @@ write.table(
   sep = "\t",
   row.names = TRUE,
   col.names = NA
+)
+
+# Save all the objects created to this point
+save(
+  gene,
+  trimmed,
+  truncF,
+  truncR,
+  fnFs,
+  fnRs,
+  sample.names,
+  filtFs,
+  filtRs,
+  out,
+  file = paste0(
+    "../data/results/",
+    gene,
+    "out",
+    gene,
+    ".RData"
+  )
 )
 
 # After filtering, if there are any samples that have no remaining reads
@@ -213,6 +240,7 @@ ggsave(
   width = 9,
   height = 9
 )
+
 ggsave(
   paste0(
     "../data/results/",
@@ -252,6 +280,25 @@ dadaRs <- dada(
   verbose = TRUE
 )
 
+# Save all the objects created between out and here
+save(
+  exists,
+  filtFs,
+  filtRs,
+  errF,
+  errR,
+  dadaFs,
+  dadaRs,
+  file = paste0(
+    "../data/results/",
+    gene,
+    "denoise.feattab",
+    gene,
+    ".RData"
+  )
+)
+
+
 ## Merge Paired Sequences ======================================================
 
 # Here we merge the paired reads. merged calls for the forward denoising result
@@ -269,6 +316,7 @@ dadaRs <- dada(
 merged <- mergePairs(
   dadaFs,
   filtFs,
+
   dadaRs,
   filtRs,
   minOverlap = 12,
@@ -322,7 +370,7 @@ track <- cbind(
 
 # If processing a single sample, remove the sapply calls: e.g. replace
 # sapply(dadaFs, getN) with getN(dadaFs)
-colnames(track) <- c("input", "filtered", "denoisedF", "denoisedR", "merged", "nonchim", "%kept")
+colnames(track) <- c("input", "filtered", "denoisedF", "denoisedR", "merged", "nonchim", "% kept")
 rownames(track) <- sample.names
 
 # Export this table as a .tsv
@@ -395,6 +443,30 @@ colnames(repseq.md5.asv) <- c("md5", "ASV")
 
 # Transpose the sequence-table, and convert the result into a tibble.
 seqtab.nochim.transpose.md5 <- as_tibble(t(seqtab.nochim.md5), rownames = "ASV")
+
+# Save all the objects created between denoise and here
+save(
+  merged,
+  seqtab,
+  seqtab.nochim,
+  getN,
+  track,
+  seq.length.table,
+  repseq,
+  repseq.md5,
+  seqtab.nochim.md5,
+  repseq.md5.asv,
+  seqtab.nochim.transpose.md5,
+  file = paste0(
+    "../data/results/",
+    gene,
+    "feattab",
+    gene,
+    ".RData"
+  )
+)
+
+
 
 ## Export Feature-Table with md5 Hash =========================================
 # This exports a feature-table: row of ASV's (shown as a md5 hash instead
