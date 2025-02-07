@@ -352,6 +352,33 @@ seqtab.nochim <- removeBimeraDenovo(
 # We look at the dimensions of the new sequence-table
 dim(seqtab.nochim)
 
+# Make a list of the ASVs that are considered chimeras, in case you want to look
+# at them later
+chimeras.list <- isBimeraDenovoTable(
+  seqtab,
+  method = "consensus",
+  multithread = TRUE,
+  verbose = TRUE
+)
+repseq.all <- getSequences(seqtab)
+repseq.chimera <- repseq.all[chimeras.list]
+
+# Export this as a fasta
+write.fasta(
+  sequences = as.list(repseq.chimera),
+  names = repseq.chimera,
+  open = "w",
+  as.string = FALSE,
+  file.out = paste0(
+    "../data/results/",
+    gene,
+    "/rep-seq_chimeras",
+    gene,
+    ".fas"
+  )
+)
+
+
 ## Track Reads Through Dada2 Process ===========================================
 
 # Here, we look at how many reads made it through each step. This is similar to
@@ -449,6 +476,9 @@ save(
   merged,
   seqtab,
   seqtab.nochim,
+  repseq.all,
+  chimeras.list,
+  repseq.chimera
   getN,
   track,
   seq.length.table,
