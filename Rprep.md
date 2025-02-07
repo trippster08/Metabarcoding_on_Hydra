@@ -24,6 +24,7 @@ install.packages("digest")
 install.packages("tidyverse")
 install.packages("seqinr")
 install.packages("ape")
+install.packages("cgwtools")
 ```
 After all packages have been restored, load them just to make sure they work.
 ```
