@@ -282,7 +282,6 @@ dadaRs <- dada(
 
 # Save all the objects created between out and here
 save(
-  exists,
   filtFs,
   filtRs,
   errF,
@@ -316,7 +315,6 @@ save(
 merged <- mergePairs(
   dadaFs,
   filtFs,
-
   dadaRs,
   filtRs,
   minOverlap = 12,
@@ -444,15 +442,15 @@ write.table(
 # This makes a new vector containing all the ASV's (unique sequences) returned
 # by dada2. We are going to use this list to create md5 hashes. Use whatever
 #  table you will later use for your analyses (e.g. seqtab.nochim)
-repseq <- getSequences(seqtab.nochim)
+repseq.nochim <- getSequences(seqtab.nochim)
 
 # Use the program digest (in a For Loop) to create a new vector containing the
 # unique md5 hashes of the representative sequences (ASV's). This results in
 # identical feature names to those assigned in Qiime2.
-repseq.md5 <- c()
-for (i in seq_along(repseq)) {
-  repseq.md5[i] <- digest(
-    repseq[i],
+repseq.nochim.md5 <- c()
+for (i in seq_along(repseq.nochim)) {
+  repseq.nochim.md5[i] <- digest(
+    repseq.nochim[i],
     serialize = FALSE,
     algo = "md5"
   )
@@ -460,13 +458,13 @@ for (i in seq_along(repseq)) {
 
 # Add md5 hash to the sequence-table from the DADA2 analysis.
 seqtab.nochim.md5 <- seqtab.nochim
-colnames(seqtab.nochim.md5) <- repseq.md5
+colnames(seqtab.nochim.md5) <- repseq.nochim.md5
 
 # Create an md5/ASV table, with each row as an ASV and it's representative md5
 # hash.
-repseq.md5.asv <- tibble(repseq.md5, repseq)
+repseq.nochim.md5.asv <- tibble(repseq.nochim.md5, repseq.nochim)
 # Rename column headings
-colnames(repseq.md5.asv) <- c("md5", "ASV")
+colnames(repseq.nochim.md5.asv) <- c("md5", "ASV")
 
 # Transpose the sequence-table, and convert the result into a tibble.
 seqtab.nochim.transpose.md5 <- as_tibble(t(seqtab.nochim.md5), rownames = "ASV")
@@ -482,10 +480,10 @@ save(
   getN,
   track,
   seq.length.table,
-  repseq,
-  repseq.md5,
+  repseq.nochim,
+  repseq.nochim.md5,
   seqtab.nochim.md5,
-  repseq.md5.asv,
+  repseq.nochim.md5.asv,
   seqtab.nochim.transpose.md5,
   file = paste0(
     "../data/results/",
@@ -526,8 +524,8 @@ write.table(
 # This exports all the ASVs in fasta format, with ASV hash as the sequence
 # name. This is analogous to the representative sequence output in Qiime2.
 write.fasta(
-  sequences = as.list(repseq.md5.asv$ASV),
-  names = repseq.md5.asv$md5,
+  sequences = as.list(repseq.nochim.md5.asv$ASV),
+  names = repseq.nochim.md5.asv$md5,
   open = "w",
   as.string = FALSE,
   file.out = paste0(
@@ -542,7 +540,7 @@ write.fasta(
 # This exports all the ASVs and their respective md5 hashes as a two-column
 # table.
 write.table(
-  repseq.md5.asv,
+  repseq.nochim.md5.asv,
   file = paste0(
     "../data/results/",
     gene,
