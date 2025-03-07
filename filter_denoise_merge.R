@@ -151,7 +151,9 @@ save(
 # samples with reads (i.e. the description for filtFs and filtRs goes from
 # "Named chr [1:N]" to "Named chr [1:N-(# of empty samples)]).
 exists <- file.exists(filtFs) & file.exists(filtRs)
-print("Here are the number of samples that were removed because they no longer contain reads after filtering")
+print(
+  "Here are the number of samples that were removed because they no longer contain reads after filtering"
+)
 length(filtFs) - length(filtFs[exists])
 
 filtFs <- filtFs[exists]
@@ -250,7 +252,6 @@ save(
 )
 
 
-
 ## Merge Paired Sequences ======================================================
 
 # Here we merge the paired reads. merged calls for the forward denoising result
@@ -307,7 +308,6 @@ dim(seqtab.nochim)
 # at them later
 chimeras.list <- isBimeraDenovoTable(
   seqtab,
-  method = "consensus",
   multithread = TRUE,
   verbose = TRUE
 )
@@ -323,7 +323,6 @@ repseq.chimera <- repseq.all[chimeras.list]
 #  file.out = "data/results/rep-seq_chimeras.fas"
 #)
 
-
 ## Track Reads Through Dada2 Process ===========================================
 
 # Here, we look at how many reads made it through each step. This is similar to
@@ -333,16 +332,25 @@ repseq.chimera <- repseq.all[chimeras.list]
 # (i.e. only a small proportion make it through).
 getN <- function(x) sum(getUniques(x))
 track <- cbind(
-  out, 
+  out,
   sapply(dadaFs, getN),
   sapply(dadaRs, getN),
   sapply(merged, getN),
   rowSums(seqtab.nochim),
-  100 * (rowSums(seqtab.nochim) / out[, 1]))
+  100 * (rowSums(seqtab.nochim) / out[, 1])
+)
 
 # If processing a single sample, remove the sapply calls: e.g. replace
 # sapply(dadaFs, getN) with getN(dadaFs)
-colnames(track) <- c("input", "filtered", "denoisedF", "denoisedR", "merged", "nonchim", "%kept")
+colnames(track) <- c(
+  "input",
+  "filtered",
+  "denoisedF",
+  "denoisedR",
+  "merged",
+  "nonchim",
+  "%kept"
+)
 rownames(track) <- sample.names
 
 # Export this table as a .tsv
@@ -363,7 +371,7 @@ seq.length.table <- table(nchar(getSequences(seqtab.nochim)))
 # Export this table as a .tsv
 write.table(
   seq.length.table,
-  file="../data/results/ASV_lengths_table.tsv",
+  file = "../data/results/ASV_lengths_table.tsv",
   quote = FALSE,
   sep = "\t",
   row.names = TRUE,
