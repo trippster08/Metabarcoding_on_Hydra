@@ -1,0 +1,29 @@
+# /bin/sh
+# ----------------Parameters---------------------- #
+#$ -S /bin/sh
+#$ -pe mthread 12
+#$ -q mThC.q
+#$ -l mres=48G,h_data=4G,h_vmem=4G
+#$ -cwd
+#$ -j y
+#$ -N trimmed
+#$ -o trimmed.log
+#
+# ----------------Modules------------------------- #
+module load bioinformatics/cutadapt/4.7
+module load tools/R/4.4.1
+#
+# ----------------Your Commands------------------- #
+#
+echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
+echo + NSLOTS = $NSLOTS
+#
+
+sample="$1"
+
+
+
+Rscript tax_assign.R ${sample}
+
+
+echo = `date` job $JOB_NAME done
