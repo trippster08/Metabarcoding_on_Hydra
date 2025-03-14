@@ -18,10 +18,10 @@ fnFs <- sort(list.files(trimmed, pattern = "_R1.fastq.gz", full.names = TRUE))
 fnRs <- sort(list.files(trimmed, pattern = "_R2.fastq.gz", full.names = TRUE))
 
 # Create a list of sample names
-sample.names <- sapply(strsplit(basename(fnFs), "_trimmed"), `[`, 1)
+sample_names <- sapply(strsplit(basename(fnFs), "_trimmed"), `[`, 1)
 print("Here are the sample names of the first 6 trimmed R1 files:")
 
-head(sample.names)
+head(sample_names)
 
 # If you have sample files with no reads, you must remove both the forward and
 # reverse reads, regardless if one has reads (although if one is empty,
@@ -30,21 +30,21 @@ head(sample.names)
 ### Remove empty sample files --------------------------------------------------
 # This saves the R1 fastq for the sample file only if both the R1 and R2 sample
 # files have reads.
-fnFs.exists <- fnFs[file.size(fnFs) > 100 & file.size(fnRs) > 100]
+fnFs_exists <- fnFs[file.size(fnFs) > 100 & file.size(fnRs) > 100]
 
 
 # This saves the R2 fastq for the sample file only if both the R1 and R2 sample
 # files have reads.
-fnRs.exists <- fnRs[file.size(fnFs) > 100 & file.size(fnRs) > 100]
+fnRs_exists <- fnRs[file.size(fnFs) > 100 & file.size(fnRs) > 100]
 
 
 # Redefine fnFs and fnRs as only the existing read files, and check
-fnFs <- fnFs.exists
-fnRs <- fnRs.exists
+fnFs <- fnFs_exists
+fnRs <- fnRs_exists
 file.size(fnFs)
 
 # Update your samples names
-sample.names <- sapply(strsplit(basename(fnFs), "_trimmed"), `[`, 1)
+sample_names <- sapply(strsplit(basename(fnFs), "_trimmed"), `[`, 1)
 
 # This creates files for the reads that will be quality filtered with dada2
 # in the next step.
@@ -52,7 +52,7 @@ filtFs <- file.path(
   "../data/working",
   "filtered",
   paste0(
-    sample.names,
+    sample_names,
     "_F_filt.fastq.gz"
   )
 )
@@ -60,14 +60,14 @@ filtRs <- file.path(
   "../data/working",
   "filtered",
   paste0(
-    sample.names,
+    sample_names,
     "_R_filt.fastq.gz"
   )
 )
 
 # This inserts sample names to these newly created files.
-names(filtFs) <- sample.names
-names(filtRs) <- sample.names
+names(filtFs) <- sample_names
+names(filtRs) <- sample_names
 
 # This filters all reads depending upon the quality (as assigned by the user)
 # and trims the ends off the reads for all samples as determined by the quality
@@ -129,7 +129,7 @@ save(
   truncR,
   fnFs,
   fnRs,
-  sample.names,
+  sample_names,
   filtFs,
   filtRs,
   out,
@@ -197,18 +197,18 @@ errR <- learnErrors(
 # to look at here are to make sure that each black line is a good fit to the
 # observed error rates, and that estimated error rates decrease with increased
 # quality.
-error.plots.F <- plotErrors(errF, nominalQ = TRUE)
-error.plots.R <- plotErrors(errR, nominalQ = TRUE)
+error_plots_F <- plotErrors(errF, nominalQ = TRUE)
+error_plots_R <- plotErrors(errR, nominalQ = TRUE)
 
 ggsave(
   "../data/results/errorplotsF.pdf",
-  plot = error.plots.F,
+  plot = error_plots_F,
   width = 9,
   height = 9
 )
 ggsave(
   "../data/results/errorplotsR.pdf",
-  plot = error.plots.R,
+  plot = error_plots_R,
   width = 9,
   height = 9
 )
@@ -295,24 +295,24 @@ dim(seqtab)
 
 # Here we remove chimera sequences. Use seqtabXXX if you removed long or short
 # sequences above.
-seqtab.nochim <- removeBimeraDenovo(
+seqtab_nochim <- removeBimeraDenovo(
   seqtab,
   method = "consensus",
   multithread = TRUE,
   verbose = TRUE
 )
 # We look at the dimensions of the new sequence-table
-dim(seqtab.nochim)
+dim(seqtab_nochim)
 
 # Make a list of the ASVs that are considered chimeras, in case you want to look
 # at them later
-chimeras.list <- isBimeraDenovoTable(
+chimeras_list <- isBimeraDenovoTable(
   seqtab,
   multithread = TRUE,
   verbose = TRUE
 )
-repseq.all <- getSequences(seqtab)
-repseq.chimera <- repseq.all[chimeras.list]
+repseq_all <- getSequences(seqtab)
+repseq_chimera <- repseq_all[chimeras_list]
 
 # Export this as a fasta if you want by uncommenting
 #write.fasta(
@@ -336,8 +336,8 @@ track <- cbind(
   sapply(dadaFs, getN),
   sapply(dadaRs, getN),
   sapply(merged, getN),
-  rowSums(seqtab.nochim),
-  100 * (rowSums(seqtab.nochim) / out[, 1])
+  rowSums(seqtab_nochim),
+  100 * (rowSums(seqtab_nochim) / out[, 1])
 )
 
 # If processing a single sample, remove the sapply calls: e.g. replace
@@ -351,7 +351,7 @@ colnames(track) <- c(
   "nonchim",
   "%kept"
 )
-rownames(track) <- sample.names
+rownames(track) <- sample_names
 
 # Export this table as a .tsv
 write.table(
@@ -367,10 +367,10 @@ write.table(
 
 # This shows the length of the representative sequences (ASV's). Typically,
 # there are a lot of much longer and much shorter sequences.
-seq.length.table <- table(nchar(getSequences(seqtab.nochim)))
+seq_length_table <- table(nchar(getSequences(seqtab_nochim)))
 # Export this table as a .tsv
 write.table(
-  seq.length.table,
+  seq_length_table,
   file = "../data/results/ASV_lengths_table.tsv",
   quote = FALSE,
   sep = "\t",
@@ -384,49 +384,49 @@ write.table(
 
 # This makes a new vector containing all the ASV's (unique sequences) returned
 # by dada2. We are going to use this list to create md5 hashes. Use whatever
-#  table you will later use for your analyses (e.g. seqtab.nochim)
-repseq.nochim <- getSequences(seqtab.nochim)
+#  table you will later use for your analyses (e.g. seqtab_nochim)
+repseq_nochim <- getSequences(seqtab_nochim)
 
 # Use the program digest (in a For Loop) to create a new vector containing the
 # unique md5 hashes of the representative sequences (ASV's). This results in
 # identical feature names to those assigned in Qiime2.
-repseq.nochim.md5 <- c()
-for (i in seq_along(repseq.nochim)) {
-  repseq.nochim.md5[i] <- digest(
-    repseq.nochim[i],
+repseq_nochim_md5 <- c()
+for (i in seq_along(repseq_nochim)) {
+  repseq_nochim_md5[i] <- digest(
+    repseq_nochim[i],
     serialize = FALSE,
     algo = "md5"
   )
 }
 
 # Add md5 hash to the sequence-table from the DADA2 analysis.
-seqtab.nochim.md5 <- seqtab.nochim
-colnames(seqtab.nochim.md5) <- repseq.nochim.md5
+seqtab_nochim_md5 <- seqtab_nochim
+colnames(seqtab_nochim_md5) <- repseq_nochim_md5
 
 # Create an md5/ASV table, with each row as an ASV and it's representative md5
 # hash.
-repseq.nochim.md5.asv <- tibble(repseq.nochim.md5, repseq)
+repseq_nochim_md5_asv <- tibble(repseq_nochim_md5, repseq)
 # Rename column headings
-colnames(repseq.nochim.md5.asv) <- c("md5", "ASV")
+colnames(repseq_nochim_md5_asv) <- c("md5", "ASV")
 
 # Transpose the sequence-table, and convert the result into a tibble.
-seqtab.nochim.transpose.md5 <- as_tibble(t(seqtab.nochim.md5), rownames = "ASV")
+seqtab_nochim_transpose_md5 <- as_tibble(t(seqtab_nochim_md5), rownames = "ASV")
 
 # Save all the objects created between denoise and here
 save(
   merged,
   seqtab,
-  seqtab.nochim,
+  seqtab_nochim,
   track,
-  chimeras.list,
-  repseq.all,
-  repseq.chimera,
-  seq.length.table,
-  repseq.nochim,
-  repseq.nochim.md5,
-  seqtab.nochim.md5,
-  repseq.nochim.md5.asv,
-  seqtab.nochim.transpose.md5,
+  chimeras_list,
+  repseq_all,
+  repseq_chimera,
+  seq_length_table,
+  repseq_nochim,
+  repseq_nochim_md5,
+  seqtab_nochim_md5,
+  repseq_nochim_md5_asv,
+  seqtab_nochim_transpose_md5,
   file = "../data/results/feattab.RData"
 )
 
@@ -438,7 +438,7 @@ save(
 # md5 hash. We download this in the next section.
 
 write.table(
-  seqtab.nochim.transpose.md5,
+  seqtab_nochim_transpose_md5,
   file = "../data/results/feature-table_md5.tsv",
   quote = FALSE,
   sep = "\t",
@@ -453,8 +453,8 @@ write.table(
 # This exports all the ASVs in fasta format, with ASV hash as the sequence
 # name. This is analogous to the representative sequence output in Qiime2.
 write.fasta(
-  sequences = as.list(repseq.nochim.md5.asv$ASV),
-  names = repseq.nochim.md5.asv$md5,
+  sequences = as.list(repseq_nochim_md5_asv$ASV),
+  names = repseq_nochim_md5_asv$md5,
   open = "w",
   as.string = FALSE,
   file.out = "../data/results/rep-seq.fas"
@@ -463,7 +463,7 @@ write.fasta(
 # This exports all the ASVs and their respective md5 hashes as a two-column
 # table.
 write.table(
-  repseq.nochim.md5.asv,
+  repseq_nochim_md5_asv,
   file = "../data/results/representative_sequence_table_md5.tsv",
   quote = FALSE,
   sep = "\t",

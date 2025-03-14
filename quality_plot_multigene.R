@@ -22,32 +22,32 @@ library(seqinr)
 args <- commandArgs(trailingOnly = TRUE)
 gene1 <- args[1]
 gene2 <- args[2]
-trimmed.gene1 <- paste0("../data/working/trimmed_reads/", gene1)
-trimmed.gene1.R1 <- sort(
+trimmed_gene1 <- paste0("../data/working/trimmed_reads/", gene1)
+trimmed_gene1_R1 <- sort(
   list.files(
-    trimmed.gene1,
+    trimmed_gene1,
     pattern = "_R1.fastq.gz",
     full.names = TRUE
   )
 )
-trimmed.gene1.R2 <- sort(
+trimmed_gene1_R2 <- sort(
   list.files(
-    trimmed.gene1,
+    trimmed_gene1,
     pattern = "_R2.fastq.gz",
     full.names = TRUE
   )
 )
-trimmed.gene2 <- paste0("../data/working/trimmed_reads/", gene2)
-trimmed.gene2.R1 <- sort(
+trimmed_gene2 <- paste0("../data/working/trimmed_reads/", gene2)
+trimmed_gene2_R1 <- sort(
   list.files(
-    trimmed.gene2,
+    trimmed_gene2,
     pattern = "_R1.fastq.gz",
     full.names = TRUE
   )
 )
-trimmed.gene2.R2 <- sort(
+trimmed_gene2_R2 <- sort(
   list.files(
-    trimmed.gene2,
+    trimmed_gene2,
     pattern = "_R2.fastq.gz",
     full.names = TRUE
   )
@@ -81,45 +81,50 @@ trimmed.gene2.R2 <- sort(
 # reverse reads, regardless if one has reads (although if one is empty,
 # the other should be as well).
 
-
 # This saves the gene1 R1 and R2 fastq sample files only if both the R1 and R2
 # sample files have reads.
-trimmed.noreads.gene1.R1 <- trimmed.gene1.R1[sapply(trimmed.gene1.R1, file.size) < 100]
-file.remove(trimmed.noreads.gene1.R1)
-trimmed.noreads.gene1.R2 <- trimmed.gene1.R2[sapply(trimmed.gene1.R2, file.size) < 100]
-file.remove(trimmed.noreads.gene1.R2)
+trimmed_noreads_gene1_R1 <- trimmed_gene1_R1[
+  sapply(trimmed_gene1_R1, file.size) < 100
+]
+file.remove(trimmed_noreads_gene1_R1)
+trimmed_noreads_gene1_R2 <- trimmed_gene1_R2[
+  sapply(trimmed_gene1_R2, file.size) < 100
+]
+file.remove(trimmed_noreads_gene1_R2)
 
 print(paste(
   "Here are the samples files for",
   gene1,
   "which contain no reads after primer trimming",
   sep = " "
-)
-)
-trimmed.noreads.gene1.R1
+))
+trimmed_noreads_gene1_R1
 # This saves the gene2 R1 and R2 fastq sample files only if both the R1 and R2
 # sample files have reads.
-trimmed.noreads.gene2.R1 <- trimmed.gene2.R1[sapply(trimmed.gene2.R1, file.size) < 100]
-file.remove(trimmed.noreads.gene2.R1)
-trimmed.noreads.gene2.R2 <- trimmed.gene2.R2[sapply(trimmed.gene2.R2, file.size) < 100]
-file.remove(trimmed.noreads.gene2.R2)
+trimmed_noreads_gene2_R1 <- trimmed_gene2_R1[
+  sapply(trimmed_gene2_R1, file.size) < 100
+]
+file.remove(trimmed_noreads_gene2_R1)
+trimmed_noreads_gene2_R2 <- trimmed_gene2_R2[
+  sapply(trimmed_gene2_R2, file.size) < 100
+]
+file.remove(trimmed_noreads_gene2_R2)
 
 print(paste(
   "Here are the samples files for",
   gene2,
   "which contain no reads after primer trimming",
   sep = " "
-)
-)
-trimmed.noreads.gene2.R1
+))
+trimmed_noreads_gene2_R1
 ### Remove mistmatched reads----------------------------------------------------
 # Check to see how many wrong-gene occurances there are for gene1. Replace
 # "gene1" with your first gene name, and "gene2" with your second gene name
 # for all instances below and save the names of the samples
 # with these misidentifications.
-mismatches.gene1 <- sort(
+mismatches_gene1 <- sort(
   list.files(
-    trimmed.gene1,
+    trimmed_gene1,
     pattern = gene2,
     full.names = TRUE
   )
@@ -134,9 +139,8 @@ print(paste(
   gene1,
   "amplicons",
   sep = " "
-)
-)
-length(mismatches.gene1)
+))
+length(mismatches_gene1)
 
 # Check the file size of these files to get an estimate of the number of reads
 # each micro-contaminate has. If file sizes are < 1kb, it contains less than
@@ -149,25 +153,24 @@ print(paste(
   gene1,
   "amplicons",
   sep = " "
-)
-)
-file.size(mismatches.gene1)
+))
+file.size(mismatches_gene1)
 
 # Move all the misidentified/empty files into a newly created "mismatches"
 # directory. file.rename moves the files you want to move, and deletes them from
 # their original directory.
 file.rename(
-  from = mismatches.gene1,
+  from = mismatches_gene1,
   to = paste0(
     "../data/working/trimmed_reads/mismatches/",
-    basename(mismatches.gene1)
+    basename(mismatches_gene1)
   )
 )
 
 # Repeat this process with your second gene. Make sure to reverse the path to
 # your trimmed reads, and "pattern=" arguments
 
-mismatches.gene2 <- sort(
+mismatches_gene2 <- sort(
   list.files(
     paste0("../data/working/trimmed_reads/", gene2),
     pattern = gene1,
@@ -182,9 +185,8 @@ print(paste(
   gene2,
   "amplicons",
   sep = " "
-)
-)
-length(mismatches.gene2)
+))
+length(mismatches_gene2)
 # Check the file size of these files to get an estimate of the number of reads
 # each micro-contaminate has. If file sizes are < 1kb, it contains less than
 # 20 reads (and file sizes below 100 are empty). If you have any files that are
@@ -196,58 +198,56 @@ print(paste(
   gene2,
   "amplicons",
   sep = " "
-)
-)
-file.size(mismatches.gene2)
+))
+file.size(mismatches_gene2)
 
 # Move all the misidentified/empty files into a newly created "misID_gene1"
 # directory. file.rename moves the files you want to move, and deletes them from
 # their original directory.
 file.rename(
-  mismatches.gene2,
+  mismatches_gene2,
   to = paste0(
     "../data/working/trimmed_reads/mismatches/",
-    basename(mismatches.gene2)
+    basename(mismatches_gene2)
   )
 )
 
 ## Gene1 =======================================================================
 # This creates two vectors. One contains the names for forward reads (R1, called
 # fnFs) and the other for reverse reads (R2, called fnRs).
-fnFs.gene1 <- sort(
+fnFs_gene1 <- sort(
   list.files(
-    trimmed.gene1,
+    trimmed_gene1,
     pattern = "_R1.fastq",
     full.names = TRUE
   )
 )
 
-fnRs.gene1 <- sort(
+fnRs_gene1 <- sort(
   list.files(
-    trimmed.gene1,
+    trimmed_gene1,
     pattern = "_R2.fastq",
     full.names = TRUE
   )
 )
 
-sample.names.gene1 <- sapply(strsplit(fnFs.gene1, "_trimmed"), `[`, 1)
-#fnFs.gene1
-#fnRs.gene1
-#sample.names.gene1
+sample_names_gene1 <- sapply(strsplit(fnFs_gene1, "_trimmed"), `[`, 1)
+#fnFs_gene1
+#fnRs_gene1
+#sample_names_gene1
 # Make sure you have the correct number of samples, and that they match the
 # number of sample names in the list you made previously.
-#length(fnFs.gene1)
-#length(fnRs.gene1)
-#length(sample.names.gene1)
-nsamples.gene1 <- length(sample.names.gene1)
+#length(fnFs_gene1)
+#length(fnRs_gene1)
+#length(sample_names_gene1)
+nsamples_gene1 <- length(sample_names_gene1)
 print(paste(
   "Here are the number of",
   gene1,
   "samples that will be analyzed with DADA2:",
   sep = " "
-)
-)
-nsamples.gene1
+))
+nsamples_gene1
 
 ### Make Quality Plots ---------------------------------------------------------
 
@@ -265,26 +265,26 @@ nsamples.gene1
 # the orange lines are the quartiles (solid for median, dashed for 25% and 75%)
 # and the red line represents the proportion of reads existing at that position.
 
-qualplotF.gene1 <- plotQualityProfile(
-  fnFs.gene1[1:nsamples.gene1],
+qualplotF_gene1 <- plotQualityProfile(
+  fnFs_gene1[1:nsamples_gene1],
   aggregate = TRUE
 )
-qualplotF.gene1 <- qualplotF.gene1 +
-scale_x_continuous(
-  limits = c(100, 300),
-  breaks = seq(100, 300, 10)
-)
+qualplotF_gene1 <- qualplotF_gene1 +
+  scale_x_continuous(
+    limits = c(100, 300),
+    breaks = seq(100, 300, 10)
+  )
 
 # Examine the reverse reads as you did the forward.
-qualplotR.gene1 <- plotQualityProfile(
-  fnRs.gene1[1:nsamples.gene1],
+qualplotR_gene1 <- plotQualityProfile(
+  fnRs_gene1[1:nsamples_gene1],
   aggregate = TRUE
 )
-qualplotR.gene1 <- qualplotR.gene1 +
-scale_x_continuous(
-  limits = c(100, 300), 
-  breaks = seq(100, 300, 10)
-)
+qualplotR_gene1 <- qualplotR_gene1 +
+  scale_x_continuous(
+    limits = c(100, 300),
+    breaks = seq(100, 300, 10)
+  )
 
 ### Export Quality Plots -------------------------------------------------------
 
@@ -296,7 +296,7 @@ ggsave(
     gene1,
     ".pdf"
   ),
-  plot = qualplotF.gene1,
+  plot = qualplotF_gene1,
   width = 9,
   height = 9
 )
@@ -309,7 +309,7 @@ ggsave(
     gene1,
     ".pdf"
   ),
-  plot = qualplotR.gene1,
+  plot = qualplotR_gene1,
   width = 9,
   height = 9
 )
@@ -317,37 +317,36 @@ ggsave(
 ## Gene2 =======================================================================
 # This creates two vectors. One contains the names for forward reads (R1, called
 # fnFs) and the other for reverse reads (R2, called fnRs).
-fnFs.gene2 <- sort(
+fnFs_gene2 <- sort(
   list.files(
-    trimmed.gene2,
+    trimmed_gene2,
     pattern = "_R1.fastq",
     full.names = TRUE
   )
 )
-fnRs.gene2 <- sort(
+fnRs_gene2 <- sort(
   list.files(
-    trimmed.gene2,
+    trimmed_gene2,
     pattern = "_R2.fastq",
     full.names = TRUE
   )
 )
-sample.names.gene2 <- sapply(strsplit(fnFs.gene2, "_trimmed"), `[`, 1)
+sample_names_gene2 <- sapply(strsplit(fnFs_gene2, "_trimmed"), `[`, 1)
 
 # Make sure you have the correct number of samples, and that they match the
 # number of sample names in the list you made previously.
-#length(fnFs.gene2)
-#length(fnRs.gene2)
-#length(sample.names.gene2)
-nsamples.gene2 <- length(sample.names.gene2)
+#length(fnFs_gene2)
+#length(fnRs_gene2)
+#length(sample_names_gene2)
+nsamples_gene2 <- length(sample_names_gene2)
 
 print(paste(
   "Here are the number of",
   gene1,
   "samples that will be analyzed with DADA2:",
   sep = " "
-  )
-)
-nsamples.gene2
+))
+nsamples_gene2
 
 ### Make Quality Plots ---------------------------------------------------------
 
@@ -364,26 +363,26 @@ nsamples.gene2
 # For these plots, the green line is the mean quality score at that position,
 # the orange lines are the quartiles (solid for median, dashed for 25% and 75%)
 # and the red line represents the proportion of reads existing at that position.
-qualplotF.gene2 <- plotQualityProfile(
-  fnFs.gene2[1:nsamples.gene2],
+qualplotF_gene2 <- plotQualityProfile(
+  fnFs_gene2[1:nsamples_gene2],
   aggregate = TRUE
 )
-qualplotF.gene2 <- qualplotF.gene2 +
-scale_x_continuous(
-  limits = c(100, 300),
-  breaks = seq(100, 300, 10)
-)
+qualplotF_gene2 <- qualplotF_gene2 +
+  scale_x_continuous(
+    limits = c(100, 300),
+    breaks = seq(100, 300, 10)
+  )
 
 # Examine the reverse reads as you did the forward.
-qualplotR.gene2 <- plotQualityProfile(
-  fnRs.gene2[1:nsamples.gene2],
+qualplotR_gene2 <- plotQualityProfile(
+  fnRs_gene2[1:nsamples_gene2],
   aggregate = TRUE
 )
-qualplotR.gene2 <- qualplotR.gene2 +
-scale_x_continuous(
-  limits = c(100, 300),
-  breaks = seq(100, 300, 10)
-)
+qualplotR_gene2 <- qualplotR_gene2 +
+  scale_x_continuous(
+    limits = c(100, 300),
+    breaks = seq(100, 300, 10)
+  )
 
 ### Export Quality Plots -------------------------------------------------------
 
@@ -395,7 +394,7 @@ ggsave(
     gene2,
     ".pdf"
   ),
-  plot = qualplotF.gene2,
+  plot = qualplotF_gene2,
   width = 9,
   height = 9
 )
@@ -408,7 +407,7 @@ ggsave(
     gene2,
     ".pdf"
   ),
-  plot = qualplotR.gene2,
+  plot = qualplotR_gene2,
   width = 9,
   height = 9
 )

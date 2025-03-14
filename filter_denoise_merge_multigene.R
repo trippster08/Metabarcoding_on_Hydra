@@ -40,15 +40,14 @@ fnRs <- sort(
 #fnRs
 
 # Create a list of sample names
-sample.names <- sapply(strsplit(basename(fnFs), "_trimmed"), `[`, 1)
+sample_names <- sapply(strsplit(basename(fnFs), "_trimmed"), `[`, 1)
 print(paste(
   "Here are the sample names of the first 6 trimmed",
   gene,
   "R1 files:",
   sep = " "
-  )
-)
-head(sample.names)
+))
+head(sample_names)
 
 
 # This creates files for the reads that will be quality filtered with dada2
@@ -58,7 +57,7 @@ filtFs <- file.path(
   paste0(
     gene,
     "/",
-    sample.names,
+    sample_names,
     "_F_filt.fastq.gz"
   )
 )
@@ -67,15 +66,15 @@ filtRs <- file.path(
   paste0(
     gene,
     "/",
-    sample.names,
+    sample_names,
     "_R_filt.fastq.gz"
   )
 )
 #filtFs
 #filtRs
 # This inserts sample names to these newly created files.
-names(filtFs) <- sample.names
-names(filtRs) <- sample.names
+names(filtFs) <- sample_names
+names(filtRs) <- sample_names
 #filtFs
 #filtRs
 
@@ -118,7 +117,6 @@ out <- filterAndTrim(
 )
 
 
-
 # Usually we don't have that many samples, so I just look at "out" in its
 # entirety, but if there are lots of samples, just look at the first 6.
 out
@@ -126,7 +124,7 @@ out
 # Export out as a tsv
 write.table(
   out,
-  file=paste0(
+  file = paste0(
     "../data/results/",
     gene,
     "/filtered_reads_",
@@ -147,7 +145,7 @@ save(
   truncR,
   fnFs,
   fnRs,
-  sample.names,
+  sample_names,
   filtFs,
   filtRs,
   out,
@@ -180,8 +178,7 @@ print(paste(
   gene,
   "samples that were removed because they no longer contain reads after filtering",
   sep = " "
-  )
-)
+))
 length(filtFs) - length(filtFs[exists])
 
 filtFs <- filtFs[exists]
@@ -225,8 +222,8 @@ errR <- learnErrors(
 # to look at here are to make sure that each black line is a good fit to the
 # observed error rates, and that estimated error rates decrease with increased
 # quality.
-error.plots.F <- plotErrors(errF, nominalQ = TRUE)
-error.plots.R <- plotErrors(errR, nominalQ = TRUE)
+error_plots_F <- plotErrors(errF, nominalQ = TRUE)
+error_plots_R <- plotErrors(errR, nominalQ = TRUE)
 
 ggsave(
   paste0(
@@ -236,7 +233,7 @@ ggsave(
     gene,
     ".pdf"
   ),
-  plot = error.plots.F,
+  plot = error_plots_F,
   width = 9,
   height = 9
 )
@@ -249,7 +246,7 @@ ggsave(
     gene,
     ".pdf"
   ),
-  plot = error.plots.R,
+  plot = error_plots_R,
   width = 9,
   height = 9
 )
@@ -341,30 +338,30 @@ dim(seqtab)
 
 # Here we remove chimera sequences. Use seqtabXXX if you removed long or short
 # sequences above.
-seqtab.nochim <- removeBimeraDenovo(
+seqtab_nochim <- removeBimeraDenovo(
   seqtab,
   method = "consensus",
   multithread = TRUE,
   verbose = TRUE
 )
 # We look at the dimensions of the new sequence-table
-dim(seqtab.nochim)
+dim(seqtab_nochim)
 
 # Make a list of the ASVs that are considered chimeras, in case you want to look
 # at them later
-chimeras.list <- isBimeraDenovoTable(
+chimeras_list <- isBimeraDenovoTable(
   seqtab,
   method = "consensus",
   multithread = TRUE,
   verbose = TRUE
 )
-repseq.all <- getSequences(seqtab)
-repseq.chimera <- repseq.all[chimeras.list]
+repseq_all <- getSequences(seqtab)
+repseq_chimera <- repseq_all[chimeras_list]
 
 # Export this as a fasta
 write.fasta(
-  sequences = as.list(repseq.chimera),
-  names = repseq.chimera,
+  sequences = as.list(repseq_chimera),
+  names = repseq_chimera,
   open = "w",
   as.string = FALSE,
   file.out = paste0(
@@ -386,22 +383,31 @@ write.fasta(
 # (i.e. only a small proportion make it through).
 getN <- function(x) sum(getUniques(x))
 track <- cbind(
-  out, 
+  out,
   sapply(dadaFs, getN),
   sapply(dadaRs, getN),
   sapply(merged, getN),
-  rowSums(seqtab.nochim),
-  100 * (rowSums(seqtab.nochim) / out[, 1]))
+  rowSums(seqtab_nochim),
+  100 * (rowSums(seqtab_nochim) / out[, 1])
+)
 
 # If processing a single sample, remove the sapply calls: e.g. replace
 # sapply(dadaFs, getN) with getN(dadaFs)
-colnames(track) <- c("input", "filtered", "denoisedF", "denoisedR", "merged", "nonchim", "% kept")
-rownames(track) <- sample.names
+colnames(track) <- c(
+  "input",
+  "filtered",
+  "denoisedF",
+  "denoisedR",
+  "merged",
+  "nonchim",
+  "% kept"
+)
+rownames(track) <- sample_names
 
 # Export this table as a .tsv
 write.table(
   track,
-  file=paste0(
+  file = paste0(
     "../data/results/",
     gene,
     "/track_reads_",
@@ -418,10 +424,10 @@ write.table(
 
 # This shows the length of the representative sequences (ASV's). Typically,
 # there are a lot of much longer and much shorter sequences.
-seq.length.table <- table(nchar(getSequences(seqtab.nochim)))
+seq_length_table <- table(nchar(getSequences(seqtab_nochim)))
 # Export this table as a .tsv
 write.table(
-  seq.length.table,
+  seq_length_table,
   file = paste0(
     "../data/results/",
     gene,
@@ -442,49 +448,49 @@ write.table(
 # This makes a new vector containing all the ASV's (unique sequences) returned
 # by dada2. We are going to use this list to create md5 hashes. Use whatever
 #  table you will later use for your analyses (e.g. seqtab.nochim)
-repseq.nochim <- getSequences(seqtab.nochim)
+repseq_nochim <- getSequences(seqtab_nochim)
 
 # Use the program digest (in a For Loop) to create a new vector containing the
 # unique md5 hashes of the representative sequences (ASV's). This results in
 # identical feature names to those assigned in Qiime2.
-repseq.nochim.md5 <- c()
-for (i in seq_along(repseq.nochim)) {
-  repseq.nochim.md5[i] <- digest(
-    repseq.nochim[i],
+repseq_nochim_md5 <- c()
+for (i in seq_along(repseq_nochim)) {
+  repseq_nochim_md5[i] <- digest(
+    repseq_nochim[i],
     serialize = FALSE,
     algo = "md5"
   )
 }
 
 # Add md5 hash to the sequence-table from the DADA2 analysis.
-seqtab.nochim.md5 <- seqtab.nochim
-colnames(seqtab.nochim.md5) <- repseq.nochim.md5
+seqtab_nochim_md5 <- seqtab_nochim
+colnames(seqtab_nochim_md5) <- repseq_nochim_md5
 
 # Create an md5/ASV table, with each row as an ASV and it's representative md5
 # hash.
-repseq.nochim.md5.asv <- tibble(repseq.nochim.md5, repseq.nochim)
+repseq_nochim_md5_asv <- tibble(repseq_nochim_md5, repseq_nochim)
 # Rename column headings
-colnames(repseq.nochim.md5.asv) <- c("md5", "ASV")
+colnames(repseq_nochim_md5_asv) <- c("md5", "ASV")
 
 # Transpose the sequence-table, and convert the result into a tibble.
-seqtab.nochim.transpose.md5 <- as_tibble(t(seqtab.nochim.md5), rownames = "ASV")
+seqtab_nochim_transpose_md5 <- as_tibble(t(seqtab_nochim_md5), rownames = "ASV")
 
 # Save all the objects created between denoise and here
 save(
   merged,
   seqtab,
-  seqtab.nochim,
-  repseq.all,
-  chimeras.list,
-  repseq.chimera,
+  seqtab_nochim,
+  repseq_all,
+  chimeras_list,
+  repseq_chimera,
   getN,
   track,
-  seq.length.table,
-  repseq.nochim,
-  repseq.nochim.md5,
-  seqtab.nochim.md5,
-  repseq.nochim.md5.asv,
-  seqtab.nochim.transpose.md5,
+  seq_length_table,
+  repseq_nochim,
+  repseq_nochim_md5,
+  seqtab_nochim_md5,
+  repseq_nochim_md5_asv,
+  seqtab_nochim_transpose_md5,
   file = paste0(
     "../data/results/",
     gene,
@@ -495,7 +501,6 @@ save(
 )
 
 
-
 ## Export Feature-Table with md5 Hash =========================================
 # This exports a feature-table: row of ASV's (shown as a md5 hash instead
 # of sequence), columns of samples, and values = number of reads. With this
@@ -503,7 +508,7 @@ save(
 # md5 hash. We download this in the next section.
 
 write.table(
-  seqtab.nochim.transpose.md5,
+  seqtab_nochim_transpose_md5,
   file = paste0(
     "../data/results/",
     gene,
@@ -524,8 +529,8 @@ write.table(
 # This exports all the ASVs in fasta format, with ASV hash as the sequence
 # name. This is analogous to the representative sequence output in Qiime2.
 write.fasta(
-  sequences = as.list(repseq.nochim.md5.asv$ASV),
-  names = repseq.nochim.md5.asv$md5,
+  sequences = as.list(repseq_nochim_md5_asv$ASV),
+  names = repseq_nochim_md5_asv$md5,
   open = "w",
   as.string = FALSE,
   file.out = paste0(
@@ -540,7 +545,7 @@ write.fasta(
 # This exports all the ASVs and their respective md5 hashes as a two-column
 # table.
 write.table(
-  repseq.nochim.md5.asv,
+  repseq_nochim_md5_asv,
   file = paste0(
     "../data/results/",
     gene,

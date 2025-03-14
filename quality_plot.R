@@ -21,14 +21,14 @@ library(seqinr)
 args <- commandArgs(trailingOnly = TRUE)
 trimmed <- "../data/working/trimmed_reads"
 data <- "../data/"
-trimmed.R1 <- sort(
+trimmed_R1 <- sort(
   list.files(
     trimmed,
     pattern = "_R1.fastq.gz",
     full.names = TRUE
   )
 )
-trimmed.R2 <- sort(
+trimmed_R2 <- sort(
   list.files(
     trimmed,
     pattern = "_R2.fastq.gz",
@@ -39,13 +39,15 @@ trimmed.R2 <- sort(
 ### Remove empty sample files --------------------------------------------------
 # This saves the R1 fastq for the sample file only if both the R1 and R2 sample
 # files have reads.
-trimmed.noreads.R1 <- trimmed.R1[sapply(trimmed.R1, file.size) < 100]
-file.remove(trimmed.noreads.R1)
-trimmed.noreads.R2 <- trimmed.R2[sapply(trimmed.R2, file.size) < 100]
-file.remove(trimmed.noreads.R2)
+trimmed_noreads_R1 <- trimmed_R1[sapply(trimmed_R1, file_size) < 100]
+file.remove(trimmed_noreads_R1)
+trimmed_noreads_R2 <- trimmed_R2[sapply(trimmed_R2, file_size) < 100]
+file.remove(trimmed_noreads_R2)
 
-print("Here are the samples files for which contain no reads after primer trimming")
-trimmed.noreads.R1
+print(
+  "Here are the samples files for which contain no reads after primer trimming"
+)
+trimmed_noreads_R1
 
 # This creates two vectors. One contains the names for forward reads (R1, called
 # fnFs) and the other for reverse reads (R2, called fnRs).
@@ -65,8 +67,8 @@ fnRs <- sort(
 )
 
 # Make your samples names
-sample.names <- sapply(strsplit(fnFs, "_trimmed"), `[`, 1)
-nsamples <- length(sample.names)
+sample_names <- sapply(strsplit(fnFs, "_trimmed"), `[`, 1)
+nsamples <- length(sample_names)
 
 ## Make Quality Plots ----------------------------------------------------------
 
@@ -88,10 +90,10 @@ qualplotF <- plotQualityProfile(
   aggregate = TRUE
 )
 qualplotF <- qualplotF +
-scale_x_continuous(
-  limits = c(100, 300),
-  breaks = seq(100, 300, 10)
-)
+  scale_x_continuous(
+    limits = c(100, 300),
+    breaks = seq(100, 300, 10)
+  )
 ggsave(
   "../data/results/qualplotF.pdf",
   plot = qualplotF,
@@ -105,10 +107,10 @@ qualplotR <- plotQualityProfile(
   aggregate = TRUE
 )
 qualplotR <- qualplotR +
-scale_x_continuous(
-  limits = c(100, 300),
-  breaks = seq(100, 300, 10)
-)
+  scale_x_continuous(
+    limits = c(100, 300),
+    breaks = seq(100, 300, 10)
+  )
 ggsave(
   "../data/results/qualplotR.pdf",
   plot = qualplotR,

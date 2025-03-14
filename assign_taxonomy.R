@@ -13,7 +13,7 @@ load("data/results/feattab.RData")
 
 
 taxonomy <- assignTaxonomy(
-  seqtab.nochim,
+  seqtab_nochim,
   "/scratch/nmnh_lab/macdonaldk/ref/midori_COI_genus_dada2.fasta",
   taxLevels = c(
     "Phylum",
