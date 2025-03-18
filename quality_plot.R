@@ -25,7 +25,7 @@ args <- commandArgs(trailingOnly = TRUE)
 project_name <- basename(getwd())
 
 # Set a path to the directory with the cutadapt-trimmed reads.
-path_to_trimmed <- "../data/working/trimmed_reads"
+path_to_trimmed <- "../data/working/trimmed_sequences"
 
 trimmed_F <- sort(
   list.files(
