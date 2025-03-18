@@ -21,6 +21,9 @@ library(ShortRead)
 
 args <- commandArgs(trailingOnly = TRUE)
 
+# Save project name as an object
+project_name <- basename(getwd())
+
 # Set a path to the directory with the cutadapt-trimmed reads.
 path_to_trimmed <- "../data/working/trimmed_reads"
 
@@ -80,7 +83,7 @@ names(trimmed_noreads_F)
 # the orange lines are the quartiles (solid for median, dashed for 25% and 75%)
 # and the red line represents the proportion of reads existing at that position.
 quality_plot_F <- plotQualityProfile(
-  fnFs[1:length(sample_names_trimmed)],
+  trimmed_F[1:length(sample_names_trimmed)],
   aggregate = TRUE
 )
 quality_plot_F_reduced <- quality_plot_F +
@@ -89,7 +92,7 @@ quality_plot_F_reduced <- quality_plot_F +
     breaks = seq(100, 300, 10)
   )
 ggsave(
-  "../data/results/qualplotF.pdf",
+  paste0("../data/results/", project_name, "_qualplotF.pdf"),
   plot = quality_plot_F,
   width = 9,
   height = 9
@@ -106,7 +109,7 @@ quality_plot_R_reduced <- quality_plot_R +
     breaks = seq(100, 300, 10)
   )
 ggsave(
-  "../data/results/qualplotR.pdf",
+  paste0("../data/results/", project_name, "_qualplotR.pdf"),
   plot = quality_plot_R,
   width = 9,
   height = 9
