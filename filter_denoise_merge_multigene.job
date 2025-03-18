@@ -17,14 +17,11 @@ module load tools/R/4.4.1
 echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
 echo + NSLOTS = $NSLOTS
 #
-gene1="$1"
-gene2="$2"
-trimmed1="$3"
-trimmed2="$4"
-truncF1="$5"
-truncR1="$6"
-truncF2="$7"
-truncR2="$8"
+gene="$1"
+trimmed="$2"
+truncF="$3"
+truncR="$4"
+
 #
 
 #echo ${gene1}
@@ -37,8 +34,7 @@ truncR2="$8"
 #echo ${truncR2}
 
 Rscript filter_denoise_merge_multigene.R \
-${gene1} ${trimmed1} ${truncF1} ${truncR1}
-Rscript filter_denoise_merge_multigene.R \
-${gene2} ${trimmed2} ${truncF2} ${truncR2}
+${gene} ${trimmed} ${truncF} ${truncR}
+
 #
 echo = `date` job $JOB_NAME done

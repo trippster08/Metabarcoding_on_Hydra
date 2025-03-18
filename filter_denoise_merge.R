@@ -3,6 +3,7 @@ library(dada2)
 library(tidyverse)
 library(seqinr)
 library(digest)
+library(ShortRead)
 
 ## Trim Reads ==================================================================
 
@@ -129,7 +130,7 @@ save(
   path_to_filtered,
   sample_names_filtered,
   sequence_counts_filtered,
-  file = "../data/working/out.Rdata"
+  file = "../data/working/filtered_summary.Rdata"
 )
 
 # Export out as a tsv
@@ -535,7 +536,7 @@ save(
   seqtab_nochim_md5,
   repseq_nochim_md5_asv,
   seqtab_nochim_transpose_md5,
-  file = "../data/results/feattab.RData"
+  file = "../data/working/feattab.RData"
 )
 
 ## Create a Sequence-List Table ================================================
