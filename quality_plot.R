@@ -19,22 +19,33 @@ library(seqinr)
 
 # Set a path to the directory with the cutadapt-trimmed reads.
 args <- commandArgs(trailingOnly = TRUE)
-trimmed <- "../data/working/trimmed_reads"
+path_to_trimmed <- "../data/working/trimmed_reads"
 data <- "../data/"
 trimmed_R1 <- sort(
   list.files(
-    trimmed,
+    path_to_trimmed,
     pattern = "_R1.fastq.gz",
     full.names = TRUE
   )
 )
 trimmed_R2 <- sort(
   list.files(
-    trimmed,
+    path_to_trimmed,
     pattern = "_R2.fastq.gz",
     full.names = TRUE
   )
 )
+
+# Make a new vector of sample names from your trimmed reads.
+sample_names_trimmed <- sapply(strsplit(basename(trimmed_F), "_"), `[`, 1)
+
+# Count the number of reads in each trimmed sample. Since cutadapt only
+# keeps paired reads, we only need to count forward samples.
+sequence_counts_trimmed <- sapply(trimmed_F, function(file) {
+  fastq_data <- readFastq(file)
+  length(fastq_data)
+})
+names(sequence_counts_trimmed) <- sample_names_trimmed
 
 ### Remove empty sample files --------------------------------------------------
 # This saves the R1 fastq for the sample file only if both the R1 and R2 sample
@@ -45,30 +56,9 @@ trimmed_noreads_R2 <- trimmed_R2[sapply(trimmed_R2, file_size) < 100]
 file.remove(trimmed_noreads_R2)
 
 print(
-  "Here are the samples files for which contain no reads after primer trimming"
+  "Here are the samples files for which contain no reads after primer trimming "
 )
-trimmed_noreads_R1
-
-# This creates two vectors. One contains the names for forward reads (R1, called
-# fnFs) and the other for reverse reads (R2, called fnRs).
-fnFs <- sort(
-  list.files(
-    trimmed,
-    pattern = "_R1.fastq.gz",
-    full.names = TRUE
-  )
-)
-fnRs <- sort(
-  list.files(
-    trimmed,
-    pattern = "_R2.fastq.gz",
-    full.names = TRUE
-  )
-)
-
-# Make your samples names
-sample_names <- sapply(strsplit(fnFs, "_trimmed"), `[`, 1)
-nsamples <- length(sample_names)
+names(trimmed_noreads_R1)
 
 ## Make Quality Plots ----------------------------------------------------------
 
@@ -85,35 +75,52 @@ nsamples <- length(sample_names)
 # For these plots, the green line is the mean quality score at that position,
 # the orange lines are the quartiles (solid for median, dashed for 25% and 75%)
 # and the red line represents the proportion of reads existing at that position.
-qualplotF <- plotQualityProfile(
-  fnFs[1:nsamples],
+quality_plot_F <- plotQualityProfile(
+  fnFs[1:length(sample_names_trimmed)],
   aggregate = TRUE
 )
-qualplotF <- qualplotF +
+quality_plot_F_reduced <- quality_plot_F +
   scale_x_continuous(
     limits = c(100, 300),
     breaks = seq(100, 300, 10)
   )
 ggsave(
   "../data/results/qualplotF.pdf",
-  plot = qualplotF,
+  plot = quality_plot_F,
   width = 9,
   height = 9
 )
 
 # Examine the reverse reads as you did the forward.
-qualplotR <- plotQualityProfile(
-  fnRs[1:nsamples],
+quality_plot_R <- plotQualityProfile(
+  fnRs[1:length(sample_names_trimmed)],
   aggregate = TRUE
 )
-qualplotR <- qualplotR +
+quality_plot_R_reduced <- quality_plot_R +
   scale_x_continuous(
     limits = c(100, 300),
     breaks = seq(100, 300, 10)
   )
 ggsave(
   "../data/results/qualplotR.pdf",
-  plot = qualplotR,
+  plot = quality_plot_R,
   width = 9,
   height = 9
+)
+
+# Save all the objects created to this point in this section
+save(
+  path_to_trimmed,
+  data,
+  trimmed_F,
+  trimmed_R,
+  sequence_counts_trimmed,
+  sample_names_trimmed,
+  trimmed_noreads_R1,
+  trimmed_noreads_R2,
+  quality_plot_F,
+  quality_plot_F_reduced,
+  quality_plot_R,
+  quality_plot_R_reduced,
+  file = "data/working/2_qual.Rdata"
 )
