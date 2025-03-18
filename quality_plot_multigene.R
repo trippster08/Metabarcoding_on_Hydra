@@ -22,37 +22,65 @@ library(seqinr)
 args <- commandArgs(trailingOnly = TRUE)
 gene1 <- args[1]
 gene2 <- args[2]
-trimmed_gene1 <- paste0("../data/working/trimmed_reads/", gene1)
-trimmed_gene1_R1 <- sort(
+path_to_trimmed_gene1 <- paste0("../data/working/trimmed_reads/", gene1)
+trimmed_gene1_F <- sort(
   list.files(
-    trimmed_gene1,
+    path_to_trimmed_gene1,
     pattern = "_R1.fastq.gz",
     full.names = TRUE
   )
 )
-trimmed_gene1_R2 <- sort(
+trimmed_gene1_R <- sort(
   list.files(
-    trimmed_gene1,
+    path_to_trimmed_gene1,
     pattern = "_R2.fastq.gz",
     full.names = TRUE
   )
 )
-trimmed_gene2 <- paste0("../data/working/trimmed_reads/", gene2)
-trimmed_gene2_R1 <- sort(
+path_to_trimmed_gene2 <- paste0("../data/working/trimmed_reads/", gene2)
+trimmed_gene2_F <- sort(
   list.files(
-    trimmed_gene2,
+    path_to_trimmed_gene2,
     pattern = "_R1.fastq.gz",
     full.names = TRUE
   )
 )
-trimmed_gene2_R2 <- sort(
+trimmed_gene2_R <- sort(
   list.files(
-    trimmed_gene2,
+    path_to_trimmed_gene2,
     pattern = "_R2.fastq.gz",
     full.names = TRUE
   )
 )
 
+# Make a new vector of sample names from your trimmed reads.
+sample_names_trimmed_gene1 <- sapply(
+  strsplit(basename(trimmed_gene1_F), "_"),
+  `[`,
+  1
+)
+
+sample_names_trimmed_gene2 <- sapply(
+  strsplit(basename(trimmed_gene2_F), "_"),
+  `[`,
+  1
+)
+
+
+# Count the number of reads in each trimmed sample. Since cutadapt only
+# keeps paired reads, we only need to count forward samples.
+sequence_counts_trimmed_gene1 <- sapply(trimmed_gene1_F, function(file) {
+  fastq_data_gene1 <- readFastq(file)
+  length(fastq_data_gene1)
+})
+names(sequence_counts_trimmed) <- sample_names_trimmed
+
+sequence_counts_trimmed_gene2 <- sapply(trimmed_gene2_F, function(file) {
+  fastq_data_gene2 <- readFastq(file)
+  length(fastq_data_gene2)
+})
+names(sequence_counts_trimmed_gene1) <- sample_names_trimmed_gene1
+names(sequence_counts_trimmed_gene2) <- sample_names_trimmed_gene2
 # We will now run the rest of this section in multiple times, once for each
 # gene present in the Illumina run. Again, replace each "gene1", "gene2",
 # "gene3", etc with your specific gene name.
@@ -83,14 +111,14 @@ trimmed_gene2_R2 <- sort(
 
 # This saves the gene1 R1 and R2 fastq sample files only if both the R1 and R2
 # sample files have reads.
-trimmed_noreads_gene1_R1 <- trimmed_gene1_R1[
-  sapply(trimmed_gene1_R1, file.size) < 100
+trimmed_noreads_gene1_F <- trimmed_gene1_F[
+  sapply(trimmed_gene1_F, file.size) < 100
 ]
-file.remove(trimmed_noreads_gene1_R1)
-trimmed_noreads_gene1_R2 <- trimmed_gene1_R2[
-  sapply(trimmed_gene1_R2, file.size) < 100
+file.remove(trimmed_noreads_gene1_F)
+trimmed_noreads_gene1_R <- trimmed_gene1_R[
+  sapply(trimmed_gene1_R, file.size) < 100
 ]
-file.remove(trimmed_noreads_gene1_R2)
+file.remove(trimmed_noreads_gene1_R)
 
 print(paste(
   "Here are the samples files for",
@@ -98,17 +126,17 @@ print(paste(
   "which contain no reads after primer trimming",
   sep = " "
 ))
-trimmed_noreads_gene1_R1
+trimmed_noreads_gene1_F
 # This saves the gene2 R1 and R2 fastq sample files only if both the R1 and R2
 # sample files have reads.
-trimmed_noreads_gene2_R1 <- trimmed_gene2_R1[
-  sapply(trimmed_gene2_R1, file.size) < 100
+trimmed_noreads_gene2_F <- trimmed_gene2_F[
+  sapply(trimmed_gene2_F, file.size) < 100
 ]
-file.remove(trimmed_noreads_gene2_R1)
-trimmed_noreads_gene2_R2 <- trimmed_gene2_R2[
-  sapply(trimmed_gene2_R2, file.size) < 100
+file.remove(trimmed_noreads_gene2_F)
+trimmed_noreads_gene2_R <- trimmed_gene2_R[
+  sapply(trimmed_gene2_R, file.size) < 100
 ]
-file.remove(trimmed_noreads_gene2_R2)
+file.remove(trimmed_noreads_gene2_R)
 
 print(paste(
   "Here are the samples files for",
@@ -116,7 +144,7 @@ print(paste(
   "which contain no reads after primer trimming",
   sep = " "
 ))
-trimmed_noreads_gene2_R1
+trimmed_noreads_gene2_F
 ### Remove mistmatched reads----------------------------------------------------
 # Check to see how many wrong-gene occurances there are for gene1. Replace
 # "gene1" with your first gene name, and "gene2" with your second gene name
@@ -214,7 +242,7 @@ file.rename(
 
 ## Gene1 =======================================================================
 # This creates two vectors. One contains the names for forward reads (R1, called
-# fnFs) and the other for reverse reads (R2, called fnRs).
+# trimmed_reads_F) and the other for reverse reads (R2, called trimmed_reads_R).
 fnFs_gene1 <- sort(
   list.files(
     trimmed_gene1,
