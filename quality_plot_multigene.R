@@ -21,8 +21,8 @@ gene2 <- args[2]
 project_name <- basename(getwd())
 
 # Set a path to the directory with the cutadapt-trimmed reads.
-path_to_trimmed_gene1 <- paste0("../data/working/trimmed_reads/", gene1)
-path_to_trimmed_gene2 <- paste0("../data/working/trimmed_reads/", gene2)
+path_to_trimmed_gene1 <- paste0("../data/working/trimmed_sequences/", gene1)
+path_to_trimmed_gene2 <- paste0("../data/working/trimmed_sequences/", gene2)
 
 trimmed_gene1_F <- sort(
   list.files(
@@ -138,7 +138,7 @@ mismatches_gene1 <- sort(
 file.rename(
   from = mismatches_gene1,
   to = paste0(
-    "../data/working/trimmed_reads/mismatches/",
+    "../data/working/trimmed_sequences/mismatches/",
     basename(mismatches_gene1)
   )
 )
@@ -148,7 +148,7 @@ file.rename(
 
 mismatches_gene2 <- sort(
   list.files(
-    paste0("../data/working/trimmed_reads/", gene2),
+    paste0("../data/working/trimmed_sequences/", gene2),
     pattern = gene1,
     full.names = TRUE
   )
@@ -160,7 +160,7 @@ mismatches_gene2 <- sort(
 file.rename(
   mismatches_gene2,
   to = paste0(
-    "../data/working/trimmed_reads/mismatches/",
+    "../data/working/trimmed_sequences/mismatches/",
     basename(mismatches_gene2)
   )
 )

@@ -49,8 +49,8 @@ then
   -g file:${data}/../primers/${primerF} \
   -G file:${data}/../primers/${primerR} \
   -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed --quiet --nextseq-trim=20 \
-  -o ${data}/working/trimmed_reads/{name}/${name}_trimmed_R1.fastq \
-  -p ${data}/working/trimmed_reads/{name}/${name}_trimmed_R2.fastq \
+  -o ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R1.fastq \
+  -p ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R2.fastq \
   ${data}/raw/${name}_R1${namepost} \
   ${data}/raw/${name}_R2${namepost}
 else
@@ -60,17 +60,17 @@ else
   -G file:${data}/../primers/${primerR} \
   -A file:${data}/../primers/${primerFrc} \
   -e 0.2 --minimum-length 30 --cores=$NSLOTS -n 2 -O 3 --discard-untrimmed --quiet --nextseq-trim=20 \
-  -o ${data}/working/trimmed_reads/{name}/${name}_trimmed_R1.fastq \
-  -p ${data}/working/trimmed_reads/{name}/${name}_trimmed_R2.fastq \
+  -o ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R1.fastq \
+  -p ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R2.fastq \
   ${data}/raw/${name}_R1_${namepost} \
   ${data}/raw/${name}_R2_${namepost}
 fi
 
 gzip -5 \
-${data}/working/trimmed_reads/${gene1}/${name}_trimmed_R1.fastq \
-${data}/working/trimmed_reads/${gene1}/${name}_trimmed_R2.fastq \
-${data}/working/trimmed_reads/${gene2}/${name}_trimmed_R1.fastq \
-${data}/working/trimmed_reads/${gene2}/${name}_trimmed_R2.fastq
+${data}/working/trimmed_sequences/${gene1}/${name}_trimmed_R1.fastq \
+${data}/working/trimmed_sequences/${gene1}/${name}_trimmed_R2.fastq \
+${data}/working/trimmed_sequences/${gene2}/${name}_trimmed_R1.fastq \
+${data}/working/trimmed_sequences/${gene2}/${name}_trimmed_R2.fastq
 
 done
 

@@ -76,11 +76,11 @@ else
 fi
 
 mkdir -p \
-${data}/working/trimmed_reads/${gene1} \
+${data}/working/trimmed_sequences/${gene1} \
 ${data}/working/filtered_reads/${gene1} \
-${data}/working/trimmed_reads/${gene2} \
+${data}/working/trimmed_sequences/${gene2} \
 ${data}/working/filtered_reads/${gene2} \
-${data}/working/trimmed_reads/mismatches \
+${data}/working/trimmed_sequences/mismatches \
 ${data}/results/${gene1} \
 ${data}/results/${gene2}
 
