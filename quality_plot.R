@@ -6,8 +6,10 @@
 # Load all R packages you may need if not coming directly from the previous
 # step.
 library(dada2)
+library(digest)
 library(tidyverse)
 library(seqinr)
+library(ShortRead)
 
 ## File Housekeeping ===========================================================
 
@@ -17,10 +19,11 @@ library(seqinr)
 # skip to the next RStudio command. If you need to set your working directory,
 # substitute your own path for the one below.
 
-# Set a path to the directory with the cutadapt-trimmed reads.
 args <- commandArgs(trailingOnly = TRUE)
+
+# Set a path to the directory with the cutadapt-trimmed reads.
 path_to_trimmed <- "../data/working/trimmed_reads"
-data <- "../data/"
+
 trimmed_F <- sort(
   list.files(
     path_to_trimmed,
@@ -39,6 +42,7 @@ trimmed_R <- sort(
 # Make a new vector of sample names from your trimmed reads.
 sample_names_trimmed <- sapply(strsplit(basename(trimmed_F), "_"), `[`, 1)
 
+## Get Read Counts of Trimmed Samples ==========================================
 # Count the number of reads in each trimmed sample. Since cutadapt only
 # keeps paired reads, we only need to count forward samples.
 sequence_counts_trimmed <- sapply(trimmed_F, function(file) {
@@ -47,7 +51,7 @@ sequence_counts_trimmed <- sapply(trimmed_F, function(file) {
 })
 names(sequence_counts_trimmed) <- sample_names_trimmed
 
-### Remove empty sample files --------------------------------------------------
+## Remove empty sample files ===================================================
 # This saves the R1 fastq for the sample file only if both the R1 and R2 sample
 # files have reads.
 trimmed_noreads_F <- trimmed_F[sapply(trimmed_F, file_size) < 100]
@@ -60,7 +64,7 @@ print(
 )
 names(trimmed_noreads_F)
 
-## Make Quality Plots ----------------------------------------------------------
+## Make Quality Plots ==========================================================
 
 # This visualizes the quality plots. If you want to look at quality plots for
 # each individual sample, use "aggregate = FALSE", and include whichever sample
@@ -122,5 +126,5 @@ save(
   quality_plot_F_reduced,
   quality_plot_R,
   quality_plot_R_reduced,
-  file = "data/working/2_qual.Rdata"
+  file = "data/working/1_trim_qual.Rdata"
 )
