@@ -21,14 +21,14 @@ library(seqinr)
 args <- commandArgs(trailingOnly = TRUE)
 path_to_trimmed <- "../data/working/trimmed_reads"
 data <- "../data/"
-trimmed_R1 <- sort(
+trimmed_F <- sort(
   list.files(
     path_to_trimmed,
     pattern = "_R1.fastq.gz",
     full.names = TRUE
   )
 )
-trimmed_R2 <- sort(
+trimmed_R <- sort(
   list.files(
     path_to_trimmed,
     pattern = "_R2.fastq.gz",
@@ -50,15 +50,15 @@ names(sequence_counts_trimmed) <- sample_names_trimmed
 ### Remove empty sample files --------------------------------------------------
 # This saves the R1 fastq for the sample file only if both the R1 and R2 sample
 # files have reads.
-trimmed_noreads_R1 <- trimmed_R1[sapply(trimmed_R1, file_size) < 100]
-file.remove(trimmed_noreads_R1)
-trimmed_noreads_R2 <- trimmed_R2[sapply(trimmed_R2, file_size) < 100]
-file.remove(trimmed_noreads_R2)
+trimmed_noreads_F <- trimmed_F[sapply(trimmed_F, file_size) < 100]
+file.remove(trimmed_noreads_F)
+trimmed_noreads_R <- trimmed_R[sapply(trimmed_R, file_size) < 100]
+file.remove(trimmed_noreads_R)
 
 print(
   "Here are the samples files for which contain no reads after primer trimming "
 )
-names(trimmed_noreads_R1)
+names(trimmed_noreads_F)
 
 ## Make Quality Plots ----------------------------------------------------------
 
@@ -116,8 +116,8 @@ save(
   trimmed_R,
   sequence_counts_trimmed,
   sample_names_trimmed,
-  trimmed_noreads_R1,
-  trimmed_noreads_R2,
+  trimmed_noreads_F,
+  trimmed_noreads_R,
   quality_plot_F,
   quality_plot_F_reduced,
   quality_plot_R,
