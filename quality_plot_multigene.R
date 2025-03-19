@@ -18,7 +18,7 @@ gene1 <- args[1]
 gene2 <- args[2]
 
 # Save project name as an object
-project_name <- basename(getwd())
+project_name <- basename(dirname(getwd()))
 
 # Set a path to the directory with the cutadapt-trimmed reads.
 path_to_trimmed_gene1 <- paste0("../data/working/trimmed_sequences/", gene1)

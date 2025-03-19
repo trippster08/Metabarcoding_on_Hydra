@@ -22,7 +22,7 @@ library(ShortRead)
 args <- commandArgs(trailingOnly = TRUE)
 
 # Save project name as an object
-project_name <- basename(getwd())
+project_name <- basename(dirname(getwd()))
 
 # Set a path to the directory with the cutadapt-trimmed reads.
 path_to_trimmed <- "../data/working/trimmed_sequences"

@@ -21,7 +21,7 @@ truncR <- as.numeric(args[4])
 #str(truncR)
 
 # Save project name as an object
-project_name <- basename(getwd())
+project_name <- basename(dirname(getwd()))
 
 
 # This creates a vector of the path for forward reads (R1, called trimmed_F).
