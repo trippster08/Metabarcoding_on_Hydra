@@ -13,17 +13,35 @@ if (!requireNamespace("BiocManager", quietly = TRUE)){
   install.packages("BiocManager")
 }
 ```
-Install DADA2. You may get an error telling you to install a different version. Change "3.19" to whatever version it tells you.
+Install all of the libraries needed through BiocManager.
 ```
-BiocManager::install("dada2", version = "3.19")
+BiocManager::install("dada2", ask = FALSE)
+BiocManager::install("phyloseq", ask = FALSE)
+BiocManager::install("msa", ask = FALSE)
+BiocManager::install("DECIPHER", ask = FALSE)
+BiocManager::install("rBLAST", ask = FALSE)
+BiocManager::install("rBLAST", ask = FALSE)
 ```
 
-Install the rest of the libraries. You will be asked to choose a mirror for some of the libraries. Pick whichever you prefer, I dont think it matters.
+Install any other libraries you may need. Libraries will only need to be installed once. If you get a message saying some packages have more recent versions available,
+and asking if you want to update them, chose "1: ALL".
 ```
-install.packages("digest")
-install.packages("tidyverse")
-install.packages("seqinr")
-install.packages("ape")
+install.packages("digest", Ncpus = 4)
+install.packages("tidyverse", Ncpus = 4)
+install.packages("seqinr", Ncpus = 4)
+install.packages("ape", Ncpus = 4)
+install.packages("vegan", Ncpus = 4)
+install.packages("patchwork", Ncpus = 4)
+install.packages("remotes", Ncpus = 4)
+install.packages("R.utils", Ncpus = 4)
+install.packages("phylotools", Ncpus = 4)
+install.packages("data.table", Ncpus = 4)
+remotes::install_github("ropensci/bold", upgrade = TRUE)
+remotes::install_github("ropensci/taxize", upgrade = TRUE)
+remotes::install_github("fkeck/refdb", upgrade = TRUE)
+remotes::install_github("tobiasgf/lulu", upgrade = TRUE)
+remotes::install_github("boldsystems-central/BOLDconnectR", upgrade = TRUE)
+install.packages("rMSA", repos = "https://mhahsler.r-universe.dev")
 ```
 After all packages have been restored, load them just to make sure they work.
 ```
