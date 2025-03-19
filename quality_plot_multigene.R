@@ -19,6 +19,8 @@ gene2 <- args[2]
 
 # Save project name as an object
 project_name <- basename(dirname(getwd()))
+print("This project is named ")
+project_name
 
 # Set a path to the directory with the cutadapt-trimmed reads.
 path_to_trimmed_gene1 <- paste0("../data/working/trimmed_sequences/", gene1)
@@ -56,16 +58,43 @@ trimmed_gene2_R <- sort(
 
 # Make a new vector of sample names from your trimmed reads.
 sample_names_trimmed_gene1 <- sapply(
-  strsplit(basename(trimmed_gene1_F), "_"),
+  strsplit(basename(trimmed_gene1_F), "_S\\d{1,3}_"),
   `[`,
   1
 )
 
 sample_names_trimmed_gene2 <- sapply(
-  strsplit(basename(trimmed_gene2_F), "_"),
+  strsplit(basename(trimmed_gene2_F), "_S\\d{1,3}_"),
   `[`,
   1
 )
+
+## Get Read Counts of Raw Samples ==============================================
+# Make a list of all the files in your "data/raw" folder.
+reads_to_trim <- list.files("../data/raw")
+
+# Separate files by read direction (R1,R2), and save each
+reads_to_trim_F <- reads_to_trim[str_detect(reads_to_trim, "R1_001.fastq.gz")]
+
+# Separate the elements of "reads_to_trim_F" by underscore, and save the first
+# element as "sample_names".
+sample_names_raw <- sapply(
+  strsplit(basename(reads_to_trim_F), "_S\\d{1,3}_"),
+  `[`,
+  1
+)
+
+# Count the number of reads in each sample.
+sequence_counts_raw <- sapply(
+  paste0("../data/raw/", reads_to_trim_F),
+  function(file) {
+    fastq_data <- readFastq(file)
+    length(fastq_data)
+  }
+)
+# Name these counts with your sample names
+names(sequence_counts_raw) <- sample_names_raw
+
 
 ## Get Read Counts of Trimmed Samples ==========================================
 # Count the number of reads in each trimmed sample. Since cutadapt only
@@ -89,11 +118,16 @@ names(sequence_counts_trimmed_gene2) <- sample_names_trimmed_gene2
 trimmed_noreads_gene1_F <- trimmed_gene1_F[
   sapply(trimmed_gene1_F, file.size) < 100
 ]
-file.remove(trimmed_noreads_gene1_F)
 trimmed_noreads_gene1_R <- trimmed_gene1_R[
   sapply(trimmed_gene1_R, file.size) < 100
 ]
-file.remove(trimmed_noreads_gene1_R)
+
+sample_names_trimmed_noreads_gene1 <- sapply(
+  strsplit(basename(trimmed_noreads_gene1_F), "_S\\d{1,3}_"),
+  `[`,
+  1
+)
+names(trimmed_noreads_gene1_F) <- sample_names_trimmed_noreads_gene1
 
 print(paste(
   "Here are the samples files for",
@@ -101,32 +135,44 @@ print(paste(
   "which contain no reads after primer trimming ",
   sep = " "
 ))
-trimmed_noreads_gene1_F
+names(trimmed_noreads_gene1_F)
+
+invisible(file.remove(trimmed_noreads_gene1_F))
+invisible(file.remove(trimmed_noreads_gene1_R))
+
 # This saves the gene2 R1 and R2 fastq sample files only if both the R1 and R2
 # sample files have reads.
 trimmed_noreads_gene2_F <- trimmed_gene2_F[
   sapply(trimmed_gene2_F, file.size) < 100
 ]
-file.remove(trimmed_noreads_gene2_F)
 trimmed_noreads_gene2_R <- trimmed_gene2_R[
   sapply(trimmed_gene2_R, file.size) < 100
 ]
-file.remove(trimmed_noreads_gene2_R)
 
+sample_names_trimmed_noreads_gene2 <- sapply(
+  strsplit(basename(trimmed_noreads_gene2_F), "_S\\d{1,3}_"),
+  `[`,
+  1
+)
+names(trimmed_noreads_gene2_F) <- sample_names_trimmed_noreads_gene2
 print(paste(
   "Here are the samples files for",
   gene2,
   "which contain no reads after primer trimming ",
   sep = " "
 ))
-trimmed_noreads_gene2_F
+names(trimmed_noreads_gene2_F)
 
-### Remove mistmatched reads----------------------------------------------------
+invisible(file.remove(trimmed_noreads_gene2_F))
+invisible(file.remove(trimmed_noreads_gene2_R))
+
+
+## Remove mistmatched trimmed read files =======================================
 # Check to see how many wrong-gene occurances there are for gene1 and save the
 # names of the samples with these mismatches.
 mismatches_gene1 <- sort(
   list.files(
-    trimmed_gene1,
+    paste0("../data/working/trimmed_sequences/", gene1),
     pattern = gene2,
     full.names = TRUE
   )
@@ -135,13 +181,13 @@ mismatches_gene1 <- sort(
 # Move all the misidentified/empty files into a newly created "mismatches"
 # directory. file.rename moves the files you want to move, and deletes them from
 # their original directory.
-file.rename(
+invisible(file.rename(
   from = mismatches_gene1,
   to = paste0(
     "../data/working/trimmed_sequences/mismatches/",
     basename(mismatches_gene1)
   )
-)
+))
 
 # Repeat this process with your second gene. Make sure to reverse the path to
 # your trimmed reads, and "pattern=" arguments
@@ -157,17 +203,60 @@ mismatches_gene2 <- sort(
 # Move all the misidentified/empty files into a newly created "misID_gene1"
 # directory. file.rename moves the files you want to move, and deletes them from
 # their original directory.
-file.rename(
+invisible(file.rename(
   mismatches_gene2,
   to = paste0(
     "../data/working/trimmed_sequences/mismatches/",
     basename(mismatches_gene2)
   )
+))
+
+# Now we have to redefine "trimmed_gene1_F" and so on, since we removed
+# sequences
+trimmed_gene1_F <- sort(
+  list.files(
+    path_to_trimmed_gene1,
+    pattern = "_R1.fastq.gz",
+    full.names = TRUE
+  )
+)
+trimmed_gene1_R <- sort(
+  list.files(
+    path_to_trimmed_gene1,
+    pattern = "_R2.fastq.gz",
+    full.names = TRUE
+  )
+)
+trimmed_gene2_F <- sort(
+  list.files(
+    path_to_trimmed_gene2,
+    pattern = "_R1.fastq.gz",
+    full.names = TRUE
+  )
+)
+trimmed_gene2_R <- sort(
+  list.files(
+    path_to_trimmed_gene2,
+    pattern = "_R2.fastq.gz",
+    full.names = TRUE
+  )
 )
 
+# Make a new vector of sample names from your trimmed reads.
+sample_names_trimmed_gene1 <- sapply(
+  strsplit(basename(trimmed_gene1_F), "_S\\d{1,3}_"),
+  `[`,
+  1
+)
+
+sample_names_trimmed_gene2 <- sapply(
+  strsplit(basename(trimmed_gene2_F), "_S\\d{1,3}_"),
+  `[`,
+  1
+)
 ## Gene1 =======================================================================
 
-nsamples_gene1 <- length(sample_names_gene1)
+nsamples_gene1 <- length(sample_names_trimmed_gene1)
 print(paste(
   "Here are the number of",
   gene1,
@@ -221,7 +310,7 @@ ggsave(
     project_name,
     "_",
     gene1,
-    "/qualplotF_",
+    "_qualplotF_",
     gene1,
     ".pdf"
   ),
@@ -236,7 +325,7 @@ ggsave(
     project_name,
     "_",
     gene1,
-    "/qualplotR_",
+    "_qualplotR_",
     gene1,
     ".pdf"
   ),
@@ -249,11 +338,11 @@ ggsave(
 # This creates two vectors. One contains the names for forward reads (R1, called
 # fnFs) and the other for reverse reads (R2, called fnRs).
 
-nsamples_gene2 <- length(sample_names_gene2)
+nsamples_gene2 <- length(sample_names_trimmed_gene2)
 
 print(paste(
   "Here are the number of",
-  gene1,
+  gene2,
   "samples that will be analyzed with DADA2: ",
   sep = " "
 ))
@@ -303,7 +392,7 @@ ggsave(
     project_name,
     "_",
     gene2,
-    "/qualplotF_",
+    "_qualplotF_",
     gene2,
     ".pdf"
   ),
@@ -318,7 +407,7 @@ ggsave(
     project_name,
     "_",
     gene2,
-    "/qualplotR_",
+    "_qualplotR_",
     gene2,
     ".pdf"
   ),
@@ -330,6 +419,11 @@ ggsave(
 save(
   gene1,
   gene2,
+  project_name,
+  reads_to_trim,
+  reads_to_trim_F,
+  sample_names_raw,
+  sequence_counts_raw,
   path_to_trimmed_gene1,
   path_to_trimmed_gene2,
   trimmed_gene1_F,
@@ -356,5 +450,5 @@ save(
   quality_plot_gene2_F_reduced,
   quality_plot_gene2_R,
   quality_plot_gene2_R_reduced,
-  file = "data/working/1_trim_qual.Rdata"
+  file = "../data/working/1_trim_qual.Rdata"
 )
