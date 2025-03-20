@@ -1,6 +1,6 @@
-# DADA2 ########################################################################
-# We use Dada2 to filter and trim reads, estimate error rates and use these
-# estimates to denoise reads, merge paired reads, and remove chimeric sequences
+# Quality Plots ################################################################
+# We use DADA2 to obtain quality plots which we will use to filter in a later
+# section
 
 ## Load Libraries ==============================================================
 # Load all R packages you may need if not coming directly from the previous
@@ -23,7 +23,8 @@ args <- commandArgs(trailingOnly = TRUE)
 
 # Save project name as an object
 project_name <- basename(dirname(getwd()))
-
+print("This project is named")
+project_name
 # Set a path to the directory with the cutadapt-trimmed reads.
 path_to_trimmed <- "../data/working/trimmed_sequences"
 
@@ -43,7 +44,37 @@ trimmed_R <- sort(
 )
 
 # Make a new vector of sample names from your trimmed reads.
-sample_names_trimmed <- sapply(strsplit(basename(trimmed_F), "_"), `[`, 1)
+sample_names_trimmed <- sapply(
+  strsplit(basename(trimmed_F), "_S\\d{1,3}_"),
+  `[`,
+  1
+)
+
+## Get Read Counts of Raw Samples ==============================================
+# Make a list of all the files in your "data/raw" folder.
+reads_to_trim <- list.files("../data/raw")
+
+# Separate files by read direction (R1,R2), and save each
+reads_to_trim_F <- reads_to_trim[str_detect(reads_to_trim, "R1_001.fastq.gz")]
+
+# Separate the elements of "reads_to_trim_F" by underscore, and save the first
+# element as "sample_names".
+sample_names_raw <- sapply(
+  strsplit(basename(reads_to_trim_F), "_S\\d{1,3}_"),
+  `[`,
+  1
+)
+
+# Count the number of reads in each sample.
+sequence_counts_raw <- sapply(
+  paste0("../data/raw/", reads_to_trim_F),
+  function(file) {
+    fastq_data <- readFastq(file)
+    length(fastq_data)
+  }
+)
+# Name these counts with your sample names
+names(sequence_counts_raw) <- sample_names_raw
 
 ## Get Read Counts of Trimmed Samples ==========================================
 # Count the number of reads in each trimmed sample. Since cutadapt only
@@ -58,15 +89,24 @@ names(sequence_counts_trimmed) <- sample_names_trimmed
 # This saves the R1 fastq for the sample file only if both the R1 and R2 sample
 # files have reads.
 trimmed_noreads_F <- trimmed_F[sapply(trimmed_F, file_size) < 100]
-file.remove(trimmed_noreads_F)
 trimmed_noreads_R <- trimmed_R[sapply(trimmed_R, file_size) < 100]
-file.remove(trimmed_noreads_R)
 
 print(
-  "Here are the samples files for which contain no reads after primer trimming "
+  "Here are the sample files for which contain no reads after primer trimming:"
 )
 names(trimmed_noreads_F)
 
+# Remove the empty files. invisible() does it without a logical (TRUE/FALSE)
+# message
+invisible(file.remove(trimmed_noreads_R))
+invisible(file.remove(trimmed_noreads_F))
+
+# Renew vector of sample names from your trimmed reads.
+sample_names_trimmed <- sapply(
+  strsplit(basename(trimmed_F), "_S\\d{1,3}_"),
+  `[`,
+  1
+)
 ## Make Quality Plots ==========================================================
 
 # This visualizes the quality plots. If you want to look at quality plots for
@@ -91,13 +131,6 @@ quality_plot_F_reduced <- quality_plot_F +
     limits = c(100, 300),
     breaks = seq(100, 300, 10)
   )
-ggsave(
-  paste0("../data/results/", project_name, "_qualplotF.pdf"),
-  plot = quality_plot_F,
-  width = 9,
-  height = 9
-)
-
 # Examine the reverse reads as you did the forward.
 quality_plot_R <- plotQualityProfile(
   fnRs[1:length(sample_names_trimmed)],
@@ -108,6 +141,13 @@ quality_plot_R_reduced <- quality_plot_R +
     limits = c(100, 300),
     breaks = seq(100, 300, 10)
   )
+# Export quality plots.
+ggsave(
+  paste0("../data/results/", project_name, "_qualplotF.pdf"),
+  plot = quality_plot_F,
+  width = 9,
+  height = 9
+)
 ggsave(
   paste0("../data/results/", project_name, "_qualplotR.pdf"),
   plot = quality_plot_R,
@@ -116,18 +156,4 @@ ggsave(
 )
 
 # Save all the objects created to this point in this section
-save(
-  path_to_trimmed,
-  data,
-  trimmed_F,
-  trimmed_R,
-  sequence_counts_trimmed,
-  sample_names_trimmed,
-  trimmed_noreads_F,
-  trimmed_noreads_R,
-  quality_plot_F,
-  quality_plot_F_reduced,
-  quality_plot_R,
-  quality_plot_R_reduced,
-  file = "data/working/1_trim_qual.Rdata"
-)
+save.image(file = "../data/working/1_trim_qual.RData")
