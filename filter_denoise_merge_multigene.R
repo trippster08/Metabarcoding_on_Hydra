@@ -22,8 +22,16 @@ truncR <- as.numeric(args[4])
 
 # Save project name as an object
 project_name <- basename(dirname(getwd()))
-
-
+# Load the RData from "quality_plot_multigene.R"
+load("../data/working/1_trim_qual.RData")
+# Next we are going to rename all our objects with the specific gene in the name
+# (such as COI or 18S or 12S or whatever gene is assigned to "gene") to remove
+# the gene name
+object_names <- ls()
+new_object_names <- gsub(paste0("_", gene), "", object_names)
+for (i in seq_along(object_names)) {
+  assign(new_object_names[i], get(object_names[i]))
+}
 # This creates a vector of the path for forward reads (R1, called trimmed_F).
 trimmed_F <- sort(list.files(
   path_to_trimmed,
@@ -31,15 +39,27 @@ trimmed_F <- sort(list.files(
   full.names = TRUE
 ))
 
-# Make a vector of sample names from your trimmed reads.
-sample_names_trimmed <- sapply(strsplit(basename(trimmed_F), "_"), `[`, 1)
+trimmed_R <- sort(list.files(
+  path_to_trimmed,
+  pattern = "_R2.fastq.gz",
+  full.names = TRUE
+))
 
+# Make a vector of sample names from your trimmed reads.
+sample_names_trimmed <- sapply(
+  strsplit(basename(trimmed_F), "_S\\d{1,3}_"),
+  `[`,
+  1
+)
 
 # This creates files for the reads that will be quality filtered with dada2
 # in the next step.
 filtered_F <- file.path(
   "../data/working",
-  "filtered",
+  paste0(
+    "filtered/",
+    gene
+  ),
   paste0(
     sample_names_trimmed,
     "_F_filt.fastq.gz"
@@ -47,7 +67,10 @@ filtered_F <- file.path(
 )
 filtered_R <- file.path(
   "../data/working",
-  "filtered",
+  paste0(
+    "filtered_reads",
+    gene
+  ),
   paste0(
     sample_names_trimmed,
     "_R_filt.fastq.gz"
@@ -83,9 +106,9 @@ names(filtered_R) <- sample_names_trimmed
 # time.
 
 filtered_summary <- filterAndTrim(
-  fnFs,
+  trimmed_F,
   filtered_F,
-  fnRs,
+  trimmed_R,
   filtered_R,
   truncLen = c(truncF, truncR),
   maxN = 0,
@@ -139,11 +162,11 @@ save(
   path_to_filtered,
   sample_names_filtered,
   sequence_counts_filtered,
-  file = paste0("../data/working/", gene, "filtered_summary.Rdata")
+  file = paste0("../data/working/", gene, "_filtered_summary.RData")
 )
 # Export out as a tsv
 write.table(
-  out,
+  filtered_summary,
   file = paste0(
     "../data/results/",
     gene,
@@ -235,7 +258,7 @@ save(
   errors_R,
   error_plots_F,
   error_plots_R,
-  file = paste0("../data/working/", gene, "errors.Rdata")
+  file = paste0("../data/working/", gene, "_errors.RData")
 )
 
 ## Denoising ===================================================================
@@ -309,7 +332,7 @@ merged_reads <- mergePairs(
 # transpose this table if needed later (and we will later). I think for now, I
 # will use "sequence-table" for the table with columns of sequences, and
 # "feature-table" for tables with columns of samples.
-seqtab <- makeSequenceTable(merged)
+seqtab <- makeSequenceTable(merged_reads)
 # This describes the dimensions of the table just made
 dim(seqtab)
 
@@ -362,8 +385,6 @@ write.fasta(
 # This shows the length of the representative sequences (ASV's). Typically,
 # there are a lot of much longer and much shorter sequences.
 seq_length_table <- table(nchar(getSequences(seqtab_nochim)))
-# Look at the table
-seq_length_table
 # Export this table as a .tsv
 write.table(
   seq_length_table,
@@ -593,7 +614,7 @@ write.fasta(
   open = "w",
   as.string = FALSE,
   file.out = paste0(
-    "data/results/",
+    "../data/results/",
     gene,
     "/",
     project_name,
@@ -608,7 +629,7 @@ write.fasta(
 write.table(
   repseq_nochim_md5_asv,
   file = paste0(
-    "data/results/",
+    "../data/results/",
     gene,
     "/",
     project_name,
@@ -639,9 +660,8 @@ save(
   seqtab_nochim_transpose_md5,
   file = paste0(
     "../data/working/",
-    "feattab_",
     gene,
-    ".RData"
+    "_feattab.RData"
   )
 )
 
@@ -715,8 +735,7 @@ seqtab_nochim_tall_nozero_md5 <- cbind(
   seqtab_nochim_tall_nozero,
   md5 = repseq_tall_md5
 )
-# Check to make sure new table contains "feature" column
-colnames(seqtab_nochim_tall_nozero_md5)
+
 
 # Create a new column in this table that contains "sample", "feature", and
 # "count", concatenated. This is the heading for each sequence in the fasta file
@@ -728,17 +747,26 @@ seqtab_nochim_tall_nozero_md5_ftf <- seqtab_nochim_tall_nozero_md5 %>%
 # Create a fasta-formatted file of each row sequence (i.e. ASV), with a heading
 # of "sample_feature_count".
 write.fasta(
-  sequences = as.list(seqtab_nochim_tall_nozero_md5_name$ASV),
-  names = seqtab_nochim_tall_nozero_md5_name$sample_feature_count,
+  sequences = as.list(seqtab_nochim_tall_nozero_md5_ftf$ASV),
+  names = seqtab_nochim_tall_nozero_md5_ftf$sample_feature_count,
   open = "w",
   as.string = FALSE,
-  file.out = pasteo(
-    "data/results/",
+  file.out = paste0(
+    "../data/results/",
     gene,
     "/",
     project_name,
     "_feature-to-fasta_",
     gene,
     ".fas"
+  )
+)
+
+
+save.image(
+  file = paste0(
+    "../data/working/",
+    gene,
+    "_2_denoise_merge.RData"
   )
 )
