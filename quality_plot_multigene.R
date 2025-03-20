@@ -19,7 +19,7 @@ gene2 <- args[2]
 
 # Save project name as an object
 project_name <- basename(dirname(getwd()))
-print("This project is named ")
+print("This project is named")
 project_name
 
 # Set a path to the directory with the cutadapt-trimmed reads.
@@ -111,62 +111,6 @@ sequence_counts_trimmed_gene2 <- sapply(trimmed_gene2_F, function(file) {
 names(sequence_counts_trimmed_gene1) <- sample_names_trimmed_gene1
 names(sequence_counts_trimmed_gene2) <- sample_names_trimmed_gene2
 
-
-## Remove empty sample files ===================================================
-# This saves the R1 fastq for the sample file only if both the R1 and R2 sample
-# files have reads.
-trimmed_noreads_gene1_F <- trimmed_gene1_F[
-  sapply(trimmed_gene1_F, file.size) < 100
-]
-trimmed_noreads_gene1_R <- trimmed_gene1_R[
-  sapply(trimmed_gene1_R, file.size) < 100
-]
-
-sample_names_trimmed_noreads_gene1 <- sapply(
-  strsplit(basename(trimmed_noreads_gene1_F), "_S\\d{1,3}_"),
-  `[`,
-  1
-)
-names(trimmed_noreads_gene1_F) <- sample_names_trimmed_noreads_gene1
-
-print(paste(
-  "Here are the samples files for",
-  gene1,
-  "which contain no reads after primer trimming ",
-  sep = " "
-))
-names(trimmed_noreads_gene1_F)
-
-invisible(file.remove(trimmed_noreads_gene1_F))
-invisible(file.remove(trimmed_noreads_gene1_R))
-
-# This saves the gene2 R1 and R2 fastq sample files only if both the R1 and R2
-# sample files have reads.
-trimmed_noreads_gene2_F <- trimmed_gene2_F[
-  sapply(trimmed_gene2_F, file.size) < 100
-]
-trimmed_noreads_gene2_R <- trimmed_gene2_R[
-  sapply(trimmed_gene2_R, file.size) < 100
-]
-
-sample_names_trimmed_noreads_gene2 <- sapply(
-  strsplit(basename(trimmed_noreads_gene2_F), "_S\\d{1,3}_"),
-  `[`,
-  1
-)
-names(trimmed_noreads_gene2_F) <- sample_names_trimmed_noreads_gene2
-print(paste(
-  "Here are the samples files for",
-  gene2,
-  "which contain no reads after primer trimming ",
-  sep = " "
-))
-names(trimmed_noreads_gene2_F)
-
-invisible(file.remove(trimmed_noreads_gene2_F))
-invisible(file.remove(trimmed_noreads_gene2_R))
-
-
 ## Remove mistmatched trimmed read files =======================================
 # Check to see how many wrong-gene occurances there are for gene1 and save the
 # names of the samples with these mismatches.
@@ -254,6 +198,63 @@ sample_names_trimmed_gene2 <- sapply(
   `[`,
   1
 )
+## Remove empty sample files ===================================================
+# This saves the R1 fastq for the sample file only if both the R1 and R2 sample
+# files have reads.
+trimmed_noreads_gene1_F <- trimmed_gene1_F[
+  sapply(trimmed_gene1_F, file.size) < 100
+]
+trimmed_noreads_gene1_R <- trimmed_gene1_R[
+  sapply(trimmed_gene1_R, file.size) < 100
+]
+
+sample_names_trimmed_noreads_gene1 <- sapply(
+  strsplit(basename(trimmed_noreads_gene1_F), "_S\\d{1,3}_"),
+  `[`,
+  1
+)
+names(trimmed_noreads_gene1_F) <- sample_names_trimmed_noreads_gene1
+
+print(paste(
+  "Here are the sample files for",
+  gene1,
+  "which contain no reads after primer trimming: ",
+  sep = " "
+))
+names(trimmed_noreads_gene1_F)
+
+# Remove the empty files. invisible() does it without a logical (TRUE/FALSE)
+# message
+invisible(file.remove(trimmed_noreads_gene1_F))
+invisible(file.remove(trimmed_noreads_gene1_R))
+
+# This saves the gene2 R1 and R2 fastq sample files only if both the R1 and R2
+# sample files have reads.
+trimmed_noreads_gene2_F <- trimmed_gene2_F[
+  sapply(trimmed_gene2_F, file.size) < 100
+]
+trimmed_noreads_gene2_R <- trimmed_gene2_R[
+  sapply(trimmed_gene2_R, file.size) < 100
+]
+
+sample_names_trimmed_noreads_gene2 <- sapply(
+  strsplit(basename(trimmed_noreads_gene2_F), "_S\\d{1,3}_"),
+  `[`,
+  1
+)
+names(trimmed_noreads_gene2_F) <- sample_names_trimmed_noreads_gene2
+print(paste(
+  "Here are the samples files for",
+  gene2,
+  "which contain no reads after primer trimming ",
+  sep = " "
+))
+names(trimmed_noreads_gene2_F)
+
+invisible(file.remove(trimmed_noreads_gene2_F))
+invisible(file.remove(trimmed_noreads_gene2_R))
+
+
 ## Gene1 =======================================================================
 
 nsamples_gene1 <- length(sample_names_trimmed_gene1)
