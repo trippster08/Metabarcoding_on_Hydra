@@ -23,7 +23,11 @@ trimmed_F <- sort(list.files(
 ))
 
 # Make a vector of sample names from your trimmed reads.
-sample_names_trimmed <- sapply(strsplit(basename(trimmed_F), "_"), `[`, 1)
+sample_names_trimmed <- sapply(
+  strsplit(basename(trimmed_F), "_S\\d{1,3}_"),
+  `[`,
+  1
+)
 
 # This creates files for the reads that will be quality filtered with dada2
 # in the next step.
@@ -73,9 +77,9 @@ names(filtered_R) <- sample_names_trimmed
 # time.
 
 filtered_summary <- filterAndTrim(
-  fnFs,
+  trimmed_F,
   filtered_F,
-  fnRs,
+  trimmed_R,
   filtered_R,
   truncLen = c(truncF, truncR),
   maxN = 0,
@@ -130,7 +134,7 @@ save(
   path_to_filtered,
   sample_names_filtered,
   sequence_counts_filtered,
-  file = "../data/working/filtered_summary.Rdata"
+  file = "../data/working/filtered_summary.RData"
 )
 
 # Export out as a tsv
@@ -202,7 +206,7 @@ save(
   errors_R,
   error_plots_F,
   error_plots_R,
-  file = "../data/working/4_errors.Rdata"
+  file = "../data/working/4_errors.RData"
 )
 ## Denoising ===================================================================
 
@@ -313,8 +317,6 @@ write.fasta(
 # This shows the length of the representative sequences (ASV's). Typically,
 # there are a lot of much longer and much shorter sequences.
 seq_length_table <- table(nchar(getSequences(seqtab_nochim)))
-# Look at the table
-seq_length_table
 # Export this table as a .tsv
 write.table(
   seq_length_table,
@@ -609,8 +611,6 @@ seqtab_nochim_tall_nozero_md5 <- cbind(
   seqtab_nochim_tall_nozero,
   md5 = repseq_tall_md5
 )
-# Check to make sure new table contains "feature" column
-colnames(seqtab_nochim_tall_nozero_md5)
 
 # Create a new column in this table that contains "sample", "feature", and
 # "count", concatenated. This is the heading for each sequence in the fasta file
@@ -622,9 +622,17 @@ seqtab_nochim_tall_nozero_md5_ftf <- seqtab_nochim_tall_nozero_md5 %>%
 # Create a fasta-formatted file of each row sequence (i.e. ASV), with a heading
 # of "sample_feature_count".
 write.fasta(
-  sequences = as.list(seqtab_nochim_tall_nozero_md5_name$ASV),
-  names = seqtab_nochim_tall_nozero_md5_name$sample_feature_count,
+  sequences = as.list(seqtab_nochim_tall_nozero_md5_ftf$ASV),
+  names = seqtab_nochim_tall_nozero_md5_ftf$sample_feature_count,
   open = "w",
   as.string = FALSE,
-  file.out = pasteo("data/results/", project_name, "_feature-to-fasta.fas")
+  file.out = paste0("data/results/", project_name, "_feature-to-fasta.fas")
+)
+
+save.image(
+  file = paste0(
+    "../data/working/",
+    gene,
+    "_2_denoise_merge.RData"
+  )
 )
