@@ -298,7 +298,6 @@ save(
   )
 )
 
-
 ## Merge Paired Sequences ======================================================
 
 # Here we merge the paired reads. merged calls for the forward denoising result
