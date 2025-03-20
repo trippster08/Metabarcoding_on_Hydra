@@ -1,6 +1,6 @@
-# DADA2 ########################################################################
-# We use Dada2 to filter and trim reads, estimate error rates and use these
-# estimates to denoise reads, merge paired reads, and remove chimeric sequences
+# Quality Plots ################################################################
+# We use DADA2 to obtain quality plots which we will use to filter in a later
+# section
 
 ## Load Libraries ==============================================================
 # Load all R packages you may need if not coming directly from the previous
@@ -416,39 +416,23 @@ ggsave(
   height = 9
 )
 
-save(
-  gene1,
-  gene2,
-  project_name,
-  reads_to_trim,
-  reads_to_trim_F,
-  sample_names_raw,
-  sequence_counts_raw,
-  path_to_trimmed_gene1,
-  path_to_trimmed_gene2,
-  trimmed_gene1_F,
-  trimmed_gene1_R,
-  trimmed_gene2_F,
-  trimmed_gene2_R,
-  sample_names_trimmed_gene1,
-  sample_names_trimmed_gene2,
-  sequence_counts_trimmed_gene1,
-  sequence_counts_trimmed_gene2,
-  trimmed_noreads_gene1_F,
-  trimmed_noreads_gene1_R,
-  trimmed_noreads_gene2_F,
-  trimmed_noreads_gene2_R,
-  mismatches_gene1,
-  mismatches_gene2,
-  nsamples_gene1,
-  nsamples_gene2,
-  quality_plot_gene1_F,
-  quality_plot_gene1_F_reduced,
-  quality_plot_gene1_R,
-  quality_plot_gene1_R_reduced,
-  quality_plot_gene2_F,
-  quality_plot_gene2_F_reduced,
-  quality_plot_gene2_R,
-  quality_plot_gene2_R_reduced,
-  file = "../data/working/1_trim_qual.Rdata"
-)
+all_objects <- ls()
+filtered_gene1 <- grep("gene1", all_objects, value = TRUE)
+filtered_gene2 <- grep("gene2", all_objects, value = TRUE)
+objects_to_remove <- c()
+
+for (obj in filtered_gene1) {
+  new_name <- sub("gene1", gene1, obj)
+  assign(new_name, get(obj))
+  objects_to_remove <- c(objects_to_remove, obj)
+}
+
+for (obj in filtered_gene2) {
+  new_name <- sub("gene2", gene2, obj)
+  assign(new_name, get(obj))
+  objects_to_remove <- c(objects_to_remove, obj)
+}
+rm(list = objects_to_remove)
+
+
+save.image(file = "../data/working/1_trim_qual.RData")
