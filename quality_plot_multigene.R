@@ -170,6 +170,12 @@ names(trimmed_noreads_gene1_F)
 invisible(file.remove(trimmed_noreads_gene1_F))
 invisible(file.remove(trimmed_noreads_gene1_R))
 
+# Make a new vector of sample names from your trimmed reads.
+sample_names_trimmed_gene1 <- sapply(
+  strsplit(basename(trimmed_gene1_F), "_S\\d{1,3}_"),
+  `[`,
+  1
+)
 
 # This saves the gene2 R1 and R2 fastq sample files only if both the R1 and R2
 # sample files have reads.
@@ -196,6 +202,13 @@ names(trimmed_noreads_gene2_F)
 
 invisible(file.remove(trimmed_noreads_gene2_F))
 invisible(file.remove(trimmed_noreads_gene2_R))
+
+# Make a new vector of sample names from your trimmed reads.
+sample_names_trimmed_gene2 <- sapply(
+  strsplit(basename(trimmed_gene2_F), "_S\\d{1,3}_"),
+  `[`,
+  1
+)
 
 ## Gene1 =======================================================================
 
