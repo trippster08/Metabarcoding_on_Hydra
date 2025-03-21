@@ -3,30 +3,53 @@
 # section
 
 ## Load Libraries ==============================================================
-# Load all R packages you may need if not coming directly from the previous
-# step.
-library(dada2)
-library(digest)
-library(tidyverse)
-library(seqinr)
-library(ShortRead)
+# Load all R packages you may need.
+suppressMessages(library(dada2, warn.conflicts = FALSE, quietly = TRUE))
+suppressMessages(library(digest, warn.conflicts = FALSE, quietly = TRUE))
+suppressMessages(library(tidyverse, warn.conflicts = FALSE, quietly = TRUE))
+suppressMessages(library(seqinr, warn.conflicts = FALSE, quietly = TRUE))
+suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 
 ## File Housekeeping ===========================================================
-
-# Set up your working directory. If you created your new project in the
-# directory you want as your working directory (or came directory from the
-# previous step in the pipeline), you don't need to do this, and
-# skip to the next RStudio command. If you need to set your working directory,
-# substitute your own path for the one below.
 
 args <- commandArgs(trailingOnly = TRUE)
 
 # Save project name as an object
 project_name <- basename(dirname(getwd()))
-print("This project is named")
-project_name
-# Set a path to the directory with the cutadapt-trimmed reads.
+print(paste0("This project is named ", project_name))
+
+# Set a path to the directory with the raw reads and cutadapt-trimmed reads.
+path_to_raw_reads <- "../data/raw"
 path_to_trimmed <- "../data/working/trimmed_sequences"
+
+## Get Raw Read Counts =========================================================
+# Make a list of all the files in your "data/raw" folder.
+reads_to_trim <- list.files(path_to_raw_reads)
+
+# Separate files by read direction (R1,R2), and save each
+reads_to_trim_F <- reads_to_trim[str_detect(reads_to_trim, "R1_001.fastq.gz")]
+# Separate the elements of "reads_to_trim_F" by underscore, and save the first
+# element as "sample_names".
+sample_names_raw <- sapply(
+  strsplit(basename(reads_to_trim_F), "_S\\d{1,3}_"),
+  `[`,
+  1
+)
+
+# Count the number of reads in each sample.
+sequence_counts_raw <- sapply(
+  paste(path_to_raw_reads, reads_to_trim_F, sep = "/"),
+  function(file) {
+    fastq_data <- readFastq(file)
+    length(fastq_data)
+  }
+)
+
+# Name these counts with your sample names
+names(sequence_counts_raw) <- sample_names_raw
+
+print(paste0("Here are the read counts for each raw sample:"))
+sequence_counts_raw
 
 trimmed_F <- sort(
   list.files(
@@ -50,46 +73,18 @@ sample_names_trimmed <- sapply(
   1
 )
 
-## Get Read Counts of Raw Samples ==============================================
-# Make a list of all the files in your "data/raw" folder.
-reads_to_trim <- list.files("../data/raw")
-
-# Separate files by read direction (R1,R2), and save each
-reads_to_trim_F <- reads_to_trim[str_detect(reads_to_trim, "R1_001.fastq.gz")]
-
-# Separate the elements of "reads_to_trim_F" by underscore, and save the first
-# element as "sample_names".
-sample_names_raw <- sapply(
-  strsplit(basename(reads_to_trim_F), "_S\\d{1,3}_"),
-  `[`,
-  1
-)
-
-# Count the number of reads in each sample.
-sequence_counts_raw <- sapply(
-  paste0("../data/raw/", reads_to_trim_F),
-  function(file) {
-    fastq_data <- readFastq(file)
-    length(fastq_data)
-  }
-)
-# Name these counts with your sample names
-names(sequence_counts_raw) <- sample_names_raw
-
-## Get Read Counts of Trimmed Samples ==========================================
-# Count the number of reads in each trimmed sample. Since cutadapt only
-# keeps paired reads, we only need to count forward samples.
-sequence_counts_trimmed <- sapply(trimmed_F, function(file) {
-  fastq_data <- readFastq(file)
-  length(fastq_data)
-})
-names(sequence_counts_trimmed) <- sample_names_trimmed
-
 ## Remove empty sample files ===================================================
 # This saves the R1 fastq for the sample file only if both the R1 and R2 sample
 # files have reads.
 trimmed_noreads_F <- trimmed_F[sapply(trimmed_F, file_size) < 100]
 trimmed_noreads_R <- trimmed_R[sapply(trimmed_R, file_size) < 100]
+
+sample_names_trimmed_noreads <- sapply(
+  strsplit(basename(trimmed_noreads_gene1_F), "_S\\d{1,3}_"),
+  `[`,
+  1
+)
+names(trimmed_noreads_F) <- sample_names_trimmed_noreads
 
 print(
   "Here are the sample files for which contain no reads after primer trimming:"
@@ -107,6 +102,15 @@ sample_names_trimmed <- sapply(
   `[`,
   1
 )
+
+nsamples <- length(sample_names_trimmed)
+print(paste(
+  "We will analyze",
+  nsamples,
+  "samples.",
+  sep = " "
+))
+
 ## Make Quality Plots ==========================================================
 
 # This visualizes the quality plots. If you want to look at quality plots for
