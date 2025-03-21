@@ -1,10 +1,9 @@
-# DADA2 ########################################################################
-# We use Dada2 to filter and trim reads, estimate error rates and use these
-# estimates to denoise reads, merge paired reads, and remove chimeric sequences
+# Quality Plots ################################################################
+# We use DADA2 to obtain quality plots which we will use to filter in a later
+# section
 
 ## Load Libraries ==============================================================
-# Load all R packages you may need if not coming directly from the previous
-# step.
+# Load all R packages you may need.
 suppressMessages(library(dada2, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(digest, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(tidyverse, warn.conflicts = FALSE, quietly = TRUE))
@@ -208,6 +207,7 @@ print(paste(
   gene1,
   sep = " "
 ))
+
 
 ### Make Quality Plots ---------------------------------------------------------
 
