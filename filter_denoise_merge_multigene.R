@@ -1,9 +1,9 @@
 # TRIM FILTER DENOISE MERGE ####################################################
-library(dada2)
-library(tidyverse)
-library(seqinr)
-library(digest)
-library(ShortRead)
+suppressMessages(library(dada2, warn.conflicts = FALSE, quietly = TRUE))
+suppressMessages(library(digest, warn.conflicts = FALSE, quietly = TRUE))
+suppressMessages(library(tidyverse, warn.conflicts = FALSE, quietly = TRUE))
+suppressMessages(library(seqinr, warn.conflicts = FALSE, quietly = TRUE))
+suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 
 ## Trim Reads ==================================================================
 numcores <- Sys.getenv("NSLOTS")
@@ -51,13 +51,16 @@ sample_names_trimmed <- sapply(
   `[`,
   1
 )
+# Give the vectors names
+names(trimmed_F) <- sample_names_trimmed
+names(trimmed_R) <- sample_names_trimmed
 
-# This creates files for the reads that will be quality filtered with dada2
+# This creates file paths for the reads that will be quality filtered with dada2
 # in the next step.
 filtered_F <- file.path(
   "../data/working",
   paste0(
-    "filtered/",
+    "filtered_sequences/",
     gene
   ),
   paste0(
@@ -68,7 +71,7 @@ filtered_F <- file.path(
 filtered_R <- file.path(
   "../data/working",
   paste0(
-    "filtered_reads",
+    "filtered_sequences/",
     gene
   ),
   paste0(
@@ -77,7 +80,7 @@ filtered_R <- file.path(
   )
 )
 
-# This inserts sample names to these newly created files.
+# This inserts sample names to these newly created file paths.
 names(filtered_F) <- sample_names_trimmed
 names(filtered_R) <- sample_names_trimmed
 
@@ -135,19 +138,30 @@ filtered_R <- filtered_R[exists]
 
 
 # Set a path to the directory with the dada2-filtered reads.
-path_to_filtered <- "../data/working/trimmed_sequences/filtered"
+path_to_filtered <- "../data/working/filtered_sequences"
 
 # Get sample names for filtered reads
-sample_names_filtered <- sapply(strsplit(basename(filtered_F), "_"), `[`, 1)
+sample_names_filtered <- sapply(
+  strsplit(basename(filtered_F), "_[FR]_filt"),
+  `[`,
+  1
+)
 
 # Count how many reads remain in each sample after filtering
 sequence_counts_filtered <- sapply(filtered_F, function(file) {
   fastq_data <- readFastq(file)
   length(fastq_data)
 })
-
 # Name the counts with sample names
 names(sequence_counts_filtered) <- sample_names_filtered
+
+print(paste(
+  "Here are the read counts for each filtered",
+  gene,
+  "sample:",
+  sep = " "
+))
+sequence_counts_filtered
 
 save(
   gene,
@@ -361,11 +375,20 @@ chimeras_list <- isBimeraDenovoTable(
 repseq_all <- getSequences(seqtab)
 # Get a list of just chimera ASVs
 repseq_chimera <- repseq_all[chimeras_list]
+# Make and add md5 hash to the repseq_chimera
+repseq_chimera_md5 <- c()
+for (i in seq_along(repseq_chimera)) {
+  repseq_chimera_md5[i] <- digest(
+    repseq_chimera[i],
+    serialize = FALSE,
+    algo = "md5"
+  )
+}
 
 # Export this as a fasta
 write.fasta(
   sequences = as.list(repseq_chimera),
-  names = repseq_chimera,
+  names = repseq_chimera_md5,
   open = "w",
   as.string = FALSE,
   file.out = paste0(
@@ -761,11 +784,10 @@ write.fasta(
   )
 )
 
-
 save.image(
   file = paste0(
-    "../data/working/",
+    "../data/working/2_",
     gene,
-    "_2_denoise_merge.RData"
+    "_filter_denoise_merge.RData"
   )
 )
