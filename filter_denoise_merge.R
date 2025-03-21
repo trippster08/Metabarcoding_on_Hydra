@@ -1,9 +1,9 @@
 # TRIM FILTER DENOISE MERGE ####################################################
-library(dada2)
-library(tidyverse)
-library(seqinr)
-library(digest)
-library(ShortRead)
+suppressMessages(library(dada2, warn.conflicts = FALSE, quietly = TRUE))
+suppressMessages(library(digest, warn.conflicts = FALSE, quietly = TRUE))
+suppressMessages(library(tidyverse, warn.conflicts = FALSE, quietly = TRUE))
+suppressMessages(library(seqinr, warn.conflicts = FALSE, quietly = TRUE))
+suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 
 ## Trim Reads ==================================================================
 
@@ -14,6 +14,10 @@ truncR <- as.numeric(args[3])
 
 # Save project name as an object
 project_name <- basename(dirname(getwd()))
+print(paste0("This project is named ", project_name))
+
+# Load the RData from "quality_plot_multigene.R"
+load("../data/working/1_trim_qual.RData")
 
 # This creates a vector of the path for forward reads (R1, called trimmed_F).
 trimmed_F <- sort(list.files(
@@ -29,11 +33,15 @@ sample_names_trimmed <- sapply(
   1
 )
 
+# Give the vectors names
+names(trimmed_F) <- sample_names_trimmed
+names(trimmed_R) <- sample_names_trimmed
+
 # This creates files for the reads that will be quality filtered with dada2
 # in the next step.
 filtered_F <- file.path(
   "../data/working",
-  "filtered",
+  "filtered_sequences",
   paste0(
     sample_names_trimmed,
     "_F_filt.fastq.gz"
@@ -41,7 +49,7 @@ filtered_F <- file.path(
 )
 filtered_R <- file.path(
   "../data/working",
-  "filtered",
+  "filtered_sequences",
   paste0(
     sample_names_trimmed,
     "_R_filt.fastq.gz"
@@ -106,10 +114,14 @@ filtered_R <- filtered_R[exists]
 
 
 # Set a path to the directory with the dada2-filtered reads.
-path_to_filtered <- "../data/working/trimmed_sequences/filtered"
+path_to_filtered <- "../data/working/filtered_sequences"
 
 # Get sample names for filtered reads
-sample_names_filtered <- sapply(strsplit(basename(filtered_F), "_"), `[`, 1)
+sample_names_filtered <- sapply(
+  strsplit(basename(filtered_F), "_[FR]_filt"),
+  `[`,
+  1
+)
 
 # Count how many reads remain in each sample after filtering
 sequence_counts_filtered <- sapply(filtered_F, function(file) {
@@ -120,6 +132,8 @@ sequence_counts_filtered <- sapply(filtered_F, function(file) {
 # Name the counts with sample names
 names(sequence_counts_filtered) <- sample_names_filtered
 
+print("Here are the read counts for each filtered sample:")
+sequence_counts_filtered
 
 # Save all the objects created to this point
 save(
@@ -137,7 +151,7 @@ save(
   file = "../data/working/filtered_summary.RData"
 )
 
-# Export out as a tsv
+# Export filtered_summary as a tsv
 write.table(
   filtered_summary,
   file = paste0("../data/results/", project_name, "_filtered_read_count.tsv"),
@@ -206,7 +220,7 @@ save(
   errors_R,
   error_plots_F,
   error_plots_R,
-  file = "../data/working/4_errors.RData"
+  file = "../data/working/errors.RData"
 )
 ## Denoising ===================================================================
 
@@ -234,7 +248,7 @@ denoised_R <- dada(
   verbose = TRUE
 )
 
-# Save all the objects created between out and here
+# Save the denoise objects
 save(
   denoised_F,
   denoised_R,
@@ -276,7 +290,10 @@ merged_reads <- mergePairs(
 # "feature-table" for tables with columns of samples.
 seqtab <- makeSequenceTable(merged_reads)
 # This describes the dimensions of the table just made
-dim(seqtab)
+print(paste("These are the dimensions of your newly created Sequence-Table:",
+  dim(seqtab),
+  sep = " "
+))
 
 
 ## Remove Chimeric Sequences ===================================================
@@ -290,6 +307,11 @@ seqtab_nochim <- removeBimeraDenovo(
   verbose = TRUE
 )
 
+print(paste("These are the dimensions of your chimera-free Sequence-Table:",
+  dim(seqtab),
+  sep = " "
+))
+
 # Make a list of the ASVs that are considered chimeras, in case you want to look
 # at them later
 chimeras_list <- isBimeraDenovoTable(
@@ -302,11 +324,20 @@ chimeras_list <- isBimeraDenovoTable(
 repseq_all <- getSequences(seqtab)
 # Get a list of just chimera ASVs
 repseq_chimera <- repseq_all[chimeras_list]
+# Make and add md5 hash to the repseq_chimera
+repseq_chimera_md5 <- c()
+for (i in seq_along(repseq_chimera)) {
+  repseq_chimera_md5[i] <- digest(
+    repseq_chimera[i],
+    serialize = FALSE,
+    algo = "md5"
+  )
+}
 
 # Export this as a fasta
 write.fasta(
   sequences = as.list(repseq.chimera),
-  names = repseq.chimera,
+  names = repseq.chimera_md5,
   open = "w",
   as.string = FALSE,
   file.out = paste0("../data/results/", project_name, "_rep-seq_chimeras.fas")
@@ -473,17 +504,20 @@ repseq_nochim_md5_asv <- tibble(repseq_nochim_md5, repseq)
 # Rename column headings
 colnames(repseq_nochim_md5_asv) <- c("md5", "ASV")
 
+
+
+## Create and Export Feature-Table =============================================
+# This creates and exports a feature-table: row of ASV's (shown as a md5 hash
+# instead of sequence), columns of samples, and values = number of reads. With
+# this table you will also need a file that relates each ASV to it's
+# representative md5 hash. We download this in the next section.
+
 # Transpose the sequence-table, and convert the result into a tibble.
 seqtab_nochim_transpose_md5 <- as_tibble(
   t(seqtab_nochim_md5),
   rownames = "ASV"
 )
 
-## Export Feature-Table with md5 Hash =========================================
-# This exports a feature-table: row of ASV's (shown as a md5 hash instead
-# of sequence), columns of samples, and values = number of reads. With this
-# table you will also need a file that relates each ASV to it's representative
-# md5 hash. We download this in the next section.
 
 write.table(
   seqtab_nochim_transpose_md5,
@@ -629,10 +663,5 @@ write.fasta(
   file.out = paste0("data/results/", project_name, "_feature-to-fasta.fas")
 )
 
-save.image(
-  file = paste0(
-    "../data/working/",
-    gene,
-    "_2_denoise_merge.RData"
-  )
-)
+save.image(file = "../data/working/2_filter_denoise_merge.RData")
+
