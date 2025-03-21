@@ -452,6 +452,10 @@ sequence_counts_postfiltered <- as_tibble(
     Merged_Reads = ...3,
     Non_Chimeras = ...4
   )
+sequence_counts_postfiltered
+sequence_counts_raw
+sequence_counts_trimmed
+sequence_counts_filtered
 
 # Then we are going to add the postfiltered read count data to the three count
 # data objects we already have (raw, trimmed, filtered).
