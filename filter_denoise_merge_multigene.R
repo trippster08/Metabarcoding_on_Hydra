@@ -22,8 +22,11 @@ truncR <- as.numeric(args[4])
 
 # Save project name as an object
 project_name <- basename(dirname(getwd()))
+print(paste0("This project is named ", project_name))
+
 # Load the RData from "quality_plot_multigene.R"
 load("../data/working/1_trim_qual.RData")
+
 # Next we are going to rename all our objects with the specific gene in the name
 # (such as COI or 18S or 12S or whatever gene is assigned to "gene") to remove
 # the gene name
@@ -178,7 +181,7 @@ save(
   sequence_counts_filtered,
   file = paste0("../data/working/", gene, "_filtered_summary.RData")
 )
-# Export out as a tsv
+# Export filtered_summary as a tsv
 write.table(
   filtered_summary,
   file = paste0(
@@ -301,7 +304,7 @@ denoised_R <- dada(
   verbose = TRUE
 )
 
-# Save all the objects created between out and here
+# Save the denoise objects
 save(
   denoised_F,
   denoised_R,
@@ -347,7 +350,13 @@ merged_reads <- mergePairs(
 # "feature-table" for tables with columns of samples.
 seqtab <- makeSequenceTable(merged_reads)
 # This describes the dimensions of the table just made
-dim(seqtab)
+print(paste(
+  "These are the dimensions of your newly created",
+  gene,
+  "Sequence-Table:",
+  dim(seqtab),
+  sep = " "
+))
 
 
 ## Remove Chimeric Sequences ===================================================
@@ -361,8 +370,13 @@ seqtab_nochim <- removeBimeraDenovo(
   verbose = TRUE
 )
 # We look at the dimensions of the new sequence-table
-dim(seqtab_nochim)
-
+print(paste(
+  "These are the dimensions of your chimera-free",
+  gene,
+  "Sequence-Table:",
+  dim(seqtab-nochim),
+  sep = " "
+))
 # Make a list of the ASVs that are considered chimeras, in case you want to look
 # at them later
 chimeras_list <- isBimeraDenovoTable(
@@ -452,10 +466,6 @@ sequence_counts_postfiltered <- as_tibble(
     Merged_Reads = ...3,
     Non_Chimeras = ...4
   )
-sequence_counts_postfiltered
-sequence_counts_raw
-sequence_counts_trimmed
-sequence_counts_filtered
 
 # Then we are going to add the postfiltered read count data to the three count
 # data objects we already have (raw, trimmed, filtered).
@@ -599,17 +609,19 @@ repseq_nochim_md5_asv <- tibble(repseq_nochim_md5, repseq_nochim)
 # Rename column headings
 colnames(repseq_nochim_md5_asv) <- c("md5", "ASV")
 
+
+
+## Create and Export Feature-Table =============================================
+# This creates and exports a feature-table: row of ASV's (shown as a md5 hash
+# instead of sequence), columns of samples, and values = number of reads. With
+# this table you will also need a file that relates each ASV to it's
+# representative md5 hash. We download this in the next section.
+
 # Transpose the sequence-table, and convert the result into a tibble.
 seqtab_nochim_transpose_md5 <- as_tibble(
   t(seqtab_nochim_md5),
   rownames = "ASV"
 )
-
-## Export Feature-Table with md5 Hash =========================================
-# This exports a feature-table: row of ASV's (shown as a md5 hash instead
-# of sequence), columns of samples, and values = number of reads. With this
-# table you will also need a file that relates each ASV to it's representative
-# md5 hash. We download this in the next section.
 
 write.table(
   seqtab_nochim_transpose_md5,
