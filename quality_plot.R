@@ -96,9 +96,11 @@ names(trimmed_noreads_F)
 invisible(file.remove(trimmed_noreads_R))
 invisible(file.remove(trimmed_noreads_F))
 
-# Remove zero read samples from trimmed_gene1_F amd trimmed_gene1_R vectors
-setdiff(trimmed_F, trimmed_noreads_F)
-setdiff(trimmed_R, trimmed_noreads_R)
+# Remove zero read samples from trimmed_F amd trimmed_R vectors
+trimmed_exists_F <- trimmed_F[!trimmed_F %in% trimmed_noreads_F]
+trimmed_exists_R <- trimmed_R[!trimmed_R %in% trimmed_noreads_R]
+trimmed_F <- trimmed_exists_F
+trimmed_R <- trimmed_exists_R
 
 # Renew vector of sample names from your trimmed reads.
 sample_names_trimmed <- sapply(
