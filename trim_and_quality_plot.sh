@@ -45,7 +45,9 @@ else
 fi
 
 # Create all the subdirectories we will use
-mkdir -p data/working/trimmed_sequences data/results
+mkdir -p \
+${data}/working/trimmed_sequences \
+${data}/results
 
 qsub -o logs/cutadapt.log \
   -N cutadapt \
