@@ -300,12 +300,8 @@ merged_reads <- mergePairs(
 # "feature-table" for tables with columns of samples.
 seqtab <- makeSequenceTable(merged_reads)
 # This describes the dimensions of the table just made
-print(paste(
-  "These are the dimensions of your newly created Sequence-Table:",
-  dim(seqtab),
-  sep = " "
-))
-
+print("These are the dimensions of your newly created Sequence-Table:")
+dim(seqtab)
 
 ## Remove Chimeric Sequences ===================================================
 
@@ -318,11 +314,8 @@ seqtab_nochim <- removeBimeraDenovo(
   verbose = TRUE
 )
 
-print(paste(
-  "These are the dimensions of your chimera-free Sequence-Table:",
-  dim(seqtab),
-  sep = " "
-))
+print("These are the dimensions of your chimera-free Sequence-Table:")
+dim(seqtab)
 
 # Make a list of the ASVs that are considered chimeras, in case you want to look
 # at them later

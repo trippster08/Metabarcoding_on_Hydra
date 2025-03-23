@@ -362,10 +362,9 @@ print(paste(
   "These are the dimensions of your newly created",
   gene,
   "Sequence-Table:",
-  dim(seqtab),
   sep = " "
 ))
-
+dim(seqtab)
 
 ## Remove Chimeric Sequences ===================================================
 
@@ -382,9 +381,9 @@ print(paste(
   "These are the dimensions of your chimera-free",
   gene,
   "Sequence-Table:",
-  dim(seqtab_nochim),
   sep = " "
 ))
+dim(seqtab_nochim)
 # Make a list of the ASVs that are considered chimeras, in case you want to look
 # at them later
 chimeras_list <- isBimeraDenovoTable(
