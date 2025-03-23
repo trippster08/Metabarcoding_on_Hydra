@@ -58,6 +58,15 @@ sample_names_trimmed <- sapply(
 names(trimmed_F) <- sample_names_trimmed
 names(trimmed_R) <- sample_names_trimmed
 
+## Get Read Counts of Trimmed Samples ==========================================
+# Count the number of reads in each trimmed sample. Since cutadapt only
+# keeps paired reads, we only need to count forward samples.
+sequence_counts_trimmed <- sapply(trimmed_F, function(file) {
+  fastq_data <- readFastq(file)
+  length(fastq_data)
+})
+names(sequence_counts_trimmed) <- sample_names_trimmed
+
 # This creates file paths for the reads that will be quality filtered with dada2
 # in the next step.
 filtered_F <- file.path(
@@ -164,7 +173,6 @@ print(paste(
   "sample:",
   sep = " "
 ))
-sequence_counts_filtered
 
 save(
   gene,
@@ -374,7 +382,7 @@ print(paste(
   "These are the dimensions of your chimera-free",
   gene,
   "Sequence-Table:",
-  dim(seqtab-nochim),
+  dim(seqtab_nochim),
   sep = " "
 ))
 # Make a list of the ASVs that are considered chimeras, in case you want to look
@@ -608,7 +616,6 @@ write.table(
 repseq_nochim_md5_asv <- tibble(repseq_nochim_md5, repseq_nochim)
 # Rename column headings
 colnames(repseq_nochim_md5_asv) <- c("md5", "ASV")
-
 
 
 ## Create and Export Feature-Table =============================================
