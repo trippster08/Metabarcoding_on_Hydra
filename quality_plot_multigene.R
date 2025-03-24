@@ -393,6 +393,10 @@ ggsave(
   height = 9
 )
 
+
+# Here we replace "gene1" and "gene2" in each object with the actual name of
+# gene1 and gende2, so each object will be associated with the correct data
+# in later steps
 all_objects <- ls()
 filtered_gene1 <- grep("gene1", all_objects, value = TRUE)
 filtered_gene2 <- grep("gene2", all_objects, value = TRUE)
@@ -411,4 +415,4 @@ for (obj in filtered_gene2) {
 }
 rm(list = objects_to_remove)
 
-save.image(file = "../data/working/1_trim_qual.RData")
+save.image(file = "../data/working/2_qual.RData")

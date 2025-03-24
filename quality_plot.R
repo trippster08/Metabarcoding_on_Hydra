@@ -166,4 +166,4 @@ ggsave(
 )
 
 # Save all the objects created to this point in this section
-save.image(file = "../data/working/1_trim_qual.RData")
+save.image(file = "../data/working/2_qual.RData")
