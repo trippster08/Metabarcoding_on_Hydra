@@ -33,6 +33,11 @@ primerRrc="$7"
 #echo $primerR
 #echo $primerFrc
 #echo $primerRrc
+if
+  [[ -f "${data}/working/trimmed_sequences/${gene1}/*.fastq.gz" ]]
+then 
+  Rscript quality_plot_multigene.R ${gene1} ${gene2}
+else
 
 for x in ${data}/raw/*_R1*; do
   sample=`basename ${x}`
