@@ -84,6 +84,12 @@ ${data}/working/trimmed_sequences/mismatches \
 ${data}/results/${gene1} \
 ${data}/results/${gene2}
 
-qsub -o logs/cutadapt.log \
-  -N cutadapt \
-trim_and_quality_plot_multigene.job ${data} ${gene1} ${gene2} ${primerF} ${primerR} ${primerFrc} ${primerRrc}
+if
+  [[ -f "${data}/working/trimmed_sequences/${gene1}/*.fastq.gz" ]]
+then 
+  qsub -o logs/quality.log -N quality \
+  2_quality_multigene.job ${gene1} ${gene2} 
+else
+  qsub -o logs/cutadapt.log -N cutadapt \
+  1_trim_multigene.job \
+  ${data} ${gene1} ${gene2} ${primerF} ${primerR} ${primerFrc} ${primerRrc}

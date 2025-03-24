@@ -47,6 +47,13 @@ fi
 # Create all the subdirectories we will use
 mkdir -p data/working/trimmed_sequences data/results
 
-qsub -o logs/cutadapt.log \
-  -N cutadapt \
-trim_and_quality_plot.job ${data} ${primerF} ${primerR}
+if
+  [[ -f "${data}/working/trimmed_sequences/*.fastq.gz" ]]
+then
+  qsub -o logs/quality.log -N quality \
+  2_quality.job 
+else
+  qsub -o logs/cutadapt.log -N cutadapt \
+  trim_and_quality_plot.job ${data} ${primerF} ${primerR}
+
+
