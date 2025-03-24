@@ -67,7 +67,7 @@ else
   ${data}/raw/${name}_R2_${namepost}
 fi
 
-gzip -5 \
+gzip -3 \
 ${data}/working/trimmed_sequences/${gene1}/${name}_trimmed_R1.fastq \
 ${data}/working/trimmed_sequences/${gene1}/${name}_trimmed_R2.fastq \
 ${data}/working/trimmed_sequences/${gene2}/${name}_trimmed_R1.fastq \
