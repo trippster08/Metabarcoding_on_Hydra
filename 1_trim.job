@@ -1,0 +1,64 @@
+# /bin/sh
+# ----------------Parameters---------------------- #
+#$ -S /bin/sh
+#$ -pe mthread 4
+#$ -q sThC.q
+#$ -l mres=8G,h_data=2G,h_vmem=2G
+#$ -cwd
+#$ -j y
+#$ -N trimmed
+#$ -o trimmed.log
+#
+# ----------------Modules------------------------- #
+module load bioinformatics/cutadapt/4.7
+module load tools/R/4.4.1
+#
+# ----------------Your Commands------------------- #
+#
+echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
+echo + NSLOTS = $NSLOTS
+#
+
+data="$1"
+primerF="$2" 
+primerR="$3" 
+
+if
+  [[ -f "${data}/working/trimmed_sequences/*.fastq.gz" ]]
+then 
+  Rscript quality_plot.R
+else
+
+for x in ${data}/raw/*_R1*; do
+  sample=`basename ${x}`
+  name=`echo ${sample%*_R[1-2]_*}` 
+  namepre=`echo ${sample%_R*}`
+  namepost=`echo ${sample#*_R[1-2]_*}`
+
+if
+  [[ -z ${primerFrc} ]]
+then
+  cutadapt \
+  -g file:${data}/../primers/${primerF} \
+  -G file:${data}/../primers/${primerR} \
+  -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed --quiet --nextseq-trim=20 \
+  -o ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R1.fastq \
+  -p ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R2.fastq \
+  ${data}/raw/${name}_R1${namepost} \
+  ${data}/raw/${name}_R2${namepost}
+else
+  cutadapt \
+  -g file:${data}/../primers/${primerF} \
+  -a file:${data}/../primers/${primerRrc} \
+  -G file:${data}/../primers/${primerR} \
+  -A file:${data}/../primers/${primerFrc} \
+  -e 0.2 --minimum-length 30 --cores=$NSLOTS -n 2 -O 3 --discard-untrimmed --quiet --nextseq-trim=20 \
+  -o ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R1.fastq \
+  -p ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R2.fastq \
+  ${data}/raw/${name}_R1_${namepost} \
+  ${data}/raw/${name}_R2_${namepost}
+fi
+
+Rscript 2_quality.R
+
+echo = `date` job $JOB_NAME done
