@@ -93,3 +93,4 @@ else
   qsub -o logs/cutadapt.log -N cutadapt \
   1_trim_multigene.job \
   ${data} ${gene1} ${gene2} ${primerF} ${primerR} ${primerFrc} ${primerRrc}
+fi
