@@ -54,51 +54,8 @@ names(sequence_counts_raw) <- sample_names_raw
 print(paste0("Here are the read counts for each raw sample:"))
 sequence_counts_raw
 
-## Remove Mistmatched Trimmed Read Files =======================================
-# Check to see how many wrong-gene occurances there are for gene1 and save the
-# names of the samples with these mismatches.
-mismatches_gene1 <- sort(
-  list.files(
-    path_to_trimmed_gene1,
-    pattern = gene2,
-    full.names = TRUE
-  )
-)
-
-# Move all the misidentified/empty files into a newly created "mismatches"
-# directory. file.rename moves the files you want to move, and deletes them from
-# their original directory.
-invisible(file.rename(
-  from = mismatches_gene1,
-  to = paste0(
-    "../data/working/trimmed_sequences/mismatches/",
-    basename(mismatches_gene1)
-  )
-))
-
-# Repeat this process with your second gene. Make sure to reverse the path to
-# your trimmed reads, and "pattern=" arguments
-
-mismatches_gene2 <- sort(
-  list.files(
-    paste0("../data/working/trimmed_sequences/", gene2),
-    pattern = gene1,
-    full.names = TRUE
-  )
-)
-
-# Move all the misidentified/empty files into a newly created "misID_gene1"
-# directory. file.rename moves the files you want to move, and deletes them from
-# their original directory.
-invisible(file.rename(
-  mismatches_gene2,
-  to = paste0(
-    "../data/working/trimmed_sequences/mismatches/",
-    basename(mismatches_gene2)
-  )
-))
-
-## Create vectors for the trimmed reads, both forward (R1) and reverse (R2) and
+## Trimmed Reads ===============================================================
+# Create vectors for the trimmed reads, both forward (R1) and reverse (R2) and
 # for gene1 and gene2.
 trimmed_gene1_F <- sort(
   list.files(
