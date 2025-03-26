@@ -17,8 +17,8 @@ module load tools/R/4.4.1
 echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
 echo + NSLOTS = $NSLOTS
 #
-gene1="$2"
-gene2="$3"
+gene1="$1"
+gene2="$2"
 
 #
 Rscript 2_quality_multigene.R ${gene1} ${gene2}
