@@ -30,7 +30,9 @@ else
     [[ ${gene} == ${12S} ]]
   then
     primerF=${data}"../primers/MiFish_12SF_spacers.fas" && \
-    primerR=${data}"../primers/MiFish_12SR_spacers.fas"
+    primerR=${data}"../primers/MiFish_12SR_spacers.fas" && \
+    primerFrc=${data}"../primers/MiFish_12SF_RC.fas" && \
+    primerRrc=${data}"../primers/MiFish_12SR_RC.fas"    
   else
     if
       [[ ${gene} == ${18S} ]]
@@ -48,12 +50,13 @@ fi
 mkdir -p data/working/trimmed_sequences data/results
 
 if
-  [[ -f "${data}/working/trimmed_sequences/*.fastq.gz" ]]
+  [[ -n "${data}/working/trimmed_sequences/*.fastq.gz" ]]
 then
   qsub -o logs/quality.log -N quality \
-  2_quality.job 
+  2_quality.job
+  echo "Trimming is already completed, we moving to the next step: 2_quality.job"
 else
   qsub -o logs/cutadapt.log -N cutadapt \
-  trim_and_quality_plot.job ${data} ${primerF} ${primerR}
+  trim.job ${data} ${primerF} ${primerR} ${primerFrc} ${primerRrc}
 
 
