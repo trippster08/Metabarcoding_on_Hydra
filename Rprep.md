@@ -19,7 +19,7 @@ BiocManager::install("dada2", ask = FALSE)
 BiocManager::install("phyloseq", ask = FALSE)
 BiocManager::install("msa", ask = FALSE)
 BiocManager::install("DECIPHER", ask = FALSE)
-BiocManager::install("rBLAST", ask = FALSE)
+BiocManager::install("ShortRead", ask = FALSE)
 BiocManager::install("rBLAST", ask = FALSE)
 ```
 
