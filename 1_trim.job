@@ -43,7 +43,7 @@ then
   cutadapt \
   -g file:${data}/../primers/${primerF} \
   -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed \
-  --compression-level=1 --quiet --nextseq-trim=20 \
+  --quiet --nextseq-trim=20 \
   -o ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R1.fastq \
   -p ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R2.fastq \
   ${data}/raw/${name}_R1${namepost} \
@@ -55,13 +55,18 @@ else
   -G file:${data}/../primers/${primerR} \
   -A file:${data}/../primers/${primerFrc} \
   -e 0.2 --minimum-length 30 --cores=$NSLOTS -n 2 -O 3 --discard-untrimmed \
-  --compression-level=1 --quiet --nextseq-trim=20 \
+  --quiet --nextseq-trim=20 \
   -o ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R1.fastq \
   -p ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R2.fastq \
   ${data}/raw/${name}_R1_${namepost} \
   ${data}/raw/${name}_R2_${namepost}
 fi
 
+gzip -3 \
+${data}/working/trimmed_sequences/${name}_trimmed_R1.fastq \
+${data}/working/trimmed_sequences/${name}_trimmed_R2.fastq 
+
+done
 Rscript 2_quality.R
 
 echo = `date` job $JOB_NAME done
