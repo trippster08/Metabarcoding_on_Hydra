@@ -65,45 +65,45 @@ ${trimmed}/../../results/${gene2}
 #echo ${truncR2}
 
 if [[ ! -f "../data/working/${gene1}_3_filter.RData" ]]; then
-  qsub -o logs/${gene1}_filter.log -N ${gene1}_filter \
+  qsub -o logs/filter_${gene1}.log -N filter_${gene1} \
     3_filter_multigene.job ${gene1} ${trimmed}/${gene1} ${truncF1} ${truncR1}
 elif [[ ! -f "../data/working/${gene1}_4_error.RData" ]]; then
-  qsub -o logs/${gene1}_error.log -N ${gene1}_error \
+  qsub -o logs/error_${gene1}.log -N error_${gene1} \
     4_error_multigene.job ${gene1} ${trimmed}/${gene1} ${truncF1} ${truncR1}
 elif [[ ! -f "../data/working/${gene1}_5_denoise.RData" ]]; then
-  qsub -o logs/${gene1}_denoise.log -N ${gene1}_denoise \
+  qsub -o logs/denoise_${gene1}.log -N denoise_${gene1} \
     5_denoise_multigene.job ${gene1} ${trimmed}/${gene1} ${truncF1} ${truncR1}
 elif [[ ! -f "../data/working/${gene1}_6_merge.RData" ]]; then
-  qsub -o logs/${gene1}_merge.log -N ${gene1}_merge \
+  qsub -o logs/merge_${gene1}.log -N merge_${gene1} \
     6_merge_multigene.job ${gene1} ${trimmed}/${gene1} ${truncF1} ${truncR1}
 elif [[ -f "../data/working/${gene1}_7_chimera.RData" ]]; then
-  qsub -o logs/${gene1}_chimera.log -N ${gene1}_chimera \
+  qsub -o logs/chimera_${gene1}.log -N chimera_${gene1} \
     7_chimera_multigene.job ${gene1} ${trimmed}/${gene1} ${truncF1} ${truncR1}
 elif [[ -f "../data/working/${gene1}_8_output.RData" ]]; then
-  qsub -o logs/${gene1}_output.log -N ${gene1}_output \
+  qsub -o logs/output_${gene1}.log -N output_${gene1} \
     8_output_multigene.job ${gene1} ${trimmed}/${gene1} ${truncF1} ${truncR1}
 else
   echo "All steps for ${gene1} have already completed"
 fi
 
 if [[ ! -f "../data/working/${gene2}_3_filter.RData" ]]; then
-  qsub -o logs/${gene2}_filter.log -N ${gene2}_filter \
-    3_filter_multigene.job ${gene2} ${trimmed}/${gene2} ${truncF2} ${truncR2}
+  qsub -o logs/filter_${gene2}.log -N filter_${gene2} \
+    3_filter_multigene.job ${gene2} ${trimmed}/${gene2} ${truncF1} ${truncR1}
 elif [[ ! -f "../data/working/${gene2}_4_error.RData" ]]; then
-  qsub -o logs/${gene2}_error.log -N ${gene2}_error \
-    4_error_multigene.job ${gene2} ${trimmed}/${gene2} ${truncF2} ${truncR2}
+  qsub -o logs/error_${gene2}.log -N error_${gene2} \
+    4_error_multigene.job ${gene2} ${trimmed}/${gene2} ${truncF1} ${truncR1}
 elif [[ ! -f "../data/working/${gene2}_5_denoise.RData" ]]; then
-  qsub -o logs/${gene2}_denoise.log -N ${gene2}_denoise \
-    5_denoise_multigene.job ${gene2} ${trimmed}/${gene2} ${truncF2} ${truncR2}
+  qsub -o logs/denoise_${gene2}.log -N denoise_${gene2} \
+    5_denoise_multigene.job ${gene2} ${trimmed}/${gene2} ${truncF1} ${truncR1}
 elif [[ ! -f "../data/working/${gene2}_6_merge.RData" ]]; then
-  qsub -o logs/${gene2}_merge.log -N ${gene2}_merge \
-    6_merge_multigene.job ${gene2} ${trimmed}/${gene2} ${truncF2} ${truncR2}
+  qsub -o logs/merge_${gene2}.log -N merge_${gene2} \
+    6_merge_multigene.job ${gene2} ${trimmed}/${gene2} ${truncF1} ${truncR1}
 elif [[ -f "../data/working/${gene2}_7_chimera.RData" ]]; then
-  qsub -o logs/${gene2}_chimera.log -N ${gene2}_chimera \
-    7_chimera_multigene.job ${gene2} ${trimmed}/${gene2} ${truncF2} ${truncR2}
+  qsub -o logs/chimera_${gene2}.log -N chimera_${gene2} \
+    7_chimera_multigene.job ${gene2} ${trimmed}/${gene2} ${truncF1} ${truncR1}
 elif [[ -f "../data/working/${gene2}_8_output.RData" ]]; then
-  qsub -o logs/${gene2}_output.log -N ${gene2}_output \
-    8_output_multigene.job ${gene2} ${trimmed}/${gene2} ${truncF2} ${truncR2}
+  qsub -o logs/output_${gene2}.log -N output_${gene2} \
+    8_output_multigene.job ${gene2} ${trimmed}/${gene2} ${truncF1} ${truncR1}
 else
   echo "All steps for ${gene2} have already completed"
 fi
