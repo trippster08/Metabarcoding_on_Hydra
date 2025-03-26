@@ -77,18 +77,19 @@ fi
 
 mkdir -p \
 ${data}/working/trimmed_sequences/${gene1} \
-${data}/working/filtered_reads/${gene1} \
+${data}/working/filtered_sequences/${gene1} \
 ${data}/working/trimmed_sequences/${gene2} \
-${data}/working/filtered_reads/${gene2} \
+${data}/working/filtered_sequences/${gene2} \
 ${data}/working/trimmed_sequences/mismatches \
 ${data}/results/${gene1} \
 ${data}/results/${gene2}
 
 if
-  [[ -f "${data}/working/trimmed_sequences/${gene1}/*.fastq.gz" ]]
+  [[ -n "${data}/working/trimmed_sequences/${gene1}/*.fastq.gz" ]]
 then 
   qsub -o logs/quality.log -N quality \
-  2_quality_multigene.job ${gene1} ${gene2} 
+  2_quality_multigene.job ${gene1} ${gene2}
+  echo "Trimming is already completed, we moving to the next step: 2_quality_multigene.job"
 else
   qsub -o logs/cutadapt.log -N cutadapt \
   1_trim_multigene.job \
