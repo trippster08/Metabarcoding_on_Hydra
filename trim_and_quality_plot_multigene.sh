@@ -80,7 +80,6 @@ ${data}/working/trimmed_sequences/${gene1} \
 ${data}/working/filtered_sequences/${gene1} \
 ${data}/working/trimmed_sequences/${gene2} \
 ${data}/working/filtered_sequences/${gene2} \
-${data}/working/trimmed_sequences/mismatches \
 ${data}/results/${gene1} \
 ${data}/results/${gene2}
 
