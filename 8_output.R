@@ -57,7 +57,7 @@ track_reads <- tibble(
     sequence_counts_postfiltered,
     join_by(Sample_ID)
   ) %>%
-  mutate(Proportion_Kept = Non_Chimeras / sequence_counts_raw) %>%
+  mutate(Proportion_Trimmed_Kept = Non_Chimeras / sequence_counts_trimmed) %>%
   select(Sample_ID, everything()) %>%
   select(
     Sample_ID,
@@ -74,7 +74,7 @@ write.table(
   file = paste0("../data/results/", project_name, "_track_reads.tsv"),
   quote = FALSE,
   sep = "\t",
-  row.names = TRUE,
+  row.names = FALSE,
   col.names = NA
 )
 
@@ -203,25 +203,6 @@ write.table(
   quote = FALSE,
   sep = "\t",
   row.names = FALSE
-)
-
-
-# Save all the objects created between denoise and here
-save(
-  merged_reads,
-  seqtab,
-  seqtab_nochim,
-  track_reads,
-  chimeras_list,
-  repseq_all,
-  repseq_chimera,
-  seq_length_table,
-  repseq_nochim,
-  repseq_nochim_md5,
-  seqtab_nochim_md5,
-  repseq_nochim_md5_asv,
-  seqtab_nochim_transpose_md5,
-  file = "../data/working/feattab.RData"
 )
 
 ## Create a Sequence-List Table ================================================
