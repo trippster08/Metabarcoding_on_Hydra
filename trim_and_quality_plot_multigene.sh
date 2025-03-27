@@ -37,8 +37,8 @@ contains() {
 if (contains COI "$gene1" && contains MiFish "$gene2") || (contains MiFish "$gene1" && contains COI "$gene2"); then
   primerFpath=${data}"../primers/COImlIntF_12SFMiFish_spacers.fas"
   primerRpath=${data}"../primers/jgCOIR_12SRMiFish_spacers.fas"
-  primerFrcpath=${data}"../primers/MiFish_12SF_RC_spacers.fas"
-  primerRrcpath=${data}"../primers/MiFish_12SR_RC_spacers.fas"
+  primerFrcpath=${data}"../primers/MiFish_12SF_RC.fas"
+  primerRrcpath=${data}"../primers/MiFish_12SR_RC.fas"
   primerF=`basename ${primerFpath}`
   primerR=`basename ${primerRpath}`
   primerFrc=`basename ${primerFrcpath}`
@@ -51,8 +51,8 @@ if (contains COI "$gene1" && contains MiFish "$gene2") || (contains MiFish "$gen
 elif (contains V4 "$gene1" && contains MiFish "$gene2") || (contains V4 "$gene2" && contains MiFish "$gene1"); then
   primerFpath=${data}"../primers/18SF_12SFMiFish_spacers.fas"
   primerRpath=${data}"../primers/18SR_12SRMiFish_spacers.fas"
-  primerFrcpath=${data}"../primers/MiFish_12SF_RC_spacers.fas"
-  primerRrcpath=${data}"../primers/MiFish_12SR_RC_spacers.fas"
+  primerFrcpath=${data}"../primers/MiFish_12SF_RC.fas"
+  primerRrcpath=${data}"../primers/MiFish_12SR_RC.fas"
   primerF=`basename ${primerFpath}`
   primerR=`basename ${primerRpath}`
   primerFrc=`basename ${primerFrcpath}`
