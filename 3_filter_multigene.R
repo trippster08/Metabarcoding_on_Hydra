@@ -164,7 +164,7 @@ print(paste(
   "sample:",
   sep = " "
 ))
-
+sequence_counts_filtered
 
 # Export filtered_summary as a tsv
 write.table(
