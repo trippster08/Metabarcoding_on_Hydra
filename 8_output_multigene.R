@@ -62,7 +62,8 @@ track_reads <- tibble(
     sequence_counts_postfiltered,
     join_by(Sample_ID)
   ) %>%
-  mutate(Proportion_Kept = Non_Chimeras / sequence_counts_raw) %>%
+  mutate(Proportion_Trimmed_Kept = Non_Chimeras / sequence_counts_trimmed) %>%
+  mutate(Proportion_Gene = sequence_counts_trimmed / sequence_counts_raw) %>%
   select(Sample_ID, everything()) %>%
   select(
     Sample_ID,
