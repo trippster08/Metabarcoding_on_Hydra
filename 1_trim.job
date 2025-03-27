@@ -37,9 +37,6 @@ for x in ${data}/raw/*_R1*; do
   namepre=`echo ${sample%_R*}`
   namepost=`echo ${sample#*_R[1-2]_*}`
 
-if
-  [[ -z ${primerFrc} ]]
-then
   cutadapt \
   -g file:${data}/../primers/${primerF} \
   -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed \
@@ -48,18 +45,22 @@ then
   -p ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R2.fastq \
   ${data}/raw/${name}_R1${namepost} \
   ${data}/raw/${name}_R2${namepost}
+
+if
+  [[ -z ${primerFrc} ]]
+then
+
 else
   cutadapt \
   -g file:${data}/../primers/${primerF} \
   -a file:${data}/../primers/${primerRrc} \
   -G file:${data}/../primers/${primerR} \
   -A file:${data}/../primers/${primerFrc} \
-  -e 0.2 --minimum-length 30 --cores=$NSLOTS -n 2 -O 3 --discard-untrimmed \
-  --quiet --nextseq-trim=20 \
+  -e 0.2 --minimum-length 30 --cores=$NSLOTS -O 3 --quiet \
   -o ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R1.fastq \
   -p ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R2.fastq \
-  ${data}/raw/${name}_R1${namepost} \
-  ${data}/raw/${name}_R2${namepost}
+  ${data}/working/trimmed_sequences/${name}_trimmed_R1.fastq \
+  ${data}/working/trimmed_sequences/${name}_trimmed_R2.fastq
 fi
 
 gzip -3 \
