@@ -42,9 +42,7 @@ for x in ${data}/raw/*_R1*; do
 #echo $name
 #echo $namepost
 
-if
-  [[ -z ${primerFrc} ]]
-then
+if [[ -z ${primerFrc} ]]; then
   cutadapt \
   -g file:${data}/../primers/${primerF} \
   -G file:${data}/../primers/${primerR} \
