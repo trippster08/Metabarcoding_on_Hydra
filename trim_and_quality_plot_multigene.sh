@@ -84,8 +84,10 @@ ${data}/working/trimmed_sequences/mismatches \
 ${data}/results/${gene1} \
 ${data}/results/${gene2}
 
+path_to_trimmed=${data}"/working/trimmed_sequences/"${gene1}
+
 if
-  [[ -n "${data}/working/trimmed_sequences/${gene1}/*.fastq.gz" ]]
+  [[ -n $(find "$path_to_trimmed" -name "*.fastq.gz" -print -quit) ]];
 then 
   qsub -o logs/quality.log -N quality \
   2_quality_multigene.job ${gene1} ${gene2}

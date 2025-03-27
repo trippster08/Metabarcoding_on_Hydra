@@ -49,8 +49,10 @@ fi
 # Create all the subdirectories we will use
 mkdir -p data/working/trimmed_sequences data/results
 
+path_to_trimmed=${data}"/working/trimmed_sequences/"${gene1}
+
 if
-  [[ -n "${data}/working/trimmed_sequences/*.fastq.gz" ]]
+  [[ -n $(find "$path_to_trimmed" -name "*.fastq.gz" -print -quit) ]];
 then
   qsub -o logs/quality.log -N quality \
   2_quality.job
