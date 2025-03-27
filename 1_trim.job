@@ -58,8 +58,8 @@ else
   --quiet --nextseq-trim=20 \
   -o ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R1.fastq \
   -p ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R2.fastq \
-  ${data}/raw/${name}_R1_${namepost} \
-  ${data}/raw/${name}_R2_${namepost}
+  ${data}/raw/${name}_R1${namepost} \
+  ${data}/raw/${name}_R2${namepost}
 fi
 
 gzip -3 \
