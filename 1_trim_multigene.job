@@ -42,8 +42,7 @@ for x in ${data}/raw/*_R1*; do
 #echo $name
 #echo $namepost
 
-if
-  [[ ! -v ${primerFrc} ]]; then
+if [[ ! -v ${primerFrc} ]]; then
   cutadapt \
   -g file:${data}/../primers/${primerF} \
   -G file:${data}/../primers/${primerR} \
@@ -73,7 +72,7 @@ ${data}/working/trimmed_sequences/${gene2}/${name}_trimmed_R2.fastq
 
 done
 
-Rscript quality_plot_multigene.R ${gene1} ${gene2}
+Rscript quality_multigene.R ${gene1} ${gene2}
 
 
 echo = `date` job $JOB_NAME done
