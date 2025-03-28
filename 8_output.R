@@ -225,8 +225,6 @@ write.table(
 # versatile data.frame, but it does not have row headings
 # (among other differences, see https://tibble.tidyverse.org/). We'll need
 # this to be a tibble for the next step.
-seqtab_nochim_tb <- as_tibble(seqtab_nochim, rownames = "sample")
-
 # The sequence-table has a column with sample names, and N columns of ASV's
 # containing count values. We want all the count data to be in a single column,
 # so we use a tidyr command called "pivot_longer" to make the table "tall",
@@ -234,16 +232,16 @@ seqtab_nochim_tb <- as_tibble(seqtab_nochim, rownames = "sample")
 # (47770 = 2810 x 17. 2810 instead of 2811 because the first column of the
 # original table contains sample names, not counts). This makes the table tidier
 # (meaning that each column is now a true variable).
-seqtab_nochim_tall <- seqtab_nochim_tb %>%
+seqtab_nochim_tall <- as_tibble(seqtab_nochim, rownames = "sample") %>%
   pivot_longer(
     !sample,
     names_to = "ASV",
     values_to = "count"
-  )
+  ) %>%
+  subset(count != 0)
+dim(seqtab_nochim_tall)
+dim(seqtab_nochim_tall_nozero)
 
-# Remove rows with sequence counts = 0. This removes any sample in which a
-# particular ASV was not found.
-seqtab_nochim_tall_nozero <- subset(seqtab_nochim_tall, count != 0)
 
 ## Create and Export feature-to-fasta ==========================================
 # This creates a fasta file containing all the ASV's for each sample. Each ASV
@@ -253,7 +251,7 @@ seqtab_nochim_tall_nozero <- subset(seqtab_nochim_tall, count != 0)
 
 # Save the ASV sequences from the sequence-list table
 # (seqtab_nochim_tall_nozera) as a new list.
-repseq_tall <- seqtab_nochim_tall_nozero$ASV
+repseq_tall <- seqtab_nochim_tall$ASV
 
 # Convert the sequences into md5 hashs, as we did earlier. md5 hashs are
 # consistent across jobs, meaning identical sequences from different projects or
@@ -271,26 +269,31 @@ for (i in seq_along(repseq_tall)) {
 # Attach the ASV hashes as a column (called "md5") to the tall table. The
 # table should now have 4 columns, and each row of the "md5" column should
 # be a md5 hash of its respective ASV.
-seqtab_nochim_tall_nozero_md5 <- cbind(
-  seqtab_nochim_tall_nozero,
-  md5 = repseq_tall_md5
-)
-
-# Create a new column in this table that contains "sample", "feature", and
+# Also create a new column in this table that contains "sample", "feature", and
 # "count", concatenated. This is the heading for each sequence in the fasta file
 # created by Matt Kweskin's script "featuretofasta.py"
-seqtab_nochim_tall_nozero_md5_ftf <- seqtab_nochim_tall_nozero_md5 %>%
+seqtab_nochim_tall_md5 <- seqtab_nochim_tall %>%
+  mutate(md5 = repseq_tall_md5) %>%
   mutate(sample_md5_count = paste(sample, md5, count, sep = "_")) %>%
   select(sample, md5, count, sample_md5_count, ASV)
+
 
 # Create a fasta-formatted file of each row sequence (i.e. ASV), with a heading
 # of "sample_feature_count".
 write.fasta(
-  sequences = as.list(seqtab_nochim_tall_nozero_md5_ftf$ASV),
-  names = seqtab_nochim_tall_nozero_md5_ftf$sample_feature_count,
+  sequences = as.list(seqtab_nochim_tall_md5$ASV),
+  names = seqtab_nochim_tall_md5$sample_feature_count,
   open = "w",
   as.string = FALSE,
-  file.out = paste0("data/results/", project_name, "_feature-to-fasta.fas")
+  file.out = paste0(
+    "../data/results/",
+    gene,
+    "/",
+    project_name,
+    "_feature-to-fasta_",
+    gene,
+    ".fas"
+  )
 )
 
-save.image(file = "../data/working/8_output.RData")
+save.image(file = paste0("../data/working/", gene, "_8_output.RData"))
