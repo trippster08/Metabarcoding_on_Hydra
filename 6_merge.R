@@ -44,8 +44,14 @@ merged_reads <- mergePairs(
 seqtab <- makeSequenceTable(merged_reads)
 # This describes the dimensions of the table just made
 print(paste(
-  "These are the dimensions of your newly created Sequence-Table:",
-  dim(seqtab),
+  "This is the number of samples for your Sequence-Table:",
+  length(rownames(seqtab)),
+  sep = " "
+))
+
+print(paste(
+  "This is the number of ASVs for your Sequence-Table:",
+  length(colnames(seqtab)),
   sep = " "
 ))
 

@@ -20,8 +20,14 @@ seqtab_nochim <- removeBimeraDenovo(
 )
 
 print(paste(
-  "These are the dimensions of your chimera-free Sequence-Table:",
-  dim(seqtab),
+  "This is the number of samples for your chimera-free Sequence-Table:",
+  length(rownames(seqtab)),
+  sep = " "
+))
+
+print(paste(
+  "This is the number of ASVs for your chimera-free Sequence-Table:",
+  length(colnames(seqtab)),
   sep = " "
 ))
 

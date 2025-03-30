@@ -56,5 +56,17 @@ print(paste(
   sep = " "
 ))
 
+print(paste(
+  "This is the number of samples for your Sequence-Table:",
+  length(rownames(seqtab)),
+  sep = " "
+))
+
+print(paste(
+  "This is the number of ASVs for your Sequence-Table:",
+  length(colnames(seqtab)),
+  sep = " "
+))
+
 # Save all the objects created to this point in this section
 save.image(file = paste0("../data/working/", gene, "_6_merge.RData"))

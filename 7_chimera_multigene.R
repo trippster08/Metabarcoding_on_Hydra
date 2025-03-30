@@ -23,14 +23,13 @@ seqtab_nochim <- removeBimeraDenovo(
   multithread = TRUE,
   verbose = TRUE
 )
-# We look at the dimensions of the new sequence-table
+
 print(paste(
-  "These are the dimensions of your chimera-free",
-  gene,
-  "Sequence-Table:",
-  dim(seqtab_nochim),
+  "This is the number of ASVs for your chimera-free Sequence-Table:",
+  length(colnames(seqtab.nochim)),
   sep = " "
 ))
+
 # Make a list of the ASVs that are considered chimeras, in case you want to look
 # at them later
 chimeras_list <- isBimeraDenovoTable(
