@@ -20,14 +20,8 @@ seqtab_nochim <- removeBimeraDenovo(
 )
 
 print(paste(
-  "This is the number of samples for your chimera-free Sequence-Table:",
-  length(rownames(seqtab)),
-  sep = " "
-))
-
-print(paste(
   "This is the number of ASVs for your chimera-free Sequence-Table:",
-  length(colnames(seqtab)),
+  length(colnames(seqtab.nochim)),
   sep = " "
 ))
 
@@ -76,3 +70,6 @@ write.table(
   row.names = TRUE,
   col.names = NA
 )
+
+# Save all the objects created to this point in this section
+save.image(file = "../data/working/7_chimera.RData")
