@@ -239,8 +239,6 @@ seqtab_nochim_tall <- as_tibble(seqtab_nochim, rownames = "sample") %>%
     values_to = "count"
   ) %>%
   subset(count != 0)
-dim(seqtab_nochim_tall)
-dim(seqtab_nochim_tall_nozero)
 
 
 ## Create and Export feature-to-fasta ==========================================
@@ -287,13 +285,9 @@ write.fasta(
   as.string = FALSE,
   file.out = paste0(
     "../data/results/",
-    gene,
-    "/",
     project_name,
-    "_feature-to-fasta_",
-    gene,
-    ".fas"
+    "_feature-to-fasta.fas"
   )
 )
 
-save.image(file = paste0("../data/working/", gene, "_8_output.RData"))
+save.image(file = "../data/working/8_output.RData")
