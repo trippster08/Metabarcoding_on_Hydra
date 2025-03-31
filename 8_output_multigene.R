@@ -328,7 +328,7 @@ seqtab_nochim_tall_md5 <- seqtab_nochim_tall %>%
 # of "sample_feature_count".
 write.fasta(
   sequences = as.list(seqtab_nochim_tall_md5$ASV),
-  names = seqtab_nochim_tall_md5$sample_feature_count,
+  names = seqtab_nochim_tall_md5$sample_md5_count,
   open = "w",
   as.string = FALSE,
   file.out = paste0(
@@ -343,3 +343,5 @@ write.fasta(
 )
 
 save.image(file = paste0("../data/working/", gene, "_8_output.RData"))
+
+print("Job 8_output_multigene.job and this analysis has finished")

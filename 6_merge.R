@@ -57,3 +57,5 @@ print(paste(
 
 # Save all the objects created to this point in this section
 save.image(file = "../data/working/6_merge.RData")
+
+print("Job 6_merge.job has finished")

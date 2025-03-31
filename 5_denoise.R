@@ -36,3 +36,5 @@ denoised_R <- dada(
 
 # Save all the objects created to this point in this section
 save.image(file = "../data/working/5_denoise.RData")
+
+print("Job 5_denoise.job has finished")

@@ -94,3 +94,5 @@ write.table(
 
 # Save all the objects created to this point in this section
 save.image(file = paste0("../data/working/", gene, "_7_chimera.RData"))
+
+print("Job 7_chimera_multigene.job and this analysis has finished")

@@ -85,3 +85,5 @@ ggsave(
 
 # Save all the objects created to this point in this section
 save.image(file = paste0("../data/working/", gene, "_4_error.RData"))
+
+print("Job 4_error_multigene.job and this analysis has finished")

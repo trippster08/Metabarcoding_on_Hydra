@@ -186,3 +186,5 @@ write.table(
 
 # Save all the objects created to this point in this section
 save.image(file = paste0("../data/working/", gene, "_3_filter.RData"))
+
+print("Job 3_filter_multigene.job and this analysis has finished")

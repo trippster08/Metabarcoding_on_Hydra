@@ -48,7 +48,7 @@ sequence_counts_raw <- sapply(
 # Name these counts with your sample names
 names(sequence_counts_raw) <- sample_names_raw
 
-print(paste0("Here are the read counts for each raw sample:"))
+print("Here are the raw read counts for each sample:")
 sequence_counts_raw
 
 trimmed_F <- sort(
@@ -167,3 +167,5 @@ ggsave(
 
 # Save all the objects created to this point in this section
 save.image(file = "../data/working/2_qual.RData")
+
+print("Job 2_quality.job has finished")

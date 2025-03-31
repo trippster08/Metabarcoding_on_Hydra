@@ -51,7 +51,7 @@ sequence_counts_raw <- sapply(
 # Name these counts with your sample names
 names(sequence_counts_raw) <- sample_names_raw
 
-print(paste0("Here are the read counts for each raw sample:"))
+print(paste0("Here are the raw read counts for each sample:"))
 sequence_counts_raw
 
 ## Trimmed Reads ===============================================================
@@ -373,3 +373,5 @@ for (obj in filtered_gene2) {
 rm(list = objects_to_remove)
 
 save.image(file = "../data/working/2_qual.RData")
+
+print("Job 2_quality_multigene.job and this analysis has finished")

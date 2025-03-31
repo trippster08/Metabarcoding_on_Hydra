@@ -41,3 +41,5 @@ denoised_R <- dada(
 
 # Save all the objects created to this point in this section
 save.image(file = paste0("../data/working/", gene, "_5_denoise.RData"))
+
+print("Job 5_denoise_multigene.job and this analysis has finished")

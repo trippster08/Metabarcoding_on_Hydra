@@ -62,3 +62,5 @@ ggsave(
 )
 # Save all the objects created to this point in this section
 save.image(file = "../data/working/4_error.RData")
+
+print("Job 3_error.job has finished")

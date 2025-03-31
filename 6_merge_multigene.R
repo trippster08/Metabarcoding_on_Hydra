@@ -63,3 +63,5 @@ print(paste(
 
 # Save all the objects created to this point in this section
 save.image(file = paste0("../data/working/", gene, "_6_merge.RData"))
+
+print("Job 6_merge_multigene.job and this analysis has finished")
