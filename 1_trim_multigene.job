@@ -42,7 +42,7 @@ for x in ${data}/raw/*_R1*; do
 #echo $name
 #echo $namepost
 
-if [ -v ${primerFrc} ]; then
+if [ ! -z ${primerFrc} ]; then
   
   cutadapt \
   -a file:${data}/../primers/${primerRrc} \
