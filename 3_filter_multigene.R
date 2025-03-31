@@ -6,7 +6,6 @@ suppressMessages(library(seqinr, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 
 ## File Housekeeping ===========================================================
-numcores <- Sys.getenv("NSLOTS")
 args <- commandArgs(trailingOnly = TRUE)
 gene <- args[1]
 path_to_trimmed <- args[2]

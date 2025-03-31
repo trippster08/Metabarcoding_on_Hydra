@@ -11,7 +11,6 @@ suppressMessages(library(seqinr, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 
 ## File Housekeeping ===========================================================
-
 args <- commandArgs(trailingOnly = TRUE)
 gene1 <- args[1]
 gene2 <- args[2]
