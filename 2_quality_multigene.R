@@ -221,7 +221,13 @@ quality_plot_gene1_F <- plotQualityProfile(
 quality_plot_gene1_F_reduced <- quality_plot_gene1_F +
   scale_x_continuous(
     limits = c(100, 300),
-    breaks = seq(100, 300, 10)
+    breaks = seq(100, 300, 10),
+    geom_vline(
+      xintercept = seq(110, 290, by = 10),
+      linetype = "solid",
+      color = "blue",
+      size = 0.5
+    )
   )
 
 # Examine the reverse reads as you did the forward.
@@ -232,7 +238,13 @@ quality_plot_gene1_R <- plotQualityProfile(
 quality_plot_gene1_R_reduced <- quality_plot_gene1_R +
   scale_x_continuous(
     limits = c(100, 300),
-    breaks = seq(100, 300, 10)
+    breaks = seq(100, 300, 10),
+    geom_vline(
+      xintercept = seq(110, 290, by = 10),
+      linetype = "solid",
+      color = "blue",
+      size = 0.5
+    )
   )
 
 ### Export Quality Plots -------------------------------------------------------
@@ -247,7 +259,7 @@ ggsave(
     gene1,
     ".pdf"
   ),
-  plot = quality_plot_gene1_F,
+  plot = quality_plot_gene1_F_reduced,
   width = 9,
   height = 9
 )
@@ -262,7 +274,7 @@ ggsave(
     gene1,
     ".pdf"
   ),
-  plot = quality_plot_gene1_R,
+  plot = quality_plot_gene1_R_reduced,
   width = 9,
   height = 9
 )
@@ -303,7 +315,13 @@ quality_plot_gene2_F <- plotQualityProfile(
 quality_plot_gene2_F_reduced <- quality_plot_gene2_F +
   scale_x_continuous(
     limits = c(100, 300),
-    breaks = seq(100, 300, 10)
+    breaks = seq(100, 300, 10),
+    geom_vline(
+      xintercept = seq(110, 290, by = 10),
+      linetype = "solid",
+      color = "blue",
+      size = 0.5
+    )
   )
 
 # Examine the reverse reads as you did the forward.
@@ -314,7 +332,13 @@ quality_plot_gene2_R <- plotQualityProfile(
 quality_plot_gene2_R_reduced <- quality_plot_gene2_R +
   scale_x_continuous(
     limits = c(100, 300),
-    breaks = seq(100, 300, 10)
+    breaks = seq(100, 300, 10),
+    geom_vline(
+      xintercept = seq(110, 290, by = 10),
+      linetype = "solid",
+      color = "blue",
+      size = 0.5
+    )
   )
 
 ### Export Quality Plots -------------------------------------------------------
@@ -329,7 +353,7 @@ ggsave(
     gene2,
     ".pdf"
   ),
-  plot = quality_plot_gene2_F,
+  plot = quality_plot_gene2_F_reduced,
   width = 9,
   height = 9
 )
@@ -344,7 +368,7 @@ ggsave(
     gene2,
     ".pdf"
   ),
-  plot = quality_plot_gene2_R,
+  plot = quality_plot_gene2_R_reduced,
   width = 9,
   height = 9
 )

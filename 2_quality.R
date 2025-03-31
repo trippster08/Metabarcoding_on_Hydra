@@ -137,10 +137,17 @@ quality_plot_F <- plotQualityProfile(
   trimmed_F[1:length(sample_names_trimmed)],
   aggregate = TRUE
 )
+
 quality_plot_F_reduced <- quality_plot_F +
   scale_x_continuous(
     limits = c(100, 300),
-    breaks = seq(100, 300, 10)
+    breaks = seq(100, 300, 10),
+    geom_vline(
+      xintercept = seq(110, 290, by = 10),
+      linetype = "solid",
+      color = "blue",
+      size = 0.5
+    )
   )
 # Examine the reverse reads as you did the forward.
 quality_plot_R <- plotQualityProfile(
@@ -150,18 +157,24 @@ quality_plot_R <- plotQualityProfile(
 quality_plot_R_reduced <- quality_plot_R +
   scale_x_continuous(
     limits = c(100, 300),
-    breaks = seq(100, 300, 10)
+    breaks = seq(100, 300, 10),
+    geom_vline(
+      xintercept = seq(110, 290, by = 10),
+      linetype = "solid",
+      color = "blue",
+      size = 0.5
+    )
   )
 # Export quality plots.
 ggsave(
   paste0("../data/results/", project_name, "_qualplotF.pdf"),
-  plot = quality_plot_F,
+  plot = quality_plot_F_reduced,
   width = 9,
   height = 9
 )
 ggsave(
   paste0("../data/results/", project_name, "_qualplotR.pdf"),
-  plot = quality_plot_R,
+  plot = quality_plot_R_reduced,
   width = 9,
   height = 9
 )
