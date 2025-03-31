@@ -56,7 +56,8 @@ if [ ! -z ${primerFrc} ]; then
   cutadapt \
   -g file:${data}/../primers/${primerF} \
   -G file:${data}/../primers/${primerR} \
-  -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed --quiet --nextseq-trim=20 \
+  -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed \
+  --quiet --nextseq-trim=20 \
   -o ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R1.fastq \
   -p ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R2.fastq \
   ${data}/raw/${name}_trimmed_R1.fastq \
@@ -68,7 +69,8 @@ else
   cutadapt \
   -g file:${data}/../primers/${primerF} \
   -G file:${data}/../primers/${primerR} \
-  -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed --quiet --nextseq-trim=20 \
+  -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed \
+  --quiet --nextseq-trim=20 \
   -o ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R1.fastq \
   -p ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R2.fastq \
   ${data}/raw/${name}_R1${namepost} \
