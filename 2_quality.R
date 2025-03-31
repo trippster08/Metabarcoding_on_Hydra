@@ -50,6 +50,8 @@ names(sequence_counts_raw) <- sample_names_raw
 print("Here are the raw read counts for each sample:")
 sequence_counts_raw
 
+## Trimmed Reads ===============================================================
+# Create vectors for the trimmed reads, both forward (R1) and reverse (R2)
 trimmed_F <- sort(
   list.files(
     path_to_trimmed,
