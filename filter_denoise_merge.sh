@@ -30,10 +30,10 @@ elif [[ ! -f "../data/working/5_denoise.RData" ]]; then
 elif [[ ! -f "../data/working/6_merge.RData" ]]; then
   qsub -o logs/merge.log -N merge \
     6_merge.job ${trimmed} ${truncF} ${truncR}
-elif [[ -f "../data/working/7_chimera.RData" ]]; then
+elif [[ ! -f "../data/working/7_chimera.RData" ]]; then
   qsub -o logs/chimera.log -N chimera \
     7_chimera.job ${trimmed} ${truncF} ${truncR}
-elif [[ -f "../data/working/8_output.RData" ]]; then
+elif [[ ! -f "../data/working/8_output.RData" ]]; then
   qsub -o logs/output.log -N output \
   8_output.job ${trimmed} ${truncF} ${truncR}
 else
