@@ -25,11 +25,6 @@ primerR="$3"
 primerFrc="$4"
 primerRrc="$5"
 
-if
-  [[ -f "${data}/working/trimmed_sequences/*.fastq.gz" ]]
-then 
-  Rscript quality_plot.R
-else
 
 for x in ${data}/raw/*_R1*; do
   sample=`basename ${x}`
@@ -46,24 +41,44 @@ for x in ${data}/raw/*_R1*; do
   ${data}/raw/${name}_R1${namepost} \
   ${data}/raw/${name}_R2${namepost}
 
-if
-  [[ -z ${primerFrc} ]]
-then
+if [ ! -z ${primerFrc} ]; then
+  echo "We will first trim 3' primers"
 
-else
+  cutadapt \
+  -a file:${data}/../primers/${primerRrc} \
+  -A file:${data}/../primers/${primerFrc} \
+  -e 0.2 --cores=$NSLOTS -O 10 \
+  -o ${data}/raw/${name}_trimmed_R1.fastq \
+  -p ${data}/raw/${name}_trimmed_R2.fastq \
+  ${data}/raw/${name}_R1${namepost} \
+  ${data}/raw/${name}_R2${namepost}
+
+  echo "We will next trim 5' primers, discarding untrimmed"
+
   cutadapt \
   -g file:${data}/../primers/${primerF} \
-  -a file:${data}/../primers/${primerRrc} \
   -G file:${data}/../primers/${primerR} \
-  -A file:${data}/../primers/${primerFrc} \
-  -e 0.2 --minimum-length 30 --cores=$NSLOTS -O 3 --quiet \
+  -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed \
+  --quiet --nextseq-trim=20 \
   -o ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R1.fastq \
   -p ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R2.fastq \
-  ${data}/working/trimmed_sequences/${name}_trimmed_R1.fastq \
-  ${data}/working/trimmed_sequences/${name}_trimmed_R2.fastq
+  ${data}/raw/${name}_trimmed_R1.fastq \
+  ${data}/raw/${name}_trimmed_R2.fastq
+
+else
+  echo "We will trim 5' primers, skipping 3' trimming discarding untrimmed"
+  cutadapt \
+  -g file:${data}/../primers/${primerF} \
+  -G file:${data}/../primers/${primerR} \
+  -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed \
+  --quiet --nextseq-trim=20 \
+  -o ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R1.fastq \
+  -p ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R2.fastq \
+  ${data}/raw/${name}_R1${namepost} \
+  ${data}/raw/${name}_R2${namepost}
 fi
 
-gzip -3 \
+gzip -2 \
 ${data}/working/trimmed_sequences/${name}_trimmed_R1.fastq \
 ${data}/working/trimmed_sequences/${name}_trimmed_R2.fastq 
 
