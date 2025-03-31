@@ -40,7 +40,7 @@ trimmed_R <- sort(list.files(
 
 # Make a vector of sample names from your trimmed reads.
 sample_names_trimmed <- sapply(
-  strsplit(basename(trimmed_F), "_S\\d{1,3}_"),
+  strsplit(basename(trimmed_F), "_trimmed_"),
   `[`,
   1
 )
