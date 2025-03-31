@@ -21,7 +21,7 @@ seqtab_nochim <- removeBimeraDenovo(
 
 print(paste(
   "This is the number of ASVs for your chimera-free Sequence-Table:",
-  length(colnames(seqtab.nochim)),
+  length(colnames(seqtab_nochim)),
   sep = " "
 ))
 
@@ -49,8 +49,8 @@ for (i in seq_along(repseq_chimera)) {
 
 # Export this as a fasta
 write.fasta(
-  sequences = as.list(repseq.chimera),
-  names = repseq.chimera_md5,
+  sequences = as.list(repseq_chimera),
+  names = repseq_chimera_md5,
   open = "w",
   as.string = FALSE,
   file.out = paste0("../data/results/", project_name, "_rep-seq_chimeras.fas")
@@ -73,3 +73,5 @@ write.table(
 
 # Save all the objects created to this point in this section
 save.image(file = "../data/working/7_chimera.RData")
+
+print("Job 7_chimera.job has finished")
