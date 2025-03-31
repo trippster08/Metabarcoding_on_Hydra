@@ -29,8 +29,8 @@ primerRrc="$5"
 for x in ${data}/raw/*_R1*; do
   sample=`basename ${x}`
   name=$(echo ${sample%%_S[0-9][0-9][0-9]*}) 
-  namepost=`echo ${sample#*_R[1-2]_*}`
-
+  namepost=`echo ${sample#*_R[1-2]*}`
+  namepre=`echo ${sample%*_R[1-2]*}`
 if [ ! -z ${primerFrc} ]; then
   echo "We will first trim 3' primers"
 
@@ -40,8 +40,8 @@ if [ ! -z ${primerFrc} ]; then
   -e 0.2 --cores=$NSLOTS -O 10 \
   -o ${data}/raw/${name}_trimmed_R1.fastq \
   -p ${data}/raw/${name}_trimmed_R2.fastq \
-  ${data}/raw/${name}_R1${namepost} \
-  ${data}/raw/${name}_R2${namepost}
+  ${data}/raw/${namepre}_R1${namepost} \
+  ${data}/raw/${namepre}_R2${namepost}
 
   echo "We will next trim 5' primers, discarding untrimmed"
 
@@ -54,6 +54,8 @@ if [ ! -z ${primerFrc} ]; then
   -p ${data}/working/trimmed_sequences/${name}_trimmed_R2.fastq \
   ${data}/raw/${name}_trimmed_R1.fastq \
   ${data}/raw/${name}_trimmed_R2.fastq
+  
+rm ${data}/raw/${name}_trimmed_R1.fastq ${data}/raw/${name}_trimmed_R2.fastq
 
 else
   echo "We will trim 5' primers, skipping 3' trimming discarding untrimmed"
@@ -64,8 +66,8 @@ else
   --nextseq-trim=20 \
   -o ${data}/working/trimmed_sequences/${name}_trimmed_R1.fastq \
   -p ${data}/working/trimmed_sequences/${name}_trimmed_R2.fastq \
-  ${data}/raw/${name}_R1${namepost} \
-  ${data}/raw/${name}_R2${namepost}
+  ${data}/raw/${namepre}_R1${namepost} \
+  ${data}/raw/${namepre}_R2${namepost}
 fi
 
 gzip -2 \
