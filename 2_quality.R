@@ -80,7 +80,7 @@ trimmed_noreads_F <- trimmed_F[sapply(trimmed_F, file.size) < 100]
 trimmed_noreads_R <- trimmed_R[sapply(trimmed_R, file.size) < 100]
 
 sample_names_trimmed_noreads <- sapply(
-  strsplit(basename(trimmed_noreads_gene1_F), "_S\\d{1,3}_"),
+  strsplit(basename(trimmed_noreads_F), "_S\\d{1,3}_"),
   `[`,
   1
 )
@@ -143,7 +143,7 @@ quality_plot_F_reduced <- quality_plot_F +
   )
 # Examine the reverse reads as you did the forward.
 quality_plot_R <- plotQualityProfile(
-  fnRs[1:length(sample_names_trimmed)],
+  trimmed_R[1:length(sample_names_trimmed)],
   aggregate = TRUE
 )
 quality_plot_R_reduced <- quality_plot_R +
