@@ -76,8 +76,8 @@ sample_names_trimmed <- sapply(
 ## Remove empty sample files ===================================================
 # This saves the R1 fastq for the sample file only if both the R1 and R2 sample
 # files have reads.
-trimmed_noreads_F <- trimmed_F[sapply(trimmed_F, file_size) < 100]
-trimmed_noreads_R <- trimmed_R[sapply(trimmed_R, file_size) < 100]
+trimmed_noreads_F <- trimmed_F[sapply(trimmed_F, file.size) < 100]
+trimmed_noreads_R <- trimmed_R[sapply(trimmed_R, file.size) < 100]
 
 sample_names_trimmed_noreads <- sapply(
   strsplit(basename(trimmed_noreads_gene1_F), "_S\\d{1,3}_"),
