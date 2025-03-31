@@ -14,11 +14,17 @@ truncR <- as.numeric(args[3])
 # Load the RData from "quality_plot_multigene.R"
 load("../data/working/2_qual.RData")
 
-## Trim Reads ==================================================================
+## Trimed Sequences ============================================================
 # This creates a vector of the path for forward reads (R1, called trimmed_F).
 trimmed_F <- sort(list.files(
   path_to_trimmed,
   pattern = "_R1.fastq.gz",
+  full.names = TRUE
+))
+
+trimmed_R <- sort(list.files(
+  path_to_trimmed,
+  pattern = "_R2.fastq.gz",
   full.names = TRUE
 ))
 
@@ -32,6 +38,15 @@ sample_names_trimmed <- sapply(
 # Give the vectors names
 names(trimmed_F) <- sample_names_trimmed
 names(trimmed_R) <- sample_names_trimmed
+
+## Get Read Counts of Trimmed Samples ==========================================
+# Count the number of reads in each trimmed sample. Since cutadapt only
+# keeps paired reads, we only need to count forward samples.
+sequence_counts_trimmed <- sapply(trimmed_F, function(file) {
+  fastq_data <- readFastq(file)
+  length(fastq_data)
+})
+names(sequence_counts_trimmed) <- sample_names_trimmed
 
 # This creates files for the reads that will be quality filtered with dada2
 # in the next step.
@@ -143,3 +158,5 @@ write.table(
 
 # Save all the objects created to this point in this section
 save.image(file = "../data/working/3_filter.RData")
+
+print("Job 3_filter.job has finished")
