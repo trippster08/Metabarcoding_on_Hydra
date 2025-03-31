@@ -32,15 +32,6 @@ for x in ${data}/raw/*_R1*; do
   namepre=`echo ${sample%_R*}`
   namepost=`echo ${sample#*_R[1-2]_*}`
 
-  cutadapt \
-  -g file:${data}/../primers/${primerF} \
-  -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed \
-  --quiet --nextseq-trim=20 \
-  -o ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R1.fastq \
-  -p ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R2.fastq \
-  ${data}/raw/${name}_R1${namepost} \
-  ${data}/raw/${name}_R2${namepost}
-
 if [ ! -z ${primerFrc} ]; then
   echo "We will first trim 3' primers"
 
@@ -59,7 +50,7 @@ if [ ! -z ${primerFrc} ]; then
   -g file:${data}/../primers/${primerF} \
   -G file:${data}/../primers/${primerR} \
   -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed \
-  --quiet --nextseq-trim=20 \
+  --nextseq-trim=20 \
   -o ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R1.fastq \
   -p ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R2.fastq \
   ${data}/raw/${name}_trimmed_R1.fastq \
@@ -71,7 +62,7 @@ else
   -g file:${data}/../primers/${primerF} \
   -G file:${data}/../primers/${primerR} \
   -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed \
-  --quiet --nextseq-trim=20 \
+  --nextseq-trim=20 \
   -o ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R1.fastq \
   -p ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R2.fastq \
   ${data}/raw/${name}_R1${namepost} \
