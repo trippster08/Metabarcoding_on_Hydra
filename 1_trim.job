@@ -28,7 +28,7 @@ primerRrc="$5"
 
 for x in ${data}/raw/*_R1*; do
   sample=`basename ${x}`
-  name=$(echo ${sample%%_S[0-9][0-9][0-9]*}) 
+  name=$(echo ${sample} | awk -F'_S[0-9]{1,3}_' '{print $1}') 
   namepost=`echo ${sample#*_R[1-2]*}`
   namepre=`echo ${sample%*_R[1-2]*}`
 if [ ! -z ${primerFrc} ]; then
@@ -54,7 +54,7 @@ if [ ! -z ${primerFrc} ]; then
   -p ${data}/working/trimmed_sequences/${name}_trimmed_R2.fastq \
   ${data}/raw/${name}_trimmed_R1.fastq \
   ${data}/raw/${name}_trimmed_R2.fastq
-  
+
 rm ${data}/raw/${name}_trimmed_R1.fastq ${data}/raw/${name}_trimmed_R2.fastq
 
 else
