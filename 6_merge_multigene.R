@@ -48,13 +48,6 @@ merged_reads <- mergePairs(
 # "feature-table" for tables with columns of samples.
 seqtab <- makeSequenceTable(merged_reads)
 # This describes the dimensions of the table just made
-print(paste(
-  "These are the dimensions of your newly created",
-  gene,
-  "Sequence-Table:",
-  dim(seqtab),
-  sep = " "
-))
 
 print(paste(
   "This is the number of samples for your Sequence-Table:",
