@@ -28,8 +28,7 @@ primerRrc="$5"
 
 for x in ${data}/raw/*_R1*; do
   sample=`basename ${x}`
-  name=`echo ${sample%*_R[1-2]_*}` 
-  namepre=`echo ${sample%_R*}`
+  name=$(echo ${sample%%_S[0-9][0-9][0-9]*}) 
   namepost=`echo ${sample#*_R[1-2]_*}`
 
 if [ ! -z ${primerFrc} ]; then
@@ -51,8 +50,8 @@ if [ ! -z ${primerFrc} ]; then
   -G file:${data}/../primers/${primerR} \
   -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed \
   --nextseq-trim=20 \
-  -o ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R1.fastq \
-  -p ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R2.fastq \
+  -o ${data}/working/trimmed_sequences/${name}_trimmed_R1.fastq \
+  -p ${data}/working/trimmed_sequences/${name}_trimmed_R2.fastq \
   ${data}/raw/${name}_trimmed_R1.fastq \
   ${data}/raw/${name}_trimmed_R2.fastq
 
@@ -63,8 +62,8 @@ else
   -G file:${data}/../primers/${primerR} \
   -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed \
   --nextseq-trim=20 \
-  -o ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R1.fastq \
-  -p ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R2.fastq \
+  -o ${data}/working/trimmed_sequences/${name}_trimmed_R1.fastq \
+  -p ${data}/working/trimmed_sequences/${name}_trimmed_R2.fastq \
   ${data}/raw/${name}_R1${namepost} \
   ${data}/raw/${name}_R2${namepost}
 fi
