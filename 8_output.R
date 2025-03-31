@@ -74,7 +74,7 @@ write.table(
   file = paste0("../data/results/", project_name, "_track_reads.tsv"),
   quote = FALSE,
   sep = "\t",
-  row.names = FALSE,
+  row.names = TRUE,
   col.names = NA
 )
 
@@ -150,7 +150,7 @@ write.table(
 
 # Create an md5/ASV table, with each row as an ASV and it's representative md5
 # hash.
-repseq_nochim_md5_asv <- tibble(repseq_nochim_md5, repseq)
+repseq_nochim_md5_asv <- tibble(repseq_nochim_md5, repseq_nochim)
 # Rename column headings
 colnames(repseq_nochim_md5_asv) <- c("md5", "ASV")
 
@@ -188,7 +188,7 @@ write.fasta(
   names = repseq_nochim_md5_asv$md5,
   open = "w",
   as.string = FALSE,
-  file.out = paste0("data/results/", project_name, "_rep-seq.fas")
+  file.out = paste0("../data/results/", project_name, "_rep-seq.fas")
 )
 
 # This exports all the ASVs and their respective md5 hashes as a two-column
@@ -196,7 +196,7 @@ write.fasta(
 write.table(
   repseq_nochim_md5_asv,
   file = paste0(
-    "data/results/",
+    "../data/results/",
     project_name,
     "_representative_sequence_md5_table.tsv"
   ),
@@ -280,7 +280,7 @@ seqtab_nochim_tall_md5 <- seqtab_nochim_tall %>%
 # of "sample_feature_count".
 write.fasta(
   sequences = as.list(seqtab_nochim_tall_md5$ASV),
-  names = seqtab_nochim_tall_md5$sample_feature_count,
+  names = seqtab_nochim_tall_md5$sample_md5_count,
   open = "w",
   as.string = FALSE,
   file.out = paste0(
@@ -291,3 +291,5 @@ write.fasta(
 )
 
 save.image(file = "../data/working/8_output.RData")
+
+print("Job 8_output.job and this analysis has finished")
