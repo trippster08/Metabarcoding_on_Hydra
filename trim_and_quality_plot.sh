@@ -45,7 +45,10 @@ else
 fi   
 
 # Create all the subdirectories we will use
-mkdir -p ../data/working/trimmed_sequences ../data/results
+mkdir -p \
+../data/working/trimmed_sequences \
+../data/working/filtered_sequences \
+../data/results
 
 path_to_trimmed=${data}"/working/trimmed_sequences/"${gene1}
 
