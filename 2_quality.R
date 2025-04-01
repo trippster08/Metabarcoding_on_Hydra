@@ -185,7 +185,7 @@ ggsave(
 )
 ggsave(
   paste0("../data/results/", project_name, "_qualplotR.pdf"),
-  plot = quality_plot_R_enchanced,
+  plot = quality_plot_R_enhanced,
   width = 9,
   height = 9
 )
