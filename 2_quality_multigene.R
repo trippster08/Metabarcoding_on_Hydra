@@ -255,6 +255,8 @@ quality_plot_gene1_R_enhanced <- quality_plot_gene1_R +
 ggsave(
   paste0(
     "../data/results/",
+    gene1,
+    "/",
     project_name,
     "_",
     gene1,
@@ -270,6 +272,8 @@ ggsave(
 ggsave(
   paste0(
     "../data/results/",
+    gene1,
+    "/",
     project_name,
     "_",
     gene1,
@@ -351,6 +355,8 @@ quality_plot_gene2_R_enhanced <- quality_plot_gene2_R +
 ggsave(
   paste0(
     "../data/results/",
+    gene2,
+    "/",
     project_name,
     "_",
     gene2,
@@ -366,6 +372,8 @@ ggsave(
 ggsave(
   paste0(
     "../data/results/",
+    gene2,
+    "/",
     project_name,
     "_",
     gene2,
