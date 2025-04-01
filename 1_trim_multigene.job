@@ -26,24 +26,14 @@ primerR="$5"
 primerFrc="$6"
 primerRrc="$7"
 
-#echo $data
-#echo $gene1
-#echo $gene2
-#echo $primerF
-#echo $primerR
-#echo $primerFrc
-#echo $primerRrc
-
 for x in ${data}/raw/*_R1*; do
   sample=`basename ${x}`
   name=$(echo ${sample} | awk -F'_S[0-9]{1,3}_' '{print $1}') 
   namepost=`echo ${sample#*_R[1-2]*}`
   namepre=`echo ${sample%*_R[1-2]*}`
-#echo $sample
-#echo $name
-#echo $namepost
 
 if [ ! -z ${primerFrc} ]; then
+  echo "We will first trim 3' primers"
   
   cutadapt \
   -a file:${data}/../primers/${primerRrc} \
@@ -53,6 +43,8 @@ if [ ! -z ${primerFrc} ]; then
   -p ${data}/raw/${name}_trimmed_R2.fastq \
   ${data}/raw/${namepre}_R1${namepost} \
   ${data}/raw/${namepre}_R2${namepost}
+
+  echo "We will next trim 5' primers, discarding untrimmed"
 
   cutadapt \
   -g file:${data}/../primers/${primerF} \
@@ -67,6 +59,7 @@ if [ ! -z ${primerFrc} ]; then
   rm ${data}/raw/${name}_trimmed_R1.fastq ${data}/raw/${name}_trimmed_R2.fastq
 
 else
+  echo "We will trim 5' primers, skipping 3' trimming discarding untrimmed"
   cutadapt \
   -g file:${data}/../primers/${primerF} \
   -G file:${data}/../primers/${primerR} \
@@ -87,6 +80,5 @@ ${data}/working/trimmed_sequences/${gene2}/${name}_trimmed_R2.fastq
 done
 
 Rscript 2_quality_multigene.R ${gene1} ${gene2}
-
 
 echo = `date` job $JOB_NAME done
