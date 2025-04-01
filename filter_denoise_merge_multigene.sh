@@ -70,18 +70,23 @@ if [[ ! -f "../data/working/${gene1}_3_filter.RData" ]]; then
 elif [[ ! -f "../data/working/${gene1}_4_error.RData" ]]; then
   qsub -o logs/error_${gene1}.log -N error_${gene1} \
     4_error_multigene.job ${gene1} ${trimmed}/${gene1} ${truncF1} ${truncR1}
+  echo ${gene1} "filtering is already complete; we will start with error modelling."
 elif [[ ! -f "../data/working/${gene1}_5_denoise.RData" ]]; then
   qsub -o logs/denoise_${gene1}.log -N denoise_${gene1} \
     5_denoise_multigene.job ${gene1} ${trimmed}/${gene1} ${truncF1} ${truncR1}
+  echo ${gene1} "error modelling is already complete; we will start with denoising."
 elif [[ ! -f "../data/working/${gene1}_6_merge.RData" ]]; then
   qsub -o logs/merge_${gene1}.log -N merge_${gene1} \
     6_merge_multigene.job ${gene1} ${trimmed}/${gene1} ${truncF1} ${truncR1}
+  echo ${gene1} "denoising is already complete; we will start with merging reads."
 elif [[ ! -f "../data/working/${gene1}_7_chimera.RData" ]]; then
   qsub -o logs/chimera_${gene1}.log -N chimera_${gene1} \
     7_chimera_multigene.job ${gene1} ${trimmed}/${gene1} ${truncF1} ${truncR1}
+  echo ${gene1} "merging is already complete; we will start with chimera removal."
 elif [[ ! -f "../data/working/${gene1}_8_output.RData" ]]; then
   qsub -o logs/output_${gene1}.log -N output_${gene1} \
     8_output_multigene.job ${gene1} ${trimmed}/${gene1} ${truncF1} ${truncR1}
+  echo ${gene1} "chimera removal is already complete; we will start with exporting results."
 else
   echo "All steps for ${gene1} have already completed"
 fi
@@ -92,18 +97,23 @@ if [[ ! -f "../data/working/${gene2}_3_filter.RData" ]]; then
 elif [[ ! -f "../data/working/${gene2}_4_error.RData" ]]; then
   qsub -o logs/error_${gene2}.log -N error_${gene2} \
     4_error_multigene.job ${gene2} ${trimmed}/${gene2} ${truncF1} ${truncR1}
+  echo ${gene2} "filtering is already complete; we will start with error modelling."
 elif [[ ! -f "../data/working/${gene2}_5_denoise.RData" ]]; then
   qsub -o logs/denoise_${gene2}.log -N denoise_${gene2} \
     5_denoise_multigene.job ${gene2} ${trimmed}/${gene2} ${truncF1} ${truncR1}
+  echo ${gene2} "error modelling is already complete; we will start with denoising."
 elif [[ ! -f "../data/working/${gene2}_6_merge.RData" ]]; then
   qsub -o logs/merge_${gene2}.log -N merge_${gene2} \
     6_merge_multigene.job ${gene2} ${trimmed}/${gene2} ${truncF1} ${truncR1}
+  echo ${gene2} "denoising is already complete; we will start with merging reads."
 elif [[ ! -f "../data/working/${gene2}_7_chimera.RData" ]]; then
   qsub -o logs/chimera_${gene2}.log -N chimera_${gene2} \
     7_chimera_multigene.job ${gene2} ${trimmed}/${gene2} ${truncF1} ${truncR1}
+  echo ${gene2} "merging is already complete; we will start with chimera removal."
 elif [[ ! -f "../data/working/${gene2}_8_output.RData" ]]; then
   qsub -o logs/output_${gene2}.log -N output_${gene2} \
     8_output_multigene.job ${gene2} ${trimmed}/${gene2} ${truncF1} ${truncR1}
+  echo ${gene2} "chimera removal is already complete; we will start with exporting results."
 else
   echo "All steps for ${gene2} have already completed"
 fi
