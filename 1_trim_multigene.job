@@ -38,7 +38,7 @@ if [ ! -z ${primerFrc} ]; then
   cutadapt \
   -a file:${data}/../primers/${primerRrc} \
   -A file:${data}/../primers/${primerFrc} \
-  -e 0.2 --cores=$NSLOTS -O 10 \
+  -e 0.2 --cores=$NSLOTS -O 10 --quiet \
   -o ${data}/raw/${name}_trimmed_R1.fastq \
   -p ${data}/raw/${name}_trimmed_R2.fastq \
   ${data}/raw/${namepre}_R1${namepost} \
