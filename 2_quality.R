@@ -151,10 +151,6 @@ quality_plot_F_enhanced <- quality_plot_F +
     xintercept = seq(0, max_x, 10),
     color = "blue",
     linewidth = 0.25
-  ) +
-  theme(
-    axis.text.x.top = element_text(), # Show x-axis text at the top
-    axis.ticks.x.top = element_line() # Show x-axis ticks at the top
   )
 
 # Examine the reverse reads as you did the forward.
@@ -171,11 +167,8 @@ quality_plot_R_enhanced <- quality_plot_R +
     xintercept = seq(0, max_x, 10),
     color = "blue",
     linewidth = 0.25
-  ) +
-  theme(
-    axis.text.x.top = element_text(), # Show x-axis text at the top
-    axis.ticks.x.top = element_line() # Show x-axis ticks at the top
   )
+
 # Export quality plots.
 ggsave(
   paste0("../data/results/", project_name, "_qualplotF.pdf"),
