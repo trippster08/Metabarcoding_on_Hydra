@@ -218,16 +218,24 @@ quality_plot_gene1_F <- plotQualityProfile(
   trimmed_gene1_F[1:length(sample_names_trimmed_gene1)],
   aggregate = TRUE
 )
-quality_plot_gene1_F_reduced <- quality_plot_gene1_F +
+
+plot_build_gene1 <- ggplot_build(quality_plot_gene1_F)
+x_axis_range_gene1 <- plot_build_gene1$layout$panel_params[[1]]$x.range
+max_x_gene1 <- x_axis_range_gene1[2]
+
+quality_plot_gene1_F_enhanced <- quality_plot_gene1_F +
   scale_x_continuous(
-    limits = c(100, 300),
-    breaks = seq(100, 300, 10),
-    geom_vline(
-      xintercept = seq(110, 290, by = 10),
-      linetype = "solid",
-      color = "blue",
-      size = 0.5
-    )
+    limits = c(0, max_x_gene1),
+    breaks = seq(0, max_x_gene1, 10)
+  ) +
+  geom_vline(
+    xintercept = seq(0, max_x_gene1, 10),
+    color = "blue",
+    linewidth = 0.25
+  ) +
+  theme(
+    axis.text.x.top = element_text(), # Show x-axis text at the top
+    axis.ticks.x.top = element_line() # Show x-axis ticks at the top
   )
 
 # Examine the reverse reads as you did the forward.
@@ -235,16 +243,19 @@ quality_plot_gene1_R <- plotQualityProfile(
   trimmed_gene1_R[1:length(sample_names_trimmed_gene1)],
   aggregate = TRUE
 )
-quality_plot_gene1_R_reduced <- quality_plot_gene1_R +
+quality_plot_gene1_R_enhanced <- quality_plot_gene1_R +
   scale_x_continuous(
-    limits = c(100, 300),
-    breaks = seq(100, 300, 10),
-    geom_vline(
-      xintercept = seq(110, 290, by = 10),
-      linetype = "solid",
-      color = "blue",
-      size = 0.5
-    )
+    limits = c(0, max_x_gene1),
+    breaks = seq(0, max_x_gene1, 10)
+  ) +
+  geom_vline(
+    xintercept = seq(0, max_x_gene1, 10),
+    color = "blue",
+    linewidth = 0.25
+  ) +
+  theme(
+    axis.text.x.top = element_text(), # Show x-axis text at the top
+    axis.ticks.x.top = element_line() # Show x-axis ticks at the top
   )
 
 ### Export Quality Plots -------------------------------------------------------
@@ -259,7 +270,7 @@ ggsave(
     gene1,
     ".pdf"
   ),
-  plot = quality_plot_gene1_F_reduced,
+  plot = quality_plot_gene1_F_enhanced,
   width = 9,
   height = 9
 )
@@ -274,7 +285,7 @@ ggsave(
     gene1,
     ".pdf"
   ),
-  plot = quality_plot_gene1_R_reduced,
+  plot = quality_plot_gene1_R_enhanced,
   width = 9,
   height = 9
 )
@@ -312,33 +323,44 @@ quality_plot_gene2_F <- plotQualityProfile(
   trimmed_gene2_F[1:length(sample_names_trimmed_gene2)],
   aggregate = TRUE
 )
-quality_plot_gene2_F_reduced <- quality_plot_gene2_F +
+plot_build_gene2 <- ggplot_build(quality_plot_gene2_F)
+x_axis_range_gene2 <- plot_build_gene2$layout$panel_params[[1]]$x.range
+max_x_gene2 <- x_axis_range_gene2[2]
+
+quality_plot_gene2_F_enhanced <- quality_plot_gene2_F +
   scale_x_continuous(
-    limits = c(100, 300),
-    breaks = seq(100, 300, 10),
-    geom_vline(
-      xintercept = seq(110, 290, by = 10),
-      linetype = "solid",
-      color = "blue",
-      size = 0.5
-    )
+    limits = c(0, max_x_gene2),
+    breaks = seq(0, max_x_gene2, 10)
+  ) +
+  geom_vline(
+    xintercept = seq(0, max_x_gene2, 10),
+    color = "blue",
+    linewidth = 0.25
+  ) +
+  theme(
+    axis.text.x.top = element_text(), # Show x-axis text at the top
+    axis.ticks.x.top = element_line() # Show x-axis ticks at the top
   )
+
 
 # Examine the reverse reads as you did the forward.
 quality_plot_gene2_R <- plotQualityProfile(
   trimmed_gene2_R[1:length(sample_names_trimmed_gene2)],
   aggregate = TRUE
 )
-quality_plot_gene2_R_reduced <- quality_plot_gene2_R +
+quality_plot_gene2_R_enhanced <- quality_plot_gene2_R +
   scale_x_continuous(
-    limits = c(100, 300),
-    breaks = seq(100, 300, 10),
-    geom_vline(
-      xintercept = seq(110, 290, by = 10),
-      linetype = "solid",
-      color = "blue",
-      size = 0.5
-    )
+    limits = c(0, max_x_gene2),
+    breaks = seq(0, max_x_gene2, 10)
+  ) +
+  geom_vline(
+    xintercept = seq(0, max_x_gene2, 10),
+    color = "blue",
+    linewidth = 0.25
+  ) +
+  theme(
+    axis.text.x.top = element_text(), # Show x-axis text at the top
+    axis.ticks.x.top = element_line() # Show x-axis ticks at the top
   )
 
 ### Export Quality Plots -------------------------------------------------------
@@ -353,7 +375,7 @@ ggsave(
     gene2,
     ".pdf"
   ),
-  plot = quality_plot_gene2_F_reduced,
+  plot = quality_plot_gene2_F_enhanced,
   width = 9,
   height = 9
 )
@@ -368,7 +390,7 @@ ggsave(
     gene2,
     ".pdf"
   ),
-  plot = quality_plot_gene2_R_reduced,
+  plot = quality_plot_gene2_R_enhanced,
   width = 9,
   height = 9
 )

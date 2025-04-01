@@ -138,43 +138,54 @@ quality_plot_F <- plotQualityProfile(
   aggregate = TRUE
 )
 
-quality_plot_F_reduced <- quality_plot_F +
+plot_build <- ggplot_build(quality_plot_F)
+x_axis_range <- plot_build$layout$panel_params[[1]]$x.range
+max_x <- x_axis_range[2]
+
+quality_plot_F_enhanced <- quality_plot_F +
   scale_x_continuous(
-    limits = c(100, 300),
-    breaks = seq(100, 300, 10),
-    geom_vline(
-      xintercept = seq(110, 290, by = 10),
-      linetype = "solid",
-      color = "blue",
-      size = 0.5
-    )
+    limits = c(0, max_x),
+    breaks = seq(0, max_x, 10)
+  ) +
+  geom_vline(
+    xintercept = seq(0, max_x, 10),
+    color = "blue",
+    linewidth = 0.25
+  ) +
+  theme(
+    axis.text.x.top = element_text(), # Show x-axis text at the top
+    axis.ticks.x.top = element_line() # Show x-axis ticks at the top
   )
+
 # Examine the reverse reads as you did the forward.
 quality_plot_R <- plotQualityProfile(
   trimmed_R[1:length(sample_names_trimmed)],
   aggregate = TRUE
 )
-quality_plot_R_reduced <- quality_plot_R +
+quality_plot_R_enhanced <- quality_plot_R +
   scale_x_continuous(
-    limits = c(100, 300),
-    breaks = seq(100, 300, 10),
-    geom_vline(
-      xintercept = seq(110, 290, by = 10),
-      linetype = "solid",
-      color = "blue",
-      size = 0.5
-    )
+    limits = c(0, max_x),
+    breaks = seq(0, max_x, 10)
+  ) +
+  geom_vline(
+    xintercept = seq(0, max_x, 10),
+    color = "blue",
+    linewidth = 0.25
+  ) +
+  theme(
+    axis.text.x.top = element_text(), # Show x-axis text at the top
+    axis.ticks.x.top = element_line() # Show x-axis ticks at the top
   )
 # Export quality plots.
 ggsave(
   paste0("../data/results/", project_name, "_qualplotF.pdf"),
-  plot = quality_plot_F_reduced,
+  plot = quality_plot_F_enhanced,
   width = 9,
   height = 9
 )
 ggsave(
   paste0("../data/results/", project_name, "_qualplotR.pdf"),
-  plot = quality_plot_R_reduced,
+  plot = quality_plot_R_enchanced,
   width = 9,
   height = 9
 )
