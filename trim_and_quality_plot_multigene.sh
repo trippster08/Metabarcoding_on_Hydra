@@ -37,8 +37,8 @@ contains() {
 if (contains COI "$gene1" && contains MiFish "$gene2") || (contains MiFish "$gene1" && contains COI "$gene2"); then
   primerFpath=${data}"../primers/COImlIntF_12SFMiFish_spacers.fas"
   primerRpath=${data}"../primers/jgCOIR_12SRMiFish_spacers.fas"
-  primerFrcpath=${data}"../primers/MiFish_12SF_RC_spacers.fas"
-  primerRrcpath=${data}"../primers/MiFish_12SR_RC_spacers.fas"
+  primerFrcpath=${data}"../primers/MiFish_12SF_RC.fas"
+  primerRrcpath=${data}"../primers/MiFish_12SR_RC.fas"
   primerF=`basename ${primerFpath}`
   primerR=`basename ${primerRpath}`
   primerFrc=`basename ${primerFrcpath}`
@@ -51,8 +51,8 @@ if (contains COI "$gene1" && contains MiFish "$gene2") || (contains MiFish "$gen
 elif (contains V4 "$gene1" && contains MiFish "$gene2") || (contains V4 "$gene2" && contains MiFish "$gene1"); then
   primerFpath=${data}"../primers/18SF_12SFMiFish_spacers.fas"
   primerRpath=${data}"../primers/18SR_12SRMiFish_spacers.fas"
-  primerFrcpath=${data}"../primers/MiFish_12SF_RC_spacers.fas"
-  primerRrcpath=${data}"../primers/MiFish_12SR_RC_spacers.fas"
+  primerFrcpath=${data}"../primers/MiFish_12SF_RC.fas"
+  primerRrcpath=${data}"../primers/MiFish_12SR_RC.fas"
   primerF=`basename ${primerFpath}`
   primerR=`basename ${primerRpath}`
   primerFrc=`basename ${primerFrcpath}`
@@ -77,11 +77,22 @@ fi
 
 mkdir -p \
 ${data}/working/trimmed_sequences/${gene1} \
+${data}/working/filtered_sequences/${gene1} \
 ${data}/working/trimmed_sequences/${gene2} \
-${data}/working/trimmed_sequences/mismatches \
+${data}/working/filtered_sequences/${gene2} \
 ${data}/results/${gene1} \
 ${data}/results/${gene2}
 
-qsub -o logs/cutadapt.log \
-  -N cutadapt \
-trim_and_quality_plot_multigene.job ${data} ${gene1} ${gene2} ${primerF} ${primerR} ${primerFrc} ${primerRrc}
+path_to_trimmed=${data}"/working/trimmed_sequences/"${gene1}
+
+if
+  [[ -n $(find "$path_to_trimmed" -name "*.fastq.gz" -print -quit) ]];
+then 
+  qsub -o logs/quality.log -N quality \
+  2_quality_multigene.job ${gene1} ${gene2}
+  echo "Trimming is already completed, we moving to the next step: 2_quality_multigene.job"
+else
+  qsub -o logs/cutadapt.log -N cutadapt \
+  1_trim_multigene.job \
+  ${data} ${gene1} ${gene2} ${primerF} ${primerR} ${primerFrc} ${primerRrc}
+fi

@@ -11,7 +11,6 @@ suppressMessages(library(seqinr, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 
 ## File Housekeeping ===========================================================
-
 args <- commandArgs(trailingOnly = TRUE)
 gene1 <- args[1]
 gene2 <- args[2]
@@ -51,10 +50,11 @@ sequence_counts_raw <- sapply(
 # Name these counts with your sample names
 names(sequence_counts_raw) <- sample_names_raw
 
-print(paste0("Here are the read counts for each raw sample:"))
+print(paste0("Here are the raw read counts for each sample:"))
 sequence_counts_raw
 
-## Create vectors for the trimmed reads, both forward (R1) and reverse (R2) and
+## Trimmed Reads ===============================================================
+# Create vectors for the trimmed reads, both forward (R1) and reverse (R2) and
 # for gene1 and gene2.
 trimmed_gene1_F <- sort(
   list.files(
@@ -218,10 +218,24 @@ quality_plot_gene1_F <- plotQualityProfile(
   trimmed_gene1_F[1:length(sample_names_trimmed_gene1)],
   aggregate = TRUE
 )
-quality_plot_gene1_F_reduced <- quality_plot_gene1_F +
+
+plot_build_gene1 <- ggplot_build(quality_plot_gene1_F)
+x_axis_range_gene1 <- plot_build_gene1$layout$panel_params[[1]]$x.range
+max_x_gene1 <- x_axis_range_gene1[2]
+
+quality_plot_gene1_F_enhanced <- quality_plot_gene1_F +
   scale_x_continuous(
-    limits = c(100, 300),
-    breaks = seq(100, 300, 10)
+    limits = c(0, max_x_gene1),
+    breaks = seq(0, max_x_gene1, 10)
+  ) +
+  geom_vline(
+    xintercept = seq(0, max_x_gene1, 10),
+    color = "blue",
+    linewidth = 0.25
+  ) +
+  theme(
+    axis.text.x.top = element_text(), # Show x-axis text at the top
+    axis.ticks.x.top = element_line() # Show x-axis ticks at the top
   )
 
 # Examine the reverse reads as you did the forward.
@@ -229,10 +243,19 @@ quality_plot_gene1_R <- plotQualityProfile(
   trimmed_gene1_R[1:length(sample_names_trimmed_gene1)],
   aggregate = TRUE
 )
-quality_plot_gene1_R_reduced <- quality_plot_gene1_R +
+quality_plot_gene1_R_enhanced <- quality_plot_gene1_R +
   scale_x_continuous(
-    limits = c(100, 300),
-    breaks = seq(100, 300, 10)
+    limits = c(0, max_x_gene1),
+    breaks = seq(0, max_x_gene1, 10)
+  ) +
+  geom_vline(
+    xintercept = seq(0, max_x_gene1, 10),
+    color = "blue",
+    linewidth = 0.25
+  ) +
+  theme(
+    axis.text.x.top = element_text(), # Show x-axis text at the top
+    axis.ticks.x.top = element_line() # Show x-axis ticks at the top
   )
 
 ### Export Quality Plots -------------------------------------------------------
@@ -247,7 +270,7 @@ ggsave(
     gene1,
     ".pdf"
   ),
-  plot = quality_plot_gene1_F,
+  plot = quality_plot_gene1_F_enhanced,
   width = 9,
   height = 9
 )
@@ -262,7 +285,7 @@ ggsave(
     gene1,
     ".pdf"
   ),
-  plot = quality_plot_gene1_R,
+  plot = quality_plot_gene1_R_enhanced,
   width = 9,
   height = 9
 )
@@ -300,21 +323,44 @@ quality_plot_gene2_F <- plotQualityProfile(
   trimmed_gene2_F[1:length(sample_names_trimmed_gene2)],
   aggregate = TRUE
 )
-quality_plot_gene2_F_reduced <- quality_plot_gene2_F +
+plot_build_gene2 <- ggplot_build(quality_plot_gene2_F)
+x_axis_range_gene2 <- plot_build_gene2$layout$panel_params[[1]]$x.range
+max_x_gene2 <- x_axis_range_gene2[2]
+
+quality_plot_gene2_F_enhanced <- quality_plot_gene2_F +
   scale_x_continuous(
-    limits = c(100, 300),
-    breaks = seq(100, 300, 10)
+    limits = c(0, max_x_gene2),
+    breaks = seq(0, max_x_gene2, 10)
+  ) +
+  geom_vline(
+    xintercept = seq(0, max_x_gene2, 10),
+    color = "blue",
+    linewidth = 0.25
+  ) +
+  theme(
+    axis.text.x.top = element_text(), # Show x-axis text at the top
+    axis.ticks.x.top = element_line() # Show x-axis ticks at the top
   )
+
 
 # Examine the reverse reads as you did the forward.
 quality_plot_gene2_R <- plotQualityProfile(
   trimmed_gene2_R[1:length(sample_names_trimmed_gene2)],
   aggregate = TRUE
 )
-quality_plot_gene2_R_reduced <- quality_plot_gene2_R +
+quality_plot_gene2_R_enhanced <- quality_plot_gene2_R +
   scale_x_continuous(
-    limits = c(100, 300),
-    breaks = seq(100, 300, 10)
+    limits = c(0, max_x_gene2),
+    breaks = seq(0, max_x_gene2, 10)
+  ) +
+  geom_vline(
+    xintercept = seq(0, max_x_gene2, 10),
+    color = "blue",
+    linewidth = 0.25
+  ) +
+  theme(
+    axis.text.x.top = element_text(), # Show x-axis text at the top
+    axis.ticks.x.top = element_line() # Show x-axis ticks at the top
   )
 
 ### Export Quality Plots -------------------------------------------------------
@@ -329,7 +375,7 @@ ggsave(
     gene2,
     ".pdf"
   ),
-  plot = quality_plot_gene2_F,
+  plot = quality_plot_gene2_F_enhanced,
   width = 9,
   height = 9
 )
@@ -344,11 +390,15 @@ ggsave(
     gene2,
     ".pdf"
   ),
-  plot = quality_plot_gene2_R,
+  plot = quality_plot_gene2_R_enhanced,
   width = 9,
   height = 9
 )
 
+
+# Here we replace "gene1" and "gene2" in each object with the actual name of
+# gene1 and gende2, so each object will be associated with the correct data
+# in later steps
 all_objects <- ls()
 filtered_gene1 <- grep("gene1", all_objects, value = TRUE)
 filtered_gene2 <- grep("gene2", all_objects, value = TRUE)
@@ -367,4 +417,6 @@ for (obj in filtered_gene2) {
 }
 rm(list = objects_to_remove)
 
-save.image(file = "../data/working/1_trim_qual.RData")
+save.image(file = "../data/working/2_qual.RData")
+
+print("Job 2_quality_multigene.job and this analysis has finished")

@@ -36,35 +36,49 @@ primerRrc="$7"
 
 for x in ${data}/raw/*_R1*; do
   sample=`basename ${x}`
-  name=`echo ${sample%*_R[1-2]_*}`
+  name=$(echo ${sample} | awk -F'_S[0-9]{1,3}_' '{print $1}') 
   namepost=`echo ${sample#*_R[1-2]*}`
+  namepre=`echo ${sample%*_R[1-2]*}`
 #echo $sample
 #echo $name
 #echo $namepost
 
-if [[ -z ${primerFrc} ]]; then
+if [ ! -z ${primerFrc} ]; then
+  
+  cutadapt \
+  -a file:${data}/../primers/${primerRrc} \
+  -A file:${data}/../primers/${primerFrc} \
+  -e 0.2 --cores=$NSLOTS -O 10 \
+  -o ${data}/raw/${name}_trimmed_R1.fastq \
+  -p ${data}/raw/${name}_trimmed_R2.fastq \
+  ${data}/raw/${namepre}_R1${namepost} \
+  ${data}/raw/${namepre}_R2${namepost}
+
   cutadapt \
   -g file:${data}/../primers/${primerF} \
   -G file:${data}/../primers/${primerR} \
-  -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed --quiet --nextseq-trim=20 \
+  -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed \
+  --quiet --nextseq-trim=20 \
   -o ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R1.fastq \
   -p ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R2.fastq \
-  ${data}/raw/${name}_R1${namepost} \
-  ${data}/raw/${name}_R2${namepost}
+  ${data}/raw/${name}_trimmed_R1.fastq \
+  ${data}/raw/${name}_trimmed_R2.fastq
+
+  rm ${data}/raw/${name}_trimmed_R1.fastq ${data}/raw/${name}_trimmed_R2.fastq
+
 else
   cutadapt \
   -g file:${data}/../primers/${primerF} \
-  -a file:${data}/../primers/${primerRrc} \
   -G file:${data}/../primers/${primerR} \
-  -A file:${data}/../primers/${primerFrc} \
-  -e 0.2 --minimum-length 30 --cores=$NSLOTS -n 2 -O 3 --discard-untrimmed --quiet --nextseq-trim=20 \
+  -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed \
+  --quiet --nextseq-trim=20 \
   -o ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R1.fastq \
   -p ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R2.fastq \
-  ${data}/raw/${name}_R1_${namepost} \
-  ${data}/raw/${name}_R2_${namepost}
+  ${data}/raw/${namepre}_R1${namepost} \
+  ${data}/raw/${namepre}_R2${namepost}
 fi
 
-gzip -5 \
+gzip -2 \
 ${data}/working/trimmed_sequences/${gene1}/${name}_trimmed_R1.fastq \
 ${data}/working/trimmed_sequences/${gene1}/${name}_trimmed_R2.fastq \
 ${data}/working/trimmed_sequences/${gene2}/${name}_trimmed_R1.fastq \
@@ -72,7 +86,7 @@ ${data}/working/trimmed_sequences/${gene2}/${name}_trimmed_R2.fastq
 
 done
 
-Rscript quality_plot_multigene.R ${gene1} ${gene2}
+Rscript 2_quality_multigene.R ${gene1} ${gene2}
 
 
 echo = `date` job $JOB_NAME done

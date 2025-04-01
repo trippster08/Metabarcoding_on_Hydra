@@ -6,8 +6,8 @@
 #$ -l mres=192G,h_data=8G,h_vmem=10G
 #$ -cwd
 #$ -j y
-#$ -N denoise
-#$ -o logs/denoise.log
+#$ -N trimmed
+#$ -o trimmed.log
 #
 # ----------------Modules------------------------- #
 module load tools/R/4.4.1
@@ -17,11 +17,10 @@ module load tools/R/4.4.1
 echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
 echo + NSLOTS = $NSLOTS
 #
-trimmed="$1"
-truncF="$2"
-truncR="$3"
-#
-Rscript filter_denoise_merge.R ${trimmed} ${truncF} ${truncR}
+gene1="$1"
+gene2="$2"
 
+#
+Rscript 2_quality_multigene.R ${gene1} ${gene2}
 #
 echo = `date` job $JOB_NAME done

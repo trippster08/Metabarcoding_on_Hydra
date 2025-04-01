@@ -2,8 +2,8 @@
 # ----------------Parameters---------------------- #
 #$ -S /bin/sh
 #$ -pe mthread 24
-#$ -q mThC.q
-#$ -l mres=192G,h_data=8G,h_vmem=10G
+#$ -q sThM.q
+#$ -l mres=240G,h_data=10G,h_vmem=16G,himem
 #$ -cwd
 #$ -j y
 #$ -N denoise
@@ -18,23 +18,9 @@ echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
 echo + NSLOTS = $NSLOTS
 #
 gene="$1"
-trimmed="$2"
-truncF="$3"
-truncR="$4"
 
 #
-
-#echo ${gene1}
-#echo ${gene2}
-#echo ${trimmed1}
-#echo ${trimmed2}
-#echo ${truncF1}
-#echo ${truncR1}
-#echo ${truncF2}
-#echo ${truncR2}
-
-Rscript filter_denoise_merge_multigene.R \
-${gene} ${trimmed} ${truncF} ${truncR}
-
+Rscript 7_chimera_multigene.R ${gene}
+Rscript 8_output_multigene.R ${gene}
 #
 echo = `date` job $JOB_NAME done

@@ -20,35 +20,45 @@ then
   exit
 fi
 
-if
-  [[ ${gene} == ${COI} ]]
-then
-  primerF=${data}"../primers/COImlIntF_spacers.fas" && \
-  primerR=${data}"../primers/jgCOIR_spacers.fas"
+if [[ " ${COI[@]} " =~ " ${gene} " ]]; then
+  primerFpath=${data}"../primers/COImlIntF_spacers.fas"
+  primerRpath=${data}"../primers/jgCOIR_spacers.fas"
+  primerF=`basename ${primerFpath}`
+  primerR=`basename ${primerRpath}`
+elif [[ " ${MiFish[@]} " =~ " ${gene} " ]]; then
+  primerFpath=${data}"../primers/MiFish_12SF_spacers.fas"
+  primerRpath=${data}"../primers/MiFish_12SR_spacers.fas"
+  primerFrcpath=${data}"../primers/MiFish_12SF_RC.fas"
+  primerRrcpath=${data}"../primers/MiFish_12SR_RC.fas"
+  primerF=`basename ${primerFpath}`
+  primerR=`basename ${primerRpath}`
+  primerFrc=`basename ${primerFrcpath}`
+  primerRrc=`basename ${primerRrcpath}`
+elif [[ " ${V4[@]} " =~ " ${gene} " ]]; then
+  primerFpath=${data}"../primers/18SF_spacers.fas"
+  primerRpath=${data}"../primers/18SR_spacers.fas"
+  primerF=`basename ${primerFpath}`
+  primerR=`basename ${primerRpath}`
 else
-  if
-    [[ ${gene} == ${12S} ]]
-  then
-    primerF=${data}"../primers/MiFish_12SF_spacers.fas" && \
-    primerR=${data}"../primers/MiFish_12SR_spacers.fas"
-  else
-    if
-      [[ ${gene} == ${18S} ]]
-    then
-      primerF=${data}"../primers/18SF_spacers.fas" && \
-      primerR=${data}"../primers/18SR_spacers.fas"
-    else
-      echo 'Incorrrect primer set given. Please enter "COI", "12S", or "18S"'
-      exit
-    fi
-  fi    
-fi
+  echo 'Incorrect primer set given. Please enter "COI", "12S", or "18S"'
+  exit 1
+fi   
 
 # Create all the subdirectories we will use
 mkdir -p \
-${data}/working/trimmed_sequences \
-${data}/results
+../data/working/trimmed_sequences \
+../data/working/filtered_sequences \
+../data/results
 
-qsub -o logs/cutadapt.log \
-  -N cutadapt \
-trim_and_quality_plot.job ${data} ${primerF} ${primerR}
+path_to_trimmed=${data}"/working/trimmed_sequences/"${gene1}
+
+if
+  [[ -n $(find "$path_to_trimmed" -name "*.fastq.gz" -print -quit) ]];
+then
+  qsub -o logs/quality.log -N quality \
+  2_quality.job
+  echo "Trimming is already completed, we moving to the next step: 2_quality.job"
+else
+  qsub -o logs/cutadapt.log -N cutadapt \
+  1_trim.job ${data} ${primerF} ${primerR} ${primerFrc} ${primerRrc}
+fi

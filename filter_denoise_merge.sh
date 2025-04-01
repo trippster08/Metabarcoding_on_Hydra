@@ -18,6 +18,24 @@ then
   exit
 fi
 
-qsub -o logs/denoise.log \
-  -N denoise \
-filter_denoise_merge.job ${trimmed} ${truncF} ${truncR}
+if [[ ! -f "../data/working/3_filter.RData" ]]; then
+  qsub -o logs/filter.log -N filter \
+    3_filter.job ${trimmed} ${truncF} ${truncR}
+elif [[ ! -f "../data/working/4_error.RData" ]]; then
+  qsub -o logs/error.log -N error \
+    4_error.job ${trimmed} ${truncF} ${truncR}
+elif [[ ! -f "../data/working/5_denoise.RData" ]]; then
+  qsub -o logs/denoise.log -N denoise \
+    5_denoise.job ${trimmed} ${truncF} ${truncR}
+elif [[ ! -f "../data/working/6_merge.RData" ]]; then
+  qsub -o logs/merge.log -N merge \
+    6_merge.job ${trimmed} ${truncF} ${truncR}
+elif [[ ! -f "../data/working/7_chimera.RData" ]]; then
+  qsub -o logs/chimera.log -N chimera \
+    7_chimera.job ${trimmed} ${truncF} ${truncR}
+elif [[ ! -f "../data/working/8_output.RData" ]]; then
+  qsub -o logs/output.log -N output \
+  8_output.job ${trimmed} ${truncF} ${truncR}
+else
+  echo "All steps have already completed"
+fi
