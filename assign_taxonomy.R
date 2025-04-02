@@ -1,6 +1,8 @@
-library(dada2)
-library(tidyverse)
-library(seqinr)
+suppressMessages(library(dada2, warn.conflicts = FALSE, quietly = TRUE))
+suppressMessages(library(digest, warn.conflicts = FALSE, quietly = TRUE))
+suppressMessages(library(tidyverse, warn.conflicts = FALSE, quietly = TRUE))
+suppressMessages(library(seqinr, warn.conflicts = FALSE, quietly = TRUE))
+suppressMessages(library(rBLAST, warn.conflicts = FALSE, quietly = TRUE))
 
 
 ## Trim Reads ==================================================================

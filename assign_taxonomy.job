@@ -2,8 +2,8 @@
 # ----------------Parameters---------------------- #
 #$ -S /bin/sh
 #$ -pe mthread 12
-#$ -q mThC.q
-#$ -l mres=48G,h_data=4G,h_vmem=4G
+#$ -q sThM.q
+#$ -l mres=288G,h_data=24G,h_vmem=24G,himem
 #$ -cwd
 #$ -j y
 #$ -N trimmed
@@ -12,6 +12,7 @@
 # ----------------Modules------------------------- #
 module load bioinformatics/cutadapt/4.7
 module load tools/R/4.4.1
+module load bioinformatics/blast
 #
 # ----------------Your Commands------------------- #
 #
@@ -19,11 +20,20 @@ echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
 echo + NSLOTS = $NSLOTS
 #
 
-sample="$1"
+ref="$1"
+project="$2"
+
+blastn \
+-query /scratch/nmnh_lab/macdonaldk/pseudodec/data/working/PseudoDec_v2_rep-seq_md5.fas \
+-db mito \
+-task "blastn" \
+-out /scratch/nmnh_lab/macdonaldk/pseudodec/data/results/meyer_pseudec_ind_v2_COI_blast.txt \
+-num_threads $NSLOTS \
+-max_target_seqs 10 \
+-outfmt "6 qseqid sacc staxids sscinames qcovs pident"
 
 
-
-Rscript tax_assign.R ${sample}
+Rscript assign_taxonomy.R ${ref}
 
 
 echo = `date` job $JOB_NAME done
