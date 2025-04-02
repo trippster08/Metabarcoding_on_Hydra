@@ -25,7 +25,7 @@ seqtab_nochim <- removeBimeraDenovo(
 
 print(paste(
   "This is the number of ASVs for your chimera-free Sequence-Table:",
-  length(colnames(seqtab.nochim)),
+  length(colnames(seqtab_nochim)),
   sep = " "
 ))
 
