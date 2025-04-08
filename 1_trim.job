@@ -25,6 +25,13 @@ primerR="$3"
 primerFrc="$4"
 primerRrc="$5"
 
+if [ ! -z ${primerFrc} ]; then
+  echo "Your gene has potential read-through, so we will attempt to trim primers from 3' read ends before 5'"
+else
+  echo "Your gene should have potential read-through, so we are only removing primers from the 5' end of each read."
+fi
+
+
 for x in ${data}/raw/*_R1*; do
   sample=`basename ${x}`
   name=$(echo ${sample} | awk -F'_S[0-9]{1,3}_' '{print $1}') 
@@ -32,8 +39,6 @@ for x in ${data}/raw/*_R1*; do
   namepre=`echo ${sample%*_R[1-2]*}`
 
 if [ ! -z ${primerFrc} ]; then
-  echo "We will first trim 3' primers"
-
   cutadapt \
   -a file:${data}/../primers/${primerRrc} \
   -A file:${data}/../primers/${primerFrc} \
@@ -42,8 +47,6 @@ if [ ! -z ${primerFrc} ]; then
   -p ${data}/raw/${name}_trimmed_R2.fastq \
   ${data}/raw/${namepre}_R1${namepost} \
   ${data}/raw/${namepre}_R2${namepost}
-
-  echo "We will next trim 5' primers, discarding untrimmed"
 
   cutadapt \
   -g file:${data}/../primers/${primerF} \
@@ -58,7 +61,6 @@ if [ ! -z ${primerFrc} ]; then
 rm ${data}/raw/${name}_trimmed_R1.fastq ${data}/raw/${name}_trimmed_R2.fastq
 
 else
-  echo "We will trim 5' primers, skipping 3' trimming discarding untrimmed"
   cutadapt \
   -g file:${data}/../primers/${primerF} \
   -G file:${data}/../primers/${primerR} \
