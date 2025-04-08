@@ -1,4 +1,5 @@
-# TRIM FILTER DENOISE MERGE ####################################################
+# REMOVE CHIMERAS ##############################################################
+## Load Libraries ==============================================================
 suppressMessages(library(dada2, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(digest, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(tidyverse, warn.conflicts = FALSE, quietly = TRUE))
