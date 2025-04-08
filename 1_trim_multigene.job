@@ -61,7 +61,6 @@ if [ ! -z ${primerFrc} ]; then
   rm ${data}/raw/${name}_trimmed_R1.fastq ${data}/raw/${name}_trimmed_R2.fastq
 
 else
-  echo "We will trim 5' primers, skipping 3' trimming discarding untrimmed"
   cutadapt \
   -g file:${data}/../primers/${primerF} \
   -G file:${data}/../primers/${primerR} \
