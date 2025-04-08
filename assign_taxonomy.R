@@ -1,3 +1,5 @@
+# ASSIGN TAXONOMY ##############################################################
+## Load Libraries ==============================================================
 suppressMessages(library(dada2, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(digest, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(tidyverse, warn.conflicts = FALSE, quietly = TRUE))
@@ -5,14 +7,13 @@ suppressMessages(library(seqinr, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(rBLAST, warn.conflicts = FALSE, quietly = TRUE))
 
 
-## Trim Reads ==================================================================
-numcores <- Sys.getenv("NSLOTS")
+## File Housekeeping ===========================================================
 args <- commandArgs(trailingOnly = TRUE)
-sample <- args[1]
+ref <- args[1]
 
-setwd(paste0("/scratch/genomics/macdonaldk/edna_workshop_2025/", sample))
-load("data/results/feattab.RData")
 
+# Load the RData from "quality_plot_multigene.R"
+load("../data/working/8_output.RData")
 
 taxonomy <- assignTaxonomy(
   seqtab_nochim,
