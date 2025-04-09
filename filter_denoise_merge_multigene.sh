@@ -10,7 +10,7 @@ COI=(COI coi CO1 co1 cox1 COX1)
 MiFish=(12S MiFish mifish Mifish 12S_mifish 12S_MiFish 12s)
 V4=(18S l8s V4 v4)
 
-echo "Your trimmed reads are in this directory: $(realpath ../data/working/trimmed_sequences)"
+echo "Your trimmed reads are in this directory: ${trimmed}"
 # Function to check if a term is in a group
 is_in_group() {
   local term="$1"
