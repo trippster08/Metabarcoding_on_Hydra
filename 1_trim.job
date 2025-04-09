@@ -43,6 +43,7 @@ if [ ! -z ${primerFrc} ]; then
   -a file:${data}/../primers/${primerRrc} \
   -A file:${data}/../primers/${primerFrc} \
   -e 0.2 --cores=$NSLOTS -O 10 --quiet \
+  --json=logs/terminal_trim.cutadapt.json \
   -o ${data}/raw/${name}_trimmed_R1.fastq \
   -p ${data}/raw/${name}_trimmed_R2.fastq \
   ${data}/raw/${namepre}_R1${namepost} \
@@ -53,6 +54,7 @@ if [ ! -z ${primerFrc} ]; then
   -G file:${data}/../primers/${primerR} \
   -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed \
   --nextseq-trim=20 \
+  --json=logs/front_trim.cutadapt.json \
   -o ${data}/working/trimmed_sequences/${name}_trimmed_R1.fastq \
   -p ${data}/working/trimmed_sequences/${name}_trimmed_R2.fastq \
   ${data}/raw/${name}_trimmed_R1.fastq \
@@ -66,6 +68,7 @@ else
   -G file:${data}/../primers/${primerR} \
   -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed \
   --nextseq-trim=20 \
+  --json=logs/front_trim.cutadapt.json \
   -o ${data}/working/trimmed_sequences/${name}_trimmed_R1.fastq \
   -p ${data}/working/trimmed_sequences/${name}_trimmed_R2.fastq \
   ${data}/raw/${namepre}_R1${namepost} \
