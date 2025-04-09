@@ -6,7 +6,7 @@ truncR="$3"
 if
   [[ -z "$(ls ${trimmed}/*.fastq.gz 2>/dev/null | grep fastq)" ]]  
 then  
-  echo "Correct path to trimmed read files not entered (*.fastq.gz)"
+  echo "No sequences (*.fastq.gz) were found in the trimmed data directory: $(realpath ../data/working/trimmed_sequences)"
   exit
 fi
 

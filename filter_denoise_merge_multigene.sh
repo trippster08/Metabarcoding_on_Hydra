@@ -10,8 +10,7 @@ COI=(COI coi CO1 co1 cox1 COX1)
 MiFish=(12S MiFish mifish Mifish 12S_mifish 12S_MiFish 12s)
 V4=(18S l8s V4 v4)
 
-echo "Your trimmed reads are in this directory:" ${trimmed}
-
+echo "Your trimmed reads are in this directory: $(realpath ../data/working/trimmed_sequences)"
 # Function to check if a term is in a group
 is_in_group() {
   local term="$1"
@@ -38,7 +37,7 @@ if
   [[ -z "$(ls ${trimmed}/${gene1}/*.fastq.gz 2>/dev/null | grep fastq)" ]] || \
   [[ -z "$(ls ${trimmed}/${gene2}/*.fastq.gz 2>/dev/null | grep fastq)" ]]  
 then  
-  echo "Correct path to at least one of the directories holding your trimmed read files not entered"
+  echo "At least one of the directories holding your trimmed reads is empty"
   exit
 fi
 

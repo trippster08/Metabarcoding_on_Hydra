@@ -10,7 +10,7 @@ V4=(18S l8s V4 v4)
 
 if
   [[ -z "$(ls ${raw}/*.fastq.gz 2>/dev/null | grep fastq.gz)" ]]; then  
-  echo "Correct path to raw read files not entered (*.fastq.gz)"
+  echo "No sequences (*.fastq.gz) were found in the raw data directory: $(realpath ../data/raw)"
   exit
 fi
 
