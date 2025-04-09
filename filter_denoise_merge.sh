@@ -1,5 +1,5 @@
 # /bin/sh
-trimmed="realpath ../data/working/raw"
+trimmed=$(readlink -f ../data/working/trimmed_sequences)
 truncF="$1"
 truncR="$2"
 

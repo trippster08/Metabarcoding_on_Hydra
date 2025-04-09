@@ -1,16 +1,16 @@
 # /bin/bash
 
-raw="realpath ../data/raw"
+raw=$(readlink -f ../data/raw)
 gene1="$1"
 gene2="$2"
-data="realpath ../data"
+data=$(readlink -f ../data)
 COI=(COI coi CO1 co1 cox1 COX1)
 MiFish=(12S MiFish mifish Mifish 12S_mifish 12S_MiFish 12s)
 V4=(18S l8s V4 v4)
 
 if
   [[ -z "$(ls ${raw}/*.fastq.gz 2>/dev/null | grep fastq.gz)" ]]; then  
-  echo "No sequences (*.fastq.gz) were found in the raw data directory: $(realpath ../data/raw)"
+  echo "No sequences (*.fastq.gz) were found in the raw data directory: ${raw}
   exit
 fi
 
@@ -86,7 +86,7 @@ ${data}/results/${gene2}
 path_to_trimmed=${data}"/working/trimmed_sequences/"${gene1}
 
 if
-  [[ -n $(find "$path_to_trimmed" -name "*.fastq.gz" -print -quit) ]];
+  [[ -n $(find "${path_to_trimmed}" -name "*.fastq.gz" -print -quit) ]];
 then 
   qsub -o logs/quality.log -N quality \
   2_quality_multigene.job ${gene1} ${gene2}

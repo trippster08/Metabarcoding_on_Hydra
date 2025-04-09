@@ -1,5 +1,5 @@
  # /bin/bash
-trimmed="realpath ../data/working/raw"
+trimmed=$(readlink -f ../data/working/trimmed_sequences)
 gene1="$1"
 gene2="$2"
 truncF1="$3"
