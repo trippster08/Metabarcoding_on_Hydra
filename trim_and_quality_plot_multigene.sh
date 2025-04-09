@@ -1,9 +1,9 @@
 # /bin/bash
 
-raw="$1"
+raw="realpath ../data/raw"
 gene1="$2"
 gene2="$3"
-data=${raw}/../
+data="realpath ../data"
 COI=(COI coi CO1 co1 cox1 COX1)
 MiFish=(12S MiFish mifish Mifish 12S_mifish 12S_MiFish 12s)
 V4=(18S l8s V4 v4)

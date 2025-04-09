@@ -1,5 +1,5 @@
 # /bin/sh
-trimmed="$1"
+trimmed="realpath ../data/working/raw"
 truncF="$2"
 truncR="$3"
 

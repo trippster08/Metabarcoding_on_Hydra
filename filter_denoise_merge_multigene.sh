@@ -1,5 +1,5 @@
  # /bin/bash
-trimmed="$1"
+trimmed="realpath ../data/working/raw"
 gene1="$2"
 gene2="$3"
 truncF1="$4"

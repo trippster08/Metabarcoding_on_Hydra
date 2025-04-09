@@ -1,15 +1,15 @@
 # /bin/sh
 
-raw="$1"
+raw="realpath ../data/raw"
 gene="$2"
-data=${raw}/../
+data="realpath ../data"
 COI=(COI coi CO1 co1 cox1 COX1)
 MiFish=(12S MiFish mifish Mifish 12S_mifish 12S_MiFish 12s)
 V4=(18S l8s V4 v4)
 
 if
   [[ -z "$(ls ${raw}/*.fastq.gz 2>/dev/null | grep fastq.gz)" ]]; then  
-  echo "Correct path to raw read files not entered (*.fastq.gz)"
+  echo "No sequences (*.fastq.gz) were found in the raw data directory: ${raw}"
   exit
 fi
 
@@ -50,7 +50,7 @@ mkdir -p \
 ../data/working/filtered_sequences \
 ../data/results
 
-path_to_trimmed=${data}"/working/trimmed_sequences/"${gene1}
+path_to_trimmed=${data}"/working/trimmed_sequences/"
 
 if
   [[ -n $(find "$path_to_trimmed" -name "*.fastq.gz" -print -quit) ]];
