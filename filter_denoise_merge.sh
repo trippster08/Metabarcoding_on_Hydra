@@ -1,7 +1,7 @@
 # /bin/sh
 trimmed="realpath ../data/working/raw"
-truncF="$2"
-truncR="$3"
+truncF="$1"
+truncR="$2"
 
 if
   [[ -z "$(ls ${trimmed}/*.fastq.gz 2>/dev/null | grep fastq)" ]]  

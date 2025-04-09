@@ -1,11 +1,11 @@
  # /bin/bash
 trimmed="realpath ../data/working/raw"
-gene1="$2"
-gene2="$3"
-truncF1="$4"
-truncR1="$5"
-truncF2="$6"
-truncR2="$7"
+gene1="$1"
+gene2="$2"
+truncF1="$3"
+truncR1="$4"
+truncF2="$5"
+truncR2="$6"
 COI=(COI coi CO1 co1 cox1 COX1)
 MiFish=(12S MiFish mifish Mifish 12S_mifish 12S_MiFish 12s)
 V4=(18S l8s V4 v4)

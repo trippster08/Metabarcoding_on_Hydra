@@ -1,7 +1,7 @@
 # /bin/sh
 
 raw="realpath ../data/raw"
-gene="$2"
+gene="$1"
 data="realpath ../data"
 COI=(COI coi CO1 co1 cox1 COX1)
 MiFish=(12S MiFish mifish Mifish 12S_mifish 12S_MiFish 12s)
