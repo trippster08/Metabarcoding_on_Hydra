@@ -12,8 +12,6 @@ suppressMessages(library(seqinr, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 
 ## File Housekeeping ===========================================================
-args <- commandArgs(trailingOnly = TRUE)
-
 # Save project name as an object
 project_name <- basename(dirname(getwd()))
 print(paste0("This project is named ", project_name))
