@@ -32,7 +32,7 @@ else
   echo "gene1 and/or gene2 are not valid terms. Please use COI, MiFish, or V4 to define your two genes."
 fi
 
-
+# Check if there are read files in both the trimmed sequences directories
 if
   [[ -z "$(ls ${trimmed}/${gene1}/*.fastq.gz 2>/dev/null | grep fastq)" ]] || \
   [[ -z "$(ls ${trimmed}/${gene2}/*.fastq.gz 2>/dev/null | grep fastq)" ]]  
@@ -50,10 +50,6 @@ then
   echo "Length to truncation values for one of your genes is not entered correctly. Please enter <path_to_trimmed_sequences> <gene1> <gene2> <R1_truncation_value_for_gene1> <R2_truncation_value_for_gene1>  <R1_truncation_value_for_gene2> <R2_truncation_value_for_gene2>'."
   exit
 fi
-
-mkdir -p \
-${trimmed}/../../results/${gene1} \
-${trimmed}/../../results/${gene2}
 
 #echo ${gene1}
 #echo ${gene2}
