@@ -23,6 +23,9 @@ echo + NSLOTS = $NSLOTS
 ref="$1"
 project="$2"
 
+Rscript assign_taxonomy.R ${ref}
+
+
 blastn \
 -query /scratch/nmnh_lab/macdonaldk/pseudodec/data/working/PseudoDec_v2_rep-seq_md5.fas \
 -db mito \
@@ -33,7 +36,7 @@ blastn \
 -outfmt "6 qseqid sacc staxids sscinames qcovs pident"
 
 
-Rscript assign_taxonomy.R ${ref}
+
 
 
 echo = `date` job $JOB_NAME done
