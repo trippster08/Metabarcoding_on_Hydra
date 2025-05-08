@@ -47,7 +47,7 @@ if
   [[ ! ${truncF2} =~ ^[0-9]+$ ]] || \
   [[ ! ${truncR2} =~ ^[0-9]+$ ]]
 then
-  echo "Length to truncation values for one of your genes is not entered correctly. Please enter <path_to_trimmed_sequences> <gene1> <gene2> <R1_truncation_value_for_gene1> <R2_truncation_value_for_gene1>  <R1_truncation_value_for_gene2> <R2_truncation_value_for_gene2>'."
+  echo "Length to truncation values for one of your genes is not entered correctly. It must be a number between 0 (no trimming) and the length of your reads. Please enter <gene1> <gene2> <R1_truncation_value_for_gene1> <R2_truncation_value_for_gene1> <R1_truncation_value_for_gene2> <R2_truncation_value_for_gene2>'."
   exit
 fi
 

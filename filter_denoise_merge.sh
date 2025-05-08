@@ -14,7 +14,7 @@ if
   [[ ! ${truncF} =~ ^[0-9]+$ ]] || \
   [[ ! ${truncR} =~ ^[0-9]+$ ]]
 then
-  echo "At least one of the lengths-to-truncate values for (values should be a number > 1). Please enter '<path_to_trimmed_reads> <R1_truncation_value> <R2_truncation_value>" 
+  echo "Length to truncation values is not entered correctly. It must be a number between 0 (no trimming) and the length of your reads. Please enter <R1_truncation_value> <R2_truncation_value>" 
   exit
 fi
 
