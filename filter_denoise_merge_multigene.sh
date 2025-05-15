@@ -1,4 +1,5 @@
- # /bin/bash
+# /bin/bash
+
 trimmed=$(readlink -f ../data/working/trimmed_sequences)
 gene1="$1"
 gene2="$2"
