@@ -44,20 +44,21 @@ mkdir -p PROJECT/data/raw PROJECT/jobs
 
 ```
 ### Transfer Files to Hydra 
-Download the pipeline to jobs/ in your Hydra account using `wget`. This downloads a compressed file that contains all job files (\*.job), shell scripts (\*.sh), R scripts (\*.R), and primer definition files (\*.fas) necessary for your analysis. This command downloads a compressed file that will become a directory upon unzipping. Don't forget to move into your jobs folder first: `cd PROJECT/jobs`.
+Download the pipeline to jobs/ in your Hydra account using `wget` (see code below). This downloads a compressed file that contains all job files (\*.job), shell scripts (\*.sh), R scripts (\*.R), and primer definition files (\*.fas) necessary for your analysis. This command downloads a compressed file that will become a directory upon unzipping. Don't forget to move into your jobs folder first: `cd PROJECT/jobs`.
 
 ```
 wget https://github.com/trippster08/Metabarcoding_on_Hydra/archive/refs/heads/main.zip
 ```
-Unzip the pipeline, and move all the \*.sh, \*.job, and \*.R files from your newly unzipped directory into the job directory and the primer folder into the main project directory. Delete the now-empty pipeline directory and zipped download. **NOTE**: The last command (`rm -r Metabarcoding_on_Hydra-main main.zip`) will not automatically start (but the rest will), so you need to hit enter or return once to complete.
+Using the script below, unzip the pipeline, and move all the \*.sh, \*.job, and \*.R files from your newly unzipped directory into the job directory and the primer folder into the main project directory. Delete the now-empty pipeline directory and zipped download.
 ```
 unzip main.zip
 mv Metabarcoding_on_Hydra-main/* .
 mv primers ..
 rm -r Metabarcoding_on_Hydra-main main.zip
-```
 
-Your raw reads should be copied into `data/raw/`. Download to your local computer and use scp or filezilla to upload to `data/raw/`. See [Transferring Files to/from Hydra](https://confluence.si.edu/pages/viewpage.action?pageId=163152227) for help with transferring files between Hydra and your computer.
+```
+### Get Raw Reads
+Your raw reads should be copied into `data/raw/`. Download to your local computer and use scp or filezilla to upload to `data/raw/`. See [Transferring Files to/from Hydra](https://confluence.si.edu/pages/viewpage.action?pageId=163152227) for help with transferring files between Hydra and your computer. *NOTE: Remove any "undetermined" read files from the folder containing your raw reads. You do not want to include these reads in your analyses.*
 
 ### Preparing R
 The first time you run this pipeline, you may need to install libraries that may be needed: (`DADA2`, `tidyverse`, `seqinr`, `ape`, `digest`, etc). Currently, you have to do this manually, please see [Installing R libraries on Hydra](https://github.com/trippster08/Metabarcoding_on_Hydra/blob/main/Rprep.md) for directions on how to install these libraries.
