@@ -192,13 +192,10 @@ colnames(repseq_nochim_md5_asv) <- c("md5", "ASV")
 # representative md5 hash. We download this in the next section.
 
 # Transpose the sequence-table, and convert the result into a tibble.
-seqtab_nochim_transpose_md5 <- as_tibble(
-  t(seqtab_nochim_md5),
-  rownames = "ASV"
-)
+feattab_nochim_md5 <- t(seqtab_nochim_md5)
 
 write.table(
-  seqtab_nochim_transpose_md5,
+  feattab_nochim_md5,
   file = paste0(
     "../data/results/",
     gene,
