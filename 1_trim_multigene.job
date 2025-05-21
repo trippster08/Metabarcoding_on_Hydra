@@ -38,6 +38,11 @@ for x in ${data}/raw/*_R1*; do
   namepost=`echo ${sample#*_R[1-2]*}`
   namepre=`echo ${sample%*_R[1-2]*}`
 
+if [[ ! -f ${namepre}_R2${namepost} ]]; then
+  echo "Error, ${namepre}_R2${namepost} can not be found in data/raw/, please make sure all read pairs exist" >> "logs/cutadapt.log"
+  exit 1
+fi
+
 if [ ! -z ${primerFrc} ]; then
   cutadapt \
   -a file:${data}/../primers/${primerRrc} \
