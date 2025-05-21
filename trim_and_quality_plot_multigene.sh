@@ -3,10 +3,13 @@
 raw=$(readlink -f ../data/raw)
 gene1="$1"
 gene2="$2"
+gene3="$3"
 data=$(readlink -f ../data)
 COI=(COI coi CO1 co1 cox1 COX1)
 MiFish=(12S MiFish mifish Mifish 12S_mifish 12S_MiFish 12s)
 V4=(18S l8s V4 v4)
+V4_16S=(16S 16s 16Sbac)
+28S=(28S 28s Anth_28S)
 
 if
   [[ -z "$(ls ${raw}/*.fastq.gz 2>/dev/null | grep fastq.gz)" ]]; then  
@@ -15,7 +18,7 @@ if
 fi
 
 # Check if either variable is empty
-if [ -z ${gene1} ] || [ -z ${gene2} ]; then
+if [ -z ${gene1} ] || [ -z ${gene2} ] || -z ${gene3}; then
   echo "One or both primer sets missing. Please include two of the following three primer sets  "COI", "12S", or "18S"."
   exit 1
 fi
