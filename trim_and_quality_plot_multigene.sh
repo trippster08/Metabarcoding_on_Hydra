@@ -1,9 +1,11 @@
 # /bin/bash
 
 raw=$(readlink -f ../data/raw)
-gene1="$1"
-gene2="$2"
-gene3="$3"
+cat /dev/null > ../primers/primerF.fas
+cat /dev/null > ../primers/primerR.fas
+cat /dev/null > ../primers/primerF_RC.fas
+cat /dev/null > ../primers/primerR_RC.fas
+
 data=$(readlink -f ../data)
 COI=(COI coi CO1 co1 cox1 COX1)
 MiFish=(12S MiFish mifish Mifish 12S_mifish 12S_MiFish 12s)
@@ -18,65 +20,54 @@ if
 fi
 
 # Check if either variable is empty
-if [ -z ${gene1} ] || [ -z ${gene2} ] || -z ${gene3}; then
+if [ -z $1 ]; then
   echo "One or both primer sets missing. Please include two of the following three primer sets  "COI", "12S", or "18S"."
   exit 1
 fi
 
 # Function to check if a value is in an array
+
 contains() {
-  local array="$1[@]"
-  local seeking=$2
-  local in=1
-  for x in "${!array}"; do
-    if [[ $x == $seeking ]]; then
-      in=0
-      break
-    fi
-  done
-  return $in
+  local seeking=$1
+  shift
+  local arrays=("$@")
+  local in=1
+
+  for array in "${arrays[@]}"; do
+    for x in "${!array}"; do
+      if [[ $x == $seeking ]]; then
+        in=0
+        break 2
+      fi
+    done
+  done
+
+  return $in
 }
 
-if (contains COI "$gene1" && contains MiFish "$gene2") || (contains MiFish "$gene1" && contains COI "$gene2"); then
-  primerFpath=${data}"../primers/COImlIntF_12SFMiFish_spacers.fas"
-  primerRpath=${data}"../primers/jgCOIR_12SRMiFish_spacers.fas"
-  primerFrcpath=${data}"../primers/MiFish_12SF_RC.fas"
-  primerRrcpath=${data}"../primers/MiFish_12SR_RC.fas"
-  primerF=`basename ${primerFpath}`
-  primerR=`basename ${primerRpath}`
-  primerFrc=`basename ${primerFrcpath}`
-  primerRrc=`basename ${primerRrcpath}`
-  echo "Primer files set:"
-  echo "Forward primer file: `basename ${primerF}`"
-  echo "Reverse primer file: $primerR"
-  echo "Forward primer RC file: $primerFrc"
-  echo "Reverse primer RC file: $primerRrc"
-elif (contains V4 "$gene1" && contains MiFish "$gene2") || (contains V4 "$gene2" && contains MiFish "$gene1"); then
-  primerFpath=${data}"../primers/18SF_12SFMiFish_spacers.fas"
-  primerRpath=${data}"../primers/18SR_12SRMiFish_spacers.fas"
-  primerFrcpath=${data}"../primers/MiFish_12SF_RC.fas"
-  primerRrcpath=${data}"../primers/MiFish_12SR_RC.fas"
-  primerF=`basename ${primerFpath}`
-  primerR=`basename ${primerRpath}`
-  primerFrc=`basename ${primerFrcpath}`
-  primerRrc=`basename ${primerRrcpath}`
-  echo "Primer files set:"
-  echo "Forward primer file: `basename ${primerF}`"
-  echo "Reverse primer file: $primerR"
-  echo "Forward primer RC file: $primerFrc"
-  echo "Reverse primer RC file: $primerRrc"
-elif (contains COI "$gene1" && contains V4 "$gene2") || (contains COI "$gene2" && contains V4 "$gene1"); then
-  primerFpath=${data}"../primers/COImlIntF_18SF_spacers.fas"
-  primerRpath=${data}"../primers/jgCOIR_18SR_spacers.fas"
-  primerF=`basename ${primerFpath}`
-  primerR=`basename ${primerRpath}`
-  echo "Primer files set:"
-  echo "Forward primer file: $primerF"
-  echo "Reverse primer file: $primerR"
-else
-      echo 'No Primer files set. Incorrect primers referenced. Please enter "COI", "12S", or "18S"'
-      exit 1   
-fi
+
+found_mifish=0
+# Loop through each gene provided as an argument
+for gene in "$@"
+do
+  if contains "$gene" MiFish[@]; then
+    found_mifish=1
+  fi
+done
+
+for gene in "$@"
+do
+  if [ $found_mifish -eq 1 ]; then
+    if contains "$gene" COI[@] MiFish[@] V4[@] V4_16S[@] 28S[@]; then
+      cat "../primers/${gene}_primerF.fas" >> ../primers/primerF.fas
+      cat "../primers/${gene}_primerR.fas" >> ../primers/primerR.fas
+      cat "../primers/${gene}_primerF_RC.fas >> ../primers/primerF_RC.fas
+      cat "../primers/${gene}_primerR_RC.fas >> ../primers/primerR_RC.fas
+    else
+      echo "Primer file for $gene not found."
+  fi
+done
+
 
 mkdir -p \
 ${data}/working/trimmed_sequences/${gene1} \
