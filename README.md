@@ -1,6 +1,6 @@
 ![GitHub Release](https://img.shields.io/github/v/release/trippster08/Metabarcoding_on_Hydra?color=green)
 [![DOI](https://zenodo.org/badge/849911002.svg)](https://doi.org/10.5281/zenodo.15635236)
-![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/trippster08/Metabarcoding_on_Hydra/latest/total?color=orange)
+![GitHub Downloads](https://img.shields.io/github/downloads/trippster08/Metabarcoding_on_Hydra/latest/total?color=orange)
 
 # Metabarcoding_on_Hydra
 
