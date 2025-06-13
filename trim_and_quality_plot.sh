@@ -1,64 +1,93 @@
-# /bin/sh
+# /bin/bash
 
+echo ${@}
+echo ${#}
 raw=$(readlink -f ../data/raw)
-gene="$1"
+echo ${raw}
 data=$(readlink -f ../data)
-COI=(COI coi CO1 co1 cox1 COX1)
-MiFish=(12S MiFish mifish Mifish 12S_mifish 12S_MiFish 12s)
-V4=(18S l8s V4 v4)
+echo ${data}
+primerF=$(readlink -f ../primers/primerF.fas)
+primerR=$(readlink -f ../primers/primerR.fas)
+primerFrc=$(readlink -f ../primers/primerF_RC.fas)
+primerRrc=$(readlink -f ../primers/primerR_RC.fas)
+# List of possible primers
+possible_primers=(COI 18S MiFish 16S 28SAnth 16Sbac)
+echo ${possible_primers[@]}
+RC_primers=(MiFish)
+echo ${RC_primers[@]}
 
-if
-  [[ -z "$(ls ${raw}/*.fastq.gz 2>/dev/null | grep fastq.gz)" ]]; then  
+if ! ls "${raw}"/*.fastq.gz 2>/dev/null | grep -q fastq.gz; then
   echo "No sequences (*.fastq.gz) were found in the raw data directory: ${raw}"
-  exit
-fi
-
-if
-  [[ -z ${gene} ]]
-then
-  echo "Primer set not given (Please enter "COI", "COX1", "CO1", "12S", "MiFish", or "18S" after path to raw reads)"
-  exit
-fi
-
-if [[ " ${COI[@]} " =~ " ${gene} " ]]; then
-  primerFpath=${data}"../primers/COImlIntF_spacers.fas"
-  primerRpath=${data}"../primers/jgCOIR_spacers.fas"
-  primerF=`basename ${primerFpath}`
-  primerR=`basename ${primerRpath}`
-elif [[ " ${MiFish[@]} " =~ " ${gene} " ]]; then
-  primerFpath=${data}"../primers/MiFish_12SF_spacers.fas"
-  primerRpath=${data}"../primers/MiFish_12SR_spacers.fas"
-  primerFrcpath=${data}"../primers/MiFish_12SF_RC.fas"
-  primerRrcpath=${data}"../primers/MiFish_12SR_RC.fas"
-  primerF=`basename ${primerFpath}`
-  primerR=`basename ${primerRpath}`
-  primerFrc=`basename ${primerFrcpath}`
-  primerRrc=`basename ${primerRrcpath}`
-elif [[ " ${V4[@]} " =~ " ${gene} " ]]; then
-  primerFpath=${data}"../primers/18SF_spacers.fas"
-  primerRpath=${data}"../primers/18SR_spacers.fas"
-  primerF=`basename ${primerFpath}`
-  primerR=`basename ${primerRpath}`
-else
-  echo 'Incorrect primer set given. Please enter "COI", "12S", or "18S"'
   exit 1
-fi   
+fi
 
-# Create all the subdirectories we will use
-mkdir -p \
-../data/working/trimmed_sequences \
-../data/working/filtered_sequences \
-../data/results
+: > ../primers/primerF.fas
+: > ../primers/primerR.fas
+: > ../primers/primerF_RC.fas
+: > ../primers/primerR_RC.fas
 
-path_to_trimmed=$(readlink -f ../data/working/trimmed_sequences)
-
-if
-  [[ -n $(find "${path_to_trimmed}" -name "*.fastq.gz" -print -quit) ]];
-then
-  qsub -o logs/quality.log -N quality \
-  2_quality.job
-  echo "Trimming is already completed, we moving to the next step: 2_quality.job"
+if [ "$#" -eq 1 ]; then
+  gene="$1"
+  path_to_trimmed=${data}"/working/trimmed_sequences/"${gene}
+  if [[ ! " ${possible_primers[@]} " =~ (^|[[:space:]])${gene}([[:space:]]|$) ]]; then
+    echo "Error: ${gene} is not a valid primer name. Valid primer names are: ${possible_primers[@]}"
+    exit 1
+  else
+    echo "Illumina run only contains ${gene}. No gene-specific demultiplexing will \
+    be performed by cutadapt. If your run contained multiple genes and you expected \
+    gene-specific demultiplexing, please kill run using 'qdel -j JOBNUMBER' and include \
+    the names of all genes after 'sh trim_and_quality_plot.sh'. Valid gene names are \
+    ${possible_primers[@]}."
+    if find "${path_to_trimmed}" -name "*.fastq.gz" -print -quit; then
+      qsub -o logs/quality.log -N quality \
+      2_quality.job
+      echo "Trimming is already completed, we moving to the next step: 2_quality.job"
+    else
+        if [[ " ${RC_primers[*]} " == *" ${gene} "* ]];then
+          cp "../primers/${gene}F.fas" ../primers/primerF.fas
+          cp "../primers/${gene}R.fas" ../primers/primerR.fas
+          cp "../primers/${gene}F_RC.fas" ../primers/primerF_RC.fas
+          cp "../primers/${gene}R_RC.fas" ../primers/primerR_RC.fas
+          qsub -o logs/cutadapt.log -N cutadapt \
+          1_trim.job ${data} ${primerF} ${primerR} ${primerFrc} ${primerRrc}
+        else
+          cp "../primers/${gene}F.fas" ../primers/primerF.fas
+          cp "../primers/${gene}R.fas" ../primers/primerR.fas
+          qsub -o logs/cutadapt.log -N cutadapt \
+          1_trim.job ${data} ${primerF} ${primerR}
+        fi
+    fi
+  fi
+elif [ "$#" -ge 2 ]; then
+  path_to_trimmed=${data}"/working/trimmed_sequences/"${1}
+  if find "${path_to_trimmed}" -name "*.fastq.gz" -print -quit | grep -q .; then
+    echo "Trimming is already completed, we are moving to the next step: 2_quality_multigene.job"
+    qsub -o logs/quality_multigene.log -N quality \
+    2_quality_multigene.job ${[@]}
+  else
+    for gene in "$@"; do
+      if [[ ! " ${possible_primers[@]} " =~ (^|[[:space:]])${gene}([[:space:]]|$) ]]; then
+        echo "Error: ${gene} is not a valid primer name. Valid gene names are: \
+        ${possible_primers[@]}."
+        exit 1
+      fi
+    done
+    if [[ " ${RC_primers[@]} " =~ (^|[[:space:]])${gene}([[:space:]]|$) ]];then
+      cat "../primers/${gene}F.fas" >> ../primers/primerF.fas
+      cat "../primers/${gene}R.fas" >> ../primers/primerR.fas
+      cat "../primers/${gene}F_RC.fas" >> ../primers/primerF_RC.fas
+      cat "../primers/${gene}R_RC.fas" >> ../primers/primerR_RC.fas
+      qsub -o logs/cutadapt.log -N cutadapt \
+      1_trim_multigene.job ${#} ${@} ${data} ${primerF} ${primerR} ${primerFrc} ${primerRrc}
+    else
+      cat "../primers/${gene}F.fas" >> ../primers/primerF.fas
+      cat "../primers/${gene}R.fas" >> ../primers/primerR.fas
+      qsub -o logs/cutadapt.log -N cutadapt \
+      1_trim_multigene.job ${#} ${@} ${data} ${primerF} ${primerR}
+    fi
+  fi  
 else
-  qsub -o logs/cutadapt.log -N cutadapt \
-  1_trim.job ${data} ${primerF} ${primerR} ${primerFrc} ${primerRrc}
+  echo "You must provide at least one gene name following the shell script. Valid \
+  gene names are: ${possible_primers[@]}."
+  exit 1
 fi
