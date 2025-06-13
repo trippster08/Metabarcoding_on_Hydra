@@ -11,9 +11,10 @@ suppressMessages(library(seqinr, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 
 ## File Housekeeping ===========================================================
-args <- commandArgs(trailingOnly = TRUE)
-gene1 <- args[1]
-gene2 <- args[2]
+genes <- commandArgs(trailingOnly = TRUE)
+num_genes <- length(genes)
+gene_list <- setNames(as.list(genes), genes)
+print(paste0("These are the genes we will be creating quality plots for: ", gene_list))
 
 # Save project name as an object
 project_name <- basename(dirname(getwd()))
@@ -21,8 +22,14 @@ print(paste0("This project is named ", project_name))
 
 # Set a path to the directory with the raw reads and cutadapt-trimmed reads.
 path_to_raw_reads <- "../data/raw"
-path_to_trimmed_gene1 <- paste0("../data/working/trimmed_sequences/", gene1)
-path_to_trimmed_gene2 <- paste0("../data/working/trimmed_sequences/", gene2)
+names(gene_list) <- gene_list
+gene_names <- names(gene_list)
+for (gene in gene_names) {
+  path_to_trimmed <- paste0("path_to_trimmed_", gene)
+  trimmed_reads[[gene]] <- list(
+    F
+  )
+}
 
 ## Get Raw Read Counts =========================================================
 # Make a list of all the files in your "data/raw" folder.
