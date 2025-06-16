@@ -52,13 +52,16 @@ wget https://github.com/trippster08/Metabarcoding_on_Hydra/archive/refs/heads/ma
 Using the script below, unzip the pipeline, and move all the \*.sh, \*.job, and \*.R files from your newly unzipped directory into the job directory and the primer folder into the main project directory. Delete the now-empty pipeline directory and zipped download.
 ```
 unzip main.zip
-mv Metabarcoding_on_Hydra-main/* .
-mv primers ..
+mv Metabarcoding_on_Hydra-new_multiprimers/*.sh .
 rm -r Metabarcoding_on_Hydra-main main.zip
 
 ```
 ### Get Raw Reads
 Your raw reads should be copied into `data/raw/`. Download to your local computer and use scp or filezilla to upload to `data/raw/`. See [Transferring Files to/from Hydra](https://confluence.si.edu/pages/viewpage.action?pageId=163152227) for help with transferring files between Hydra and your computer. *NOTE: Remove any "undetermined" read files from the folder containing your raw reads. You do not want to include these reads in your analyses.*
+If your files are saved as a dropbox link to a .zip file, you can upload your raw reads directly to hydra without first saving to your computer (remembering that /scratch is not for long-term storage of data) using wget. However, you can't use the dropbox link as given, you must first change the terminal character from "0" to "1" (i.e. it should end in "&dl=1" not "&dl=0") 
+```
+wget --content-disposition https://www.dropbox.com/XXXXXXXXXXXX&dl=1
+```
 
 ### Preparing R
 The first time you run this pipeline, you may need to install libraries that may be needed: (`DADA2`, `tidyverse`, `seqinr`, `ape`, `digest`, etc). Currently, you have to do this manually, please see [Installing R libraries on Hydra](https://github.com/trippster08/Metabarcoding_on_Hydra/blob/main/Rprep.md) for directions on how to install these libraries.
