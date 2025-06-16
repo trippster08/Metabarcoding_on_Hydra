@@ -52,7 +52,10 @@ wget https://github.com/trippster08/Metabarcoding_on_Hydra/archive/refs/heads/ma
 Using the script below, unzip the pipeline, and move all the \*.sh, \*.job, and \*.R files from your newly unzipped directory into the job directory and the primer folder into the main project directory. Delete the now-empty pipeline directory and zipped download.
 ```
 unzip main.zip
-mv Metabarcoding_on_Hydra-new_multiprimers/*.sh .
+mv Metabarcoding_on_Hydra-new_multiprimers/*.sh \
+Metabarcoding_on_Hydra-new_multiprimers/jobs \
+Metabarcoding_on_Hydra-new_multiprimers/primers \
+Metabarcoding_on_Hydra-new_multiprimers/R_scripts .
 rm -r Metabarcoding_on_Hydra-main main.zip
 
 ```
