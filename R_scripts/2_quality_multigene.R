@@ -24,12 +24,7 @@ print(paste0("This project is named ", project_name))
 path_to_raw_reads <- "../data/raw"
 names(gene_list) <- gene_list
 gene_names <- names(gene_list)
-for (gene in gene_names) {
-  path_to_trimmed <- paste0("path_to_trimmed_", gene)
-  trimmed_reads[[gene]] <- list(
-    F
-  )
-}
+
 
 ## Get Raw Read Counts =========================================================
 # Make a list of all the files in your "data/raw" folder.
@@ -63,52 +58,29 @@ sequence_counts_raw
 ## Trimmed Reads ===============================================================
 # Create vectors for the trimmed reads, both forward (R1) and reverse (R2) and
 # for gene1 and gene2.
-trimmed_gene1_F <- sort(
-  list.files(
-    path_to_trimmed_gene1,
-    pattern = "_R1.fastq.gz",
-    full.names = TRUE
-  )
-)
-trimmed_gene1_R <- sort(
-  list.files(
-    path_to_trimmed_gene1,
-    pattern = "_R2.fastq.gz",
-    full.names = TRUE
-  )
-)
+# Loop through each gene name
 
-trimmed_gene2_F <- sort(
-  list.files(
-    path_to_trimmed_gene2,
-    pattern = "_R1.fastq.gz",
-    full.names = TRUE
-  )
-)
-trimmed_gene2_R <- sort(
-  list.files(
-    path_to_trimmed_gene2,
-    pattern = "_R2.fastq.gz",
-    full.names = TRUE
-  )
-)
+for (gene in gene_names) {
+  path_to_trimmed <- paste0("path_to_trimmed_", gene)  # Construct variable dynamically
 
-# Make a vector of sample names from your trimmed reads.
-sample_names_trimmed_gene1 <- sapply(
-  strsplit(basename(trimmed_gene1_F), "_S\\d{1,3}_"),
-  `[`,
-  1
-)
+  trimmed_reads[[gene]] <- list(
+    F = sort(list.files(get(path_to_trimmed), pattern = "_R1.fastq.gz", full.names = TRUE)),
+    R = sort(list.files(get(path_to_trimmed), pattern = "_R2.fastq.gz", full.names = TRUE))
+  )
 
-sample_names_trimmed_gene2 <- sapply(
-  strsplit(basename(trimmed_gene2_F), "_S\\d{1,3}_"),
-  `[`,
-  1
-)
+  paste0("sample_names_trimmed_", gene) <- sapply(
+    strsplit(basename(paste0("trimmed_reads_", gene)), "_S\\d{1,3}_"),
+    `[`,
+    1
+  )  
+  
+}
+
 ## Remove empty sample files ===================================================
 # This saves the R1 fastq for the sample file only if both the R1 and R2 sample
 # files have reads.
-trimmed_noreads_gene1_F <- trimmed_gene1_F[
+for (gene in gene_names) {
+  paste0("trimmed_noreads_",gene <- trimmed_gene1_F[
   sapply(trimmed_gene1_F, file.size) < 100
 ]
 trimmed_noreads_gene1_R <- trimmed_gene1_R[
@@ -194,15 +166,17 @@ sample_names_trimmed_gene2 <- sapply(
 )
 
 ## Gene1 =======================================================================
-
-nsamples_gene1 <- length(sample_names_trimmed_gene1)
-print(paste(
-  "We will analyze",
-  nsamples_gene1,
-  "samples for",
-  gene1,
-  sep = " "
+for gene in gene_samples {
+  
+  paste0("nsamples_", gene) <- length(paste0("samples_names_trimmed", gene))
+  print(paste(
+    "We will analyze",
+    paste0("nsamples_", gene),
+    "samples for",
+    gene,
+    sep = " "
 ))
+}
 
 
 ### Make Quality Plots ---------------------------------------------------------
@@ -220,13 +194,24 @@ print(paste(
 # For these plots, the green line is the mean quality score at that position,
 # the orange lines are the quartiles (solid for median, dashed for 25% and 75%)
 # and the red line represents the proportion of reads existing at that position.
+for gene in gene_list {
+  paste(
+    "quality_plot",
+    gene,
+    "F",
+    sep = "_"
+  ) <- plotQualityProfile(
+    paste0(
+      "trimmed-",
+      gene,
+      "F"
+    )[1:]
+  )
+}
 
-quality_plot_gene1_F <- plotQualityProfile(
-  trimmed_gene1_F[1:length(sample_names_trimmed_gene1)],
-  aggregate = TRUE
-)
 
-plot_build_gene1 <- ggplot_build(quality_plot_gene1_F)
+
+paste0("plot_build_", gene) <- ggplot_build(quality_plot_gene1_F)
 x_axis_range_gene1 <- plot_build_gene1$layout$panel_params[[1]]$x.range
 max_x_gene1 <- x_axis_range_gene1[2]
 
