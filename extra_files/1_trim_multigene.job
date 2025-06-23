@@ -18,18 +18,28 @@ module load tools/R/4.4.1
 echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
 echo + NSLOTS = $NSLOTS
 #
-data="$1"
-gene1="$2"
-gene2="$3"
-primerF="$4" 
-primerR="$5" 
-primerFrc="$6"
-primerRrc="$7"
+num_genes=$1  # First argument is the count of genes
+shift         # Remove count argument
 
-if [ ! -z ${primerFrc} ]; then
-  echo "One of your genes has potential read-through, so we will attempt to trim primers from 3' read ends before 5'"
+genes=("${@:1:$num_genes}")   # Extract gene names
+remaining_args=("${@:$(($num_genes+1))}")  # Get remaining arguments (primer files + data)
+
+# Determine primer structure
+if [ "${#remaining_args[@]}" -eq 3 ]; then
+  data="${remaining_args[0]}"
+  primerF="${remaining_args[1]}"
+  primerR="${remaining_args[2]}"
+  echo "Your gene should not have potential read-through, so we are only removing primers from the 5' end of each read."
+elif [ "${#remaining_args[@]}" -eq 5 ]; then
+  data="${remaining_args[0]}"
+  primerF="${remaining_args[1]}"
+  primerR="${remaining_args[2]}"
+  primerFrc="${remaining_args[3]}"
+  primerRrc="${remaining_args[4]}"
+  echo "Your gene has potential read-through, so we will attempt to trim primers from 3' read ends before 5'"
 else
-  echo "Neither of your genes should have potential read-through, so we are only removing primers from the 5' end of each read."
+  echo "Error: Unexpected number of primer arguments (${#remaining_args[@]})."
+  exit 1
 fi
 
 for x in ${data}/raw/*_R1*; do
@@ -43,7 +53,7 @@ if [[ ! -f ${namepre}_R2${namepost} ]]; then
   exit 1
 fi
 
-if [ ! -z ${primerFrc} ]; then
+if [ "${#remaining_args[@]}" -eq 5 ]; then
   cutadapt \
   -a file:${data}/../primers/${primerRrc} \
   -A file:${data}/../primers/${primerFrc} \
@@ -79,15 +89,13 @@ else
   ${data}/raw/${namepre}_R1${namepost} \
   ${data}/raw/${namepre}_R2${namepost}
 fi
-
-gzip -2 \
-${data}/working/trimmed_sequences/${gene1}/${name}_trimmed_R1.fastq \
-${data}/working/trimmed_sequences/${gene1}/${name}_trimmed_R2.fastq \
-${data}/working/trimmed_sequences/${gene2}/${name}_trimmed_R1.fastq \
-${data}/working/trimmed_sequences/${gene2}/${name}_trimmed_R2.fastq
-
+  for gene in ${genes}; do
+    gzip -2 \
+    ${data}/working/trimmed_sequences/${gene}/${name}_trimmed_R1.fastq \
+    ${data}/working/trimmed_sequences/${gene}/${name}_trimmed_R2.fastq
+  done
 done
 
-Rscript 2_quality_multigene.R ${gene1} ${gene2}
+Rscript 2_quality_multigene.R ${genes}
 
 echo = `date` job $JOB_NAME done
