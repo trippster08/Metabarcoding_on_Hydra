@@ -49,12 +49,12 @@ if [ "$#" -eq 1 ]; then
           cp "../primers/${gene}F_RC.fas" ../primers/primerF_RC.fas
           cp "../primers/${gene}R_RC.fas" ../primers/primerR_RC.fas
           qsub -o logs/cutadapt.log -N cutadapt \
-          1_trim.job ${data} ${primerF} ${primerR} ${primerFrc} ${primerRrc}
+          1_trim.job ${#} ${@} ${data} ${primerF} ${primerR} ${primerFrc} ${primerRrc}
         else
           cp "../primers/${gene}F.fas" ../primers/primerF.fas
           cp "../primers/${gene}R.fas" ../primers/primerR.fas
           qsub -o logs/cutadapt.log -N cutadapt \
-          1_trim.job ${data} ${primerF} ${primerR}
+          1_trim.job ${#} ${@} ${data} ${primerF} ${primerR}
         fi
     fi
   fi
@@ -78,12 +78,12 @@ elif [ "$#" -ge 2 ]; then
       cat "../primers/${gene}F_RC.fas" >> ../primers/primerF_RC.fas
       cat "../primers/${gene}R_RC.fas" >> ../primers/primerR_RC.fas
       qsub -o logs/cutadapt.log -N cutadapt \
-      1_trim_multigene.job ${#} ${@} ${data} ${primerF} ${primerR} ${primerFrc} ${primerRrc}
+      1_trim.job ${#} ${@} ${data} ${primerF} ${primerR} ${primerFrc} ${primerRrc}
     else
       cat "../primers/${gene}F.fas" >> ../primers/primerF.fas
       cat "../primers/${gene}R.fas" >> ../primers/primerR.fas
       qsub -o logs/cutadapt.log -N cutadapt \
-      1_trim_multigene.job ${#} ${@} ${data} ${primerF} ${primerR}
+      1_trim.job ${#} ${@} ${data} ${primerF} ${primerR}
     fi
   fi  
 else
