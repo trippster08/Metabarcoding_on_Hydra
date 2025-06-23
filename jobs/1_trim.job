@@ -19,20 +19,22 @@ echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
 echo + NSLOTS = $NSLOTS
 #
 
+
+data=$2
 num_genes=$1  # First argument is the count of genes
 shift         # Remove count argument
-
+echo ${data}
+echo ${num_genes}
 genes=("${@:1:$num_genes}")   # Extract gene names
 remaining_args=("${@:$(($num_genes+1))}")  # Get remaining arguments (primer files + data)
+echo ${remaining_args}
 
 # Determine primer structure
 if [ "${#remaining_args[@]}" -eq 3 ]; then
-  data="${remaining_args[0]}"
   primerF="${remaining_args[1]}"
   primerR="${remaining_args[2]}"
   echo "Your gene should not have potential read-through, so we are only removing primers from the 5' end of each read."
 elif [ "${#remaining_args[@]}" -eq 5 ]; then
-  data="${remaining_args[0]}"
   primerF="${remaining_args[1]}"
   primerR="${remaining_args[2]}"
   primerFrc="${remaining_args[3]}"
@@ -49,53 +51,98 @@ for x in ${data}/raw/*_R1*; do
   namepost=`echo ${sample#*_R[1-2]*}`
   namepre=`echo ${sample%*_R[1-2]*}`
 
-if [[ ! -f ${namepre}_R2${namepost} ]]; then
-  echo "Error, ${namepre}_R2${namepost} can not be found in data/raw/, please make sure all read pairs exist" >> "logs/cutadapt.log"
-  exit 1
-fi
+  if [[ ! -f ${namepre}_R2${namepost} ]]; then
+    echo "Error, ${namepre}_R2${namepost} can not be found in data/raw/, please make sure all read pairs exist" >> "logs/cutadapt.log"
+    exit 1
+  fi
 
-if [ "${#remaining_args[@]}" -eq 5 ]; then
-  cutadapt \
-  -a file:${data}/../primers/${primerRrc} \
-  -A file:${data}/../primers/${primerFrc} \
-  -e 0.2 --cores=$NSLOTS -O 10 --quiet \
-  --json=logs/terminal_trim.cutadapt.json \
-  -o ${data}/raw/${name}_trimmed_R1.fastq \
-  -p ${data}/raw/${name}_trimmed_R2.fastq \
-  ${data}/raw/${namepre}_R1${namepost} \
-  ${data}/raw/${namepre}_R2${namepost}
+  if [ "${num_genes}" -eq 1 ]; then
+    if [ "${#remaining_args[@]}" -eq 5 ]; then
+      cutadapt \
+      -a file:${data}/../primers/${primerRrc} \
+      -A file:${data}/../primers/${primerFrc} \
+      -e 0.2 --cores=$NSLOTS -O 10 --quiet \
+      --json=logs/terminal_trim.cutadapt.json \
+      -o ${data}/raw/${name}_trimmed_R1.fastq \
+      -p ${data}/raw/${name}_trimmed_R2.fastq \
+      ${data}/raw/${namepre}_R1${namepost} \
+      ${data}/raw/${namepre}_R2${namepost}
 
-  cutadapt \
-  -g file:${data}/../primers/${primerF} \
-  -G file:${data}/../primers/${primerR} \
-  -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed \
-  --nextseq-trim=20 \
-  --json=logs/front_trim.cutadapt.json \
-  -o ${data}/working/trimmed_sequences/${name}_trimmed_R1.fastq \
-  -p ${data}/working/trimmed_sequences/${name}_trimmed_R2.fastq \
-  ${data}/raw/${name}_trimmed_R1.fastq \
-  ${data}/raw/${name}_trimmed_R2.fastq
+      cutadapt \
+      -g file:${data}/../primers/${primerF} \
+      -G file:${data}/../primers/${primerR} \
+      -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed \
+      --nextseq-trim=20 \
+      --json=logs/front_trim.cutadapt.json \
+      -o ${data}/working/trimmed_sequences/${name}_trimmed_R1.fastq \
+      -p ${data}/working/trimmed_sequences/${name}_trimmed_R2.fastq \
+      ${data}/raw/${name}_trimmed_R1.fastq \
+      ${data}/raw/${name}_trimmed_R2.fastq
 
-rm ${data}/raw/${name}_trimmed_R1.fastq ${data}/raw/${name}_trimmed_R2.fastq
-else
-  cutadapt \
-  -g file:${data}/../primers/${primerF} \
-  -G file:${data}/../primers/${primerR} \
-  -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed \
-  --nextseq-trim=20 \
-  --json=logs/front_trim.cutadapt.json \
-  -o ${data}/working/trimmed_sequences/${name}_trimmed_R1.fastq \
-  -p ${data}/working/trimmed_sequences/${name}_trimmed_R2.fastq \
-  ${data}/raw/${namepre}_R1${namepost} \
-  ${data}/raw/${namepre}_R2${namepost}
-fi
+    rm ${data}/raw/${name}_trimmed_R1.fastq ${data}/raw/${name}_trimmed_R2.fastq
+    else
+      cutadapt \
+      -g file:${data}/../primers/${primerF} \
+      -G file:${data}/../primers/${primerR} \
+      -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed \
+      --nextseq-trim=20 \
+      --json=logs/front_trim.cutadapt.json \
+      -o ${data}/working/trimmed_sequences/${name}_trimmed_R1.fastq \
+      -p ${data}/working/trimmed_sequences/${name}_trimmed_R2.fastq \
+      ${data}/raw/${namepre}_R1${namepost} \
+      ${data}/raw/${namepre}_R2${namepost}
+    fi
+    gzip -2 \
+    ${data}/working/trimmed_sequences/${name}_trimmed_R1.fastq \
+    ${data}/working/trimmed_sequences/${name}_trimmed_R2.fastq 
 
-gzip -2 \
-${data}/working/trimmed_sequences/${name}_trimmed_R1.fastq \
-${data}/working/trimmed_sequences/${name}_trimmed_R2.fastq 
+    Rscript 2_quality.R
+  else
+    if [ "${#remaining_args[@]}" -eq 5 ]; then
+      cutadapt \
+      -a file:${data}/../primers/${primerRrc} \
+      -A file:${data}/../primers/${primerFrc} \
+      -e 0.2 --cores=$NSLOTS -O 10 --quiet \
+      --json=logs/terminal_trim.cutadapt.json \
+      -o ${data}/raw/${name}_trimmed_R1.fastq \
+      -p ${data}/raw/${name}_trimmed_R2.fastq \
+      ${data}/raw/${namepre}_R1${namepost} \
+      ${data}/raw/${namepre}_R2${namepost}
 
+      cutadapt \
+      -g file:${data}/../primers/${primerF} \
+      -G file:${data}/../primers/${primerR} \
+      -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed \
+      --quiet --nextseq-trim=20 \
+      --json=logs/front_trim.cutadapt.json \
+      -o ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R1.fastq \
+      -p ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R2.fastq \
+      ${data}/raw/${name}_trimmed_R1.fastq \
+      ${data}/raw/${name}_trimmed_R2.fastq
+
+      rm ${data}/raw/${name}_trimmed_R1.fastq ${data}/raw/${name}_trimmed_R2.fastq
+
+    else
+      cutadapt \
+      -g file:${data}/../primers/${primerF} \
+      -G file:${data}/../primers/${primerR} \
+      -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed \
+      --quiet --nextseq-trim=20 \
+      --json=logs/front_trim.cutadapt.json \
+      -o ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R1.fastq \
+      -p ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R2.fastq \
+      ${data}/raw/${namepre}_R1${namepost} \
+      ${data}/raw/${namepre}_R2${namepost}
+    fi
+      for gene in ${genes}; do
+        gzip -2 \
+        ${data}/working/trimmed_sequences/${gene}/${name}_trimmed_R1.fastq \
+        ${data}/working/trimmed_sequences/${gene}/${name}_trimmed_R2.fastq
+      done
+    done
+  Rscript 2_quality_multigene.R ${genes}
+  fi
 done
 
-Rscript 2_quality.R
 
 echo = `date` job $JOB_NAME done
