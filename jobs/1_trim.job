@@ -67,7 +67,7 @@ for x in ${data}/raw/*_R1*; do
     echo "Error, ${namepre}_R2${namepost} can not be found in data/raw/, please make sure all read pairs exist" >> "logs/cutadapt.log"
     exit 1
   fi
-
+# This section is if there is a single gene
   if [ "${num_genes}" -eq 1 ]; then
     if [ "${#primer_files[@]}" -eq 4 ]; then
       cutadapt \
@@ -108,6 +108,7 @@ for x in ${data}/raw/*_R1*; do
     ${data}/working/trimmed_sequences/${name}_trimmed_R1.fastq \
     ${data}/working/trimmed_sequences/${name}_trimmed_R2.fastq 
     Rscript jobs/2_quality.R ${genes[@]}
+# This section is if there are mutliple genes
   else
     if [ "${#primer_files[@]}" -eq 4 ]; then
       cutadapt \
@@ -150,7 +151,7 @@ for x in ${data}/raw/*_R1*; do
       ${data}/working/trimmed_sequences/${gene}/${name}_trimmed_R1.fastq \
       ${data}/working/trimmed_sequences/${gene}/${name}_trimmed_R2.fastq
     done
-    Rscript jobs/2_quality_multigene.R ${genes[@]}
+    Rscript jobs/2_quality.R ${genes[@]}
   fi
 done
 
