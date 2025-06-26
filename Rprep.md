@@ -36,7 +36,7 @@ install.packages("remotes", Ncpus = 4)
 install.packages("R.utils", Ncpus = 4)
 install.packages("phylotools", Ncpus = 4)
 install.packages("data.table", Ncpus = 4)
-remotes::install_github("ropensci/bold", upgrade = TRUE)
+
 remotes::install_github("ropensci/taxize", upgrade = TRUE)
 remotes::install_github("fkeck/refdb", upgrade = TRUE)
 remotes::install_github("tobiasgf/lulu", upgrade = TRUE)
