@@ -29,6 +29,7 @@ fi
 
 if [ "$#" -ge 1 ]; then
   path_to_trimmed="${data}/working/trimmed_sequences"
+  path_to_results="${data}/results"
   if [ -d ${path_to_trimmed} ]; then
     if find "${path_to_trimmed}" -name "*.fastq.gz" | grep -q .; then
       qsub -o logs/quality.log -N quality \
@@ -44,7 +45,7 @@ if [ "$#" -ge 1 ]; then
       fi
     fi
   else
-    mkdir -p ${path_to_trimmed}  
+    mkdir -p ${path_to_trimmed} ${path_to_results}
   fi
 
   RC_found=false # initialize RC_found outside loop
