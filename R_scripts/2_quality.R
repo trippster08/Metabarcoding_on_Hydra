@@ -190,19 +190,18 @@ quality_plots_better <- setNames(vector("list", length(genes)), genes)
 
 for (gene in genes) {
   quality_plots[[gene]] <- list(F = NULL, R = NULL)
-  max_x_values[[gene]] <- list(F = NULL, R = NULL)
   quality_plots_better[[gene]] <- list(F = NULL, R = NULL)
   
   for (direction in c("F", "R")) {
     reads <- actual_trimmed_reads[[gene]][[direction]]
     sample_names <- sample_names_trimmed[[gene]]
-    quality_plot <- plotQualityProfile(
+    quality_plots <- plotQualityProfile(
       reads[1:length(sample_names)],
       aggregate = TRUE)
     plot_build <- ggplot_build(quality_plots)
     max_x_value <- plot_build$layout$panel_params[[1]]$x.range[2]
     
-    quality_plots_better <- quality_plots +
+    quality_plots_better[[gene]][[direction]] <- quality_plots +
       scale_x_continuous(
         limits = c(0, max_x),
         breaks = seq(0, max_x, 10)
@@ -220,14 +219,10 @@ for (gene in genes) {
         path_to_results,
         paste0(project_name, "_", gene, "_qualplot", direction, "_", gene, ".pdf")
       ),
-      plot = quality_plots_F_better[[gene]] ,
+      plot = quality_plots_better[[gene]][[direction]],
       width = 9,
       height = 9
     )
-    
-    # Store the plot
-    quality_plots[[gene]][[direction]] <- enhanced_plot
-    
   }
     }
 
