@@ -19,8 +19,8 @@ echo + NSLOTS = $NSLOTS
 #
 
 #
-Rscript 6_merge.R
-Rscript 7_chimera.R
-Rscript 8_output.R
+Rscript 6_merge.R ${@}
+Rscript 7_chimera.R ${@}
+Rscript 8_output.R ${@}
 #
 echo = `date` job $JOB_NAME done

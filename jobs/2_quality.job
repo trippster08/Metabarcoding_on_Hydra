@@ -18,7 +18,8 @@ echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
 echo + NSLOTS = $NSLOTS
 #
 
+
 #
-Rscript 2_quality.R
+Rscript 2_quality.R ${[@]}
 #
 echo = `date` job $JOB_NAME done
