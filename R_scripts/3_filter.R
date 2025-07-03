@@ -8,6 +8,9 @@ suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 
 ## File Housekeeping ===========================================================
 # Make objects to fill from job script
+# Load the RData from "quality_plot_multigene.R"
+load("data/working/2_qual.RData")
+
 args <- commandArgs(trailingOnly = TRUE)
 gene_num <- as.numeric(args[1])
 genes <- args[2:(gene_num + 1)]
@@ -20,9 +23,6 @@ truncation_list <- setNames(
   }),
   genes
 )
-
-# Load the RData from "quality_plot_multigene.R"
-load("data/working/2_qual.RData")
 
 # This creates file paths for the reads that will be quality filtered with dada2
 # in the next step.
