@@ -35,22 +35,21 @@ path_to_filtered <- setNames(
 )
 for (gene in genes) {
   sample_names_filtered <- sample_names_trimmed[[gene]]
-  filtered_reads[[gene]] <- list(
-    F = setNames(
+  filtered_reads[[gene]] <- list(F = NULL, R = NULL)
+  for (direction in c("F", "R")) {
+    filtered_reads[[gene]][[direction]] <- setNames(
       file.path(
-        path_to_filtered,
-        paste0(sample_names_filtered, "_filt_F.fastq.gz")
-      ),
-      sample_names_filtered
-    ),
-    R = setNames(
-      file.path(
-        path_to_filtered,
-        paste0(sample_names_filtered, "_filt_R.fastq.gz")
+        path_to_filtered[[gene]],
+        paste0(
+          sample_names_filtered,
+          "_filt_",
+          direction,
+          ".fastq.gz"
+        )
       ),
       sample_names_filtered
     )
-  )
+  }
 }
 
 # This filters all reads depending upon the quality (as assigned by the user)
@@ -99,49 +98,49 @@ for (gene in genes) {
 
 # Save the reduced sample_names_filtered, since some samples no longer have
 # reads after filtering, and therefore no longer exist in the directory
-sample_names_filtered <- setNames(
-  lapply(genes, function(gene) {
-    files <- list.files(path_to_filtered[[gene]], pattern = "filt_F")
-    if (length(files) == 0 || is.null(files)) {
-      return(character(0))
-    }
-    sapply(strsplit(basename(files), "_filt_F"), `[`, 1)
-  }),
-  genes
-)
-
+for (gene in genes) {
+  sample_names_filtered <- setNames(
+    lapply(genes, function(gene) {
+      files <- list.files(path_to_filtered[[gene]], pattern = "filt_F")
+      sapply(strsplit(basename(files), "_filt_F"), `[`, 1)
+    }),
+    genes
+  )
+}
 # Update filtered_reads, since some samples no longer have
 # reads after filtering, and therefore no longer exist in the directory
 for (gene in genes) {
-  F_filtered <- list.files(
-    path_to_filtered[[gene]],
-    pattern = "_filt_F",
-    full.names = TRUE
-  )
-  R_filtered <- list.files(
-    path_to_filtered[[gene]],
-    pattern = "_filt_R",
-    full.names = TRUE
-  )
-
-  filtered_reads[[gene]] <- list(
-    F = setNames(
-      list.files(
-        path_to_filtered[[gene]],
-        pattern = "filt_F",
-        full.names = TRUE
-      ),
-      sapply(strsplit(basename(F_filtered), "_filt_F"), `[`, 1)
-    ),
-    R = setNames(
-      list.files(
-        path_to_filtered[[gene]],
-        pattern = "filt_R",
-        full.names = TRUE
-      ),
-      sapply(strsplit(basename(R_filtered), "_filt_R"), `[`, 1)
+  for (direction in c("F", "R")) {
+    F_filtered <- list.files(
+      path_to_filtered[[gene]],
+      pattern = "_filt_F",
+      full.names = TRUE
     )
-  )
+    R_filtered <- list.files(
+      path_to_filtered[[gene]],
+      pattern = "_filt_R",
+      full.names = TRUE
+    )
+
+    filtered_reads[[gene]] <- list(
+      F = setNames(
+        list.files(
+          path_to_filtered[[gene]],
+          pattern = "filt_F",
+          full.names = TRUE
+        ),
+        sapply(strsplit(basename(F_filtered), "_filt_F"), `[`, 1)
+      ),
+      R = setNames(
+        list.files(
+          path_to_filtered[[gene]],
+          pattern = "filt_R",
+          full.names = TRUE
+        ),
+        sapply(strsplit(basename(R_filtered), "_filt_R"), `[`, 1)
+      )
+    )
+  }
 }
 
 sequence_counts_filtered <- setNames(vector("list", length(genes)), genes)
