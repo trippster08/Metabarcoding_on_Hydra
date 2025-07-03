@@ -14,7 +14,11 @@ suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 genes <- commandArgs(trailingOnly = TRUE)
 num_genes <- length(genes)
 gene_list <- setNames(as.list(genes), genes)
-cat("These are the genes we will be creating quality plots for: ", paste(genes, collapse = ", "), "\n")
+cat(
+  "These are the genes we will be creating quality plots for: ",
+  paste(genes, collapse = ", "),
+  "\n"
+)
 
 # Save project name as an object
 project_name <- basename(getwd())
@@ -64,12 +68,19 @@ sequence_counts_raw
 # Make a list of all gene-specific trimmed reads (it's a list of 3 gene-specific
 # vectors containing trimmed read names)
 
-
 trimmed_reads <- setNames(
   lapply(genes, function(gene) {
     list(
-      F = sort(list.files(path_to_trimmed[[gene]], pattern = "_R1.fastq.gz", full.names = TRUE)),
-      R = sort(list.files(path_to_trimmed[[gene]], pattern = "_R2.fastq.gz", full.names = TRUE))
+      F = sort(list.files(
+        path_to_trimmed[[gene]],
+        pattern = "_R1.fastq.gz",
+        full.names = TRUE
+      )),
+      R = sort(list.files(
+        path_to_trimmed[[gene]],
+        pattern = "_R2.fastq.gz",
+        full.names = TRUE
+      ))
     )
   }),
   genes
@@ -78,11 +89,14 @@ trimmed_reads <- setNames(
 sample_names_trimmed <- setNames(
   lapply(genes, function(gene) {
     files <- trimmed_reads[[gene]]$F
-    if (length(files) == 0 || is.null(files)) return(character(0))
-    
+    if (length(files) == 0 || is.null(files)) {
+      return(character(0))
+    }
+
     sapply(
       strsplit(basename(files), "_trimmed"),
-      `[`, 1
+      `[`,
+      1
     )
   }),
   genes
@@ -102,20 +116,20 @@ for (gene in genes) {
   F_reads <- trimmed_reads[[gene]]$F
   R_reads <- trimmed_reads[[gene]]$R
   sample_names <- sample_names_trimmed[[gene]]
-  
+
   # Count reads in R1 files
   read_counts <- sapply(F_reads, function(file) {
     fq <- readFastq(file)
     length(fq)
   })
-  
+
   # Name the read counts using sample_names_trimmed and store them
   names(read_counts) <- sample_names
   sequence_counts_trimmed[[gene]] <- read_counts
-  
+
   # Keep only files with at least 1 read
   valid_indices <- which(read_counts > 0)
-  
+
   actual_trimmed_reads[[gene]] <- list(
     F = F_reads[valid_indices],
     R = R_reads[valid_indices]
@@ -126,35 +140,41 @@ for (gene in genes) {
 for (gene in genes) {
   original_samples <- sample_names_trimmed[[gene]]
   kept_files <- actual_trimmed_reads[[gene]]$F
-  
+
   # Extract sample names from kept files
   kept_samples <- if (length(kept_files) > 0) {
     sapply(strsplit(basename(kept_files), "_trimmed"), `[`, 1)
   } else {
     character(0)
   }
-  
-  
+
   # Reset names for trimmed without removed samples
   sample_names_trimmed <- setNames(
     lapply(genes, function(gene) {
       files <- actual_trimmed_reads[[gene]]$F
-      if (length(files) == 0 || is.null(files)) return(character(0))
-      
+      if (length(files) == 0 || is.null(files)) {
+        return(character(0))
+      }
+
       sapply(
         strsplit(basename(files), "_trimmed"),
-        `[`, 1
+        `[`,
+        1
       )
     }),
     genes
   )
-  
+
   # Find filtered-out samples
   removed_samples <- setdiff(original_samples, kept_samples)
-  
+
   # Print results
   if (length(removed_samples) > 0) {
-    cat("\nThese samples had zero reads for this gene and were removed:", gene, "\n")
+    cat(
+      "\nThese samples had zero reads for this gene and were removed:",
+      gene,
+      "\n"
+    )
     print(removed_samples)
   } else {
     cat("\nNo samples had zero reads for this gene:", gene, "\n")
@@ -191,16 +211,17 @@ quality_plots_better <- setNames(vector("list", length(genes)), genes)
 for (gene in genes) {
   quality_plots[[gene]] <- list(F = NULL, R = NULL)
   quality_plots_better[[gene]] <- list(F = NULL, R = NULL)
-  
+
   for (direction in c("F", "R")) {
     reads <- actual_trimmed_reads[[gene]][[direction]]
     sample_names <- sample_names_trimmed[[gene]]
     quality_plots <- plotQualityProfile(
       reads[1:length(sample_names)],
-      aggregate = TRUE)
+      aggregate = TRUE
+    )
     plot_build <- ggplot_build(quality_plots)
     max_x_value <- plot_build$layout$panel_params[[1]]$x.range[2]
-    
+
     quality_plots_better[[gene]][[direction]] <- quality_plots +
       scale_x_continuous(
         limits = c(0, max_x),
@@ -211,20 +232,27 @@ for (gene in genes) {
         color = "blue",
         linewidth = 0.25
       ) +
-      annotate("text", x=30, y=2 , label=paste0(gene, " R1"), size = 6)      
-  
+      annotate("text", x = 30, y = 2, label = paste0(gene, " R1"), size = 6)
+
     # Save the plot as a PDF
     ggsave(
       filename = file.path(
         path_to_results,
-        paste0(project_name, "_", gene, "_qualplot", direction, "_", gene, ".pdf")
+        paste0(
+          project_name,
+          "_",
+          gene,
+          "_qualplot",
+          direction,
+          ".pdf"
+        )
       ),
       plot = quality_plots_better[[gene]][[direction]],
       width = 9,
       height = 9
     )
   }
-    }
+}
 
 save.image(file = "data/working/2_qual.RData")
 
