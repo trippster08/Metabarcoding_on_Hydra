@@ -6,14 +6,16 @@ suppressMessages(library(tidyverse, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(seqinr, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 
-## Merge Paired Sequences ======================================================
+## File Housekeeping ===========================================================
 
 # Load the RData from "quality_plot_multigene.R"
-load("../data/working/5_denoise.RData")
+load("data/working/5_denoise.RData")
+
+## Merge Paired Sequences ======================================================
 
 # Here we merge the paired reads. merged calls for the forward denoising result
-# (denoised_F), then the forward filtered and truncated reads (filtered_F),
-# then the same for the reverse reads (denoised_R and filtered_R).
+# (dadaFs), then the forward filtered and truncated reads (filtFs), then the
+# same for the reverse reads (dadaRs and filtRs).
 
 # You can change the minimum overlap (minOverlap), and the number of mismatches
 # that are allowed in the overlap region (maxMismatch). Default values are
@@ -23,16 +25,18 @@ load("../data/working/5_denoise.RData")
 # "...each unique pairing of forward/reverse denoised sequences." The data.frame
 # also contains multiple columns describing data for each unique merged
 # sequence.
-merged_reads <- mergePairs(
-  denoised_F,
-  filtered_F,
-  denoised_R,
-  filtered_R,
-  minOverlap = 12,
-  maxMismatch = 0,
-  verbose = TRUE
-)
-
+merged_reads <- setNames(vector("list", length(genes)), genes)
+for (gene in genes) {
+  merged_reads[[gene]] <- mergePairs(
+    denoised[[gene]]$F,
+    filtered_reads[[gene]]$F,
+    denoised[[gene]]$R,
+    filtered_reads[[gene]]$R,
+    minOverlap = 12,
+    maxMismatch = 0,
+    verbose = TRUE
+  )
+}
 ## Create Sequence-Table =======================================================
 
 # Now we make a sequence-table containing columns for unique sequence (ASV),
@@ -42,21 +46,29 @@ merged_reads <- mergePairs(
 # transpose this table if needed later (and we will later). I think for now, I
 # will use "sequence-table" for the table with columns of sequences, and
 # "feature-table" for tables with columns of samples.
-seqtab <- makeSequenceTable(merged_reads)
-# This describes the dimensions of the table just made
-print(paste(
-  "This is the number of samples for your Sequence-Table:",
-  length(rownames(seqtab)),
-  sep = " "
-))
+seqtab <- setNames(vector("list", length(genes)), genes)
+for (gene in genes) {
+  seqtab[[gene]] <- makeSequenceTable(merged_reads[[gene]])
 
-print(paste(
-  "This is the number of ASVs for your Sequence-Table:",
-  length(colnames(seqtab)),
-  sep = " "
-))
+  # This describes the dimensions of the table just made
 
+  print(paste(
+    "This is the number of samples for your",
+    gene,
+    "Sequence-Table:",
+    length(rownames(seqtab[[gene]])),
+    sep = " "
+  ))
+
+  print(paste(
+    "This is the number of ASVs for your",
+    gene,
+    "Sequence-Table:",
+    length(colnames(seqtab[[gene]])),
+    sep = " "
+  ))
+}
 # Save all the objects created to this point in this section
-save.image(file = "../data/working/6_merge.RData")
+save.image(file = "data/working/6_merge.RData")
 
-print("Job 6_merge.job has finished")
+print("Job 6_merge.job and this analysis has finished")

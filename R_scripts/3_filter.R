@@ -21,10 +21,8 @@ truncation_list <- setNames(
   genes
 )
 
-
 # Load the RData from "quality_plot_multigene.R"
 load("data/working/2_qual.RData")
-
 
 # This creates file paths for the reads that will be quality filtered with dada2
 # in the next step.
@@ -54,7 +52,6 @@ for (gene in genes) {
     )
   )
 }
-
 
 # This filters all reads depending upon the quality (as assigned by the user)
 # and trims the ends off the reads for all samples as determined by the quality
@@ -176,6 +173,6 @@ for (gene in genes) {
 }
 
 # Save all the objects created to this point in this section
-save.image(file = paste0("data/working/3_filter.RData"))
+save.image(file = "data/working/3_filter.RData")
 
-print("Job 3_filter_multigene.job and this analysis has finished")
+print("Job 3_filter.job and this analysis has finished")
