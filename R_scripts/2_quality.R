@@ -35,19 +35,26 @@ path_to_results <- "data/results"
 # Make a list of all the files in your "data/raw" folder.
 reads_to_trim <- list.files(path_to_raw_reads)
 
-# Separate files by read direction (R1,R2), and save each
-reads_to_trim_F <- reads_to_trim[str_detect(reads_to_trim, "R1_001.fastq.gz")]
-# Separate the elements of "reads_to_trim_F" by underscore, and save the first
-# element as "sample_names".
+# Get the names of all the samples in "data/raw"
 sample_names_raw <- sapply(
-  strsplit(basename(reads_to_trim_F), "_S\\d{1,3}_"),
+  strsplit(
+    basename(
+      reads_to_trim[str_detect(reads_to_trim, "R1_001.fastq.gz")]
+    ),
+    "_S\\d{1,3}_"
+  ),
   `[`,
   1
 )
 
+
 # Count the number of reads in each sample.
 sequence_counts_raw <- sapply(
-  paste(path_to_raw_reads, reads_to_trim_F, sep = "/"),
+  paste(
+    path_to_raw_reads,
+    reads_to_trim[str_detect(reads_to_trim, "R1_001.fastq.gz")],
+    sep = "/"
+  ),
   function(file) {
     fastq_data <- readFastq(file)
     length(fastq_data)
@@ -220,7 +227,7 @@ for (gene in genes) {
       aggregate = TRUE
     )
     plot_build <- ggplot_build(quality_plots)
-    max_x_value <- plot_build$layout$panel_params[[1]]$x.range[2]
+    max_x <- plot_build$layout$panel_params[[1]]$x.range[2]
 
     quality_plots_better[[gene]][[direction]] <- quality_plots +
       scale_x_continuous(
@@ -232,7 +239,13 @@ for (gene in genes) {
         color = "blue",
         linewidth = 0.25
       ) +
-      annotate("text", x = 30, y = 2, label = paste0(gene, " R1"), size = 6)
+      annotate(
+        "text",
+        x = 30,
+        y = 2,
+        label = paste0(gene, " ", direction),
+        size = 6
+      )
 
     # Save the plot as a PDF
     ggsave(
