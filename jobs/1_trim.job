@@ -133,7 +133,11 @@ for x in ${data}/raw/*_R1*; do
       ${data}/raw/${name}_trimmed_R2.fastq
 
       rm ${data}/raw/${name}_trimmed_R1.fastq ${data}/raw/${name}_trimmed_R2.fastq
-
+      for gene in ${genes[@]}; do
+        gzip -2 \
+        ${data}/working/trimmed_sequences/${gene}/${name}_trimmed_R1.fastq \
+        ${data}/working/trimmed_sequences/${gene}/${name}_trimmed_R2.fastq
+      done
     else
       cutadapt \
       -g file:${primerF} \
@@ -145,15 +149,14 @@ for x in ${data}/raw/*_R1*; do
       -p ${data}/working/trimmed_sequences/{name}/${name}_trimmed_R2.fastq \
       ${data}/raw/${namepre}_R1${namepost} \
       ${data}/raw/${namepre}_R2${namepost}
+      for gene in ${genes[@]}; do
+        gzip -2 \
+        ${data}/working/trimmed_sequences/${gene}/${name}_trimmed_R1.fastq \
+        ${data}/working/trimmed_sequences/${gene}/${name}_trimmed_R2.fastq
+      done
     fi
-    for gene in ${genes}; do
-      gzip -2 \
-      ${data}/working/trimmed_sequences/${gene}/${name}_trimmed_R1.fastq \
-      ${data}/working/trimmed_sequences/${gene}/${name}_trimmed_R2.fastq
-    done
-    Rscript R_scripts/2_quality.R ${genes[@]}
   fi
 done
-
+Rscript R_scripts/2_quality.R ${genes[@]}
 
 echo = `date` job $JOB_NAME done
