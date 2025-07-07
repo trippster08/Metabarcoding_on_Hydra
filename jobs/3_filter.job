@@ -28,11 +28,11 @@ shift ${num_genes}
 #echo ${@}
 trunaction_values=${@}
 #
-Rscript 3_filter.R ${num_genes} ${genes} ${trunaction_values}
-Rscript 4_error.R ${genes}
-Rscript 5_denoise.R ${genes}
-Rscript 6_merge.R ${genes}
-Rscript 7_chimera.R ${genes}
-Rscript 8_output.R ${genes}
+Rscript R_scripts/3_filter.R ${num_genes} ${genes} ${trunaction_values}
+Rscript R_scripts/4_error.R ${genes}
+Rscript R_scripts/5_denoise.R ${genes}
+Rscript R_scripts/6_merge.R ${genes}
+Rscript R_scripts/7_chimera.R ${genes}
+Rscript R_scripts/8_output.R ${genes}
 #
 echo = `date` job $JOB_NAME done

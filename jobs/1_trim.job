@@ -107,7 +107,7 @@ for x in ${data}/raw/*_R1*; do
     gzip -2 \
     ${data}/working/trimmed_sequences/${name}_trimmed_R1.fastq \
     ${data}/working/trimmed_sequences/${name}_trimmed_R2.fastq 
-    Rscript jobs/2_quality.R ${genes[@]}
+    Rscript R_scripts/2_quality.R ${genes[@]}
 # This section is if there are mutliple genes
   else
     if [ "${#primer_files[@]}" -eq 4 ]; then
@@ -151,7 +151,7 @@ for x in ${data}/raw/*_R1*; do
       ${data}/working/trimmed_sequences/${gene}/${name}_trimmed_R1.fastq \
       ${data}/working/trimmed_sequences/${gene}/${name}_trimmed_R2.fastq
     done
-    Rscript jobs/2_quality.R ${genes[@]}
+    Rscript R_scripts/2_quality.R ${genes[@]}
   fi
 done
 
