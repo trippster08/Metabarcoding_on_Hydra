@@ -34,9 +34,9 @@ if [ "$#" -ge 1 ]; then
     if find "${path_to_trimmed}" -name "*.fastq.gz" | grep -q .; then
       qsub -o logs/quality.log -N quality \
       jobs/2_quality.job
-      echo "Trimming is already completed, we moving to the next step: 2_quality.job"
+      echo "Trimming is already completed, we are moving to the next step: 2_quality.job"
     else
-      if find logs -maxdepth 1 -name '*.json' | grep -q .; then 
+      if find logs/cutadapt.log -maxdepth 1 -name '*.json' | grep -q .; then 
         rm -r ${path_to_trimmed} logs/cutadapt.log logs/*.json
       elif [  -f logs/cutadapt.log ]; then
         rm -r ${path_to_trimmed} logs/cutadapt.log
