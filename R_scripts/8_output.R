@@ -6,10 +6,12 @@ suppressMessages(library(tidyverse, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(seqinr, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 
-## Track Reads Through Dada2 Process ===========================================
+## File Housekeeping ===========================================================
 
 # Load the RData from "quality_plot_multigene.R"
-load("../data/working/7_chimera.RData")
+load("data/working/7_chimera.RData")
+
+## Track Reads Through Dada2 Process ===========================================
 
 # Here, we look at how many reads made it through each step. This is similar to
 # the stats table that we look at in Qiime2 or "track" from the DADA2 tutorial.
@@ -18,66 +20,76 @@ load("../data/working/7_chimera.RData")
 
 # First make a table for the post-filtered samples, including denoised,
 # merged, and non-chimeric read counts
-getN <- function(x) sum(getUniques(x))
-sequence_counts_postfiltered <- as_tibble(
-  cbind(
-    sapply(denoised_F, getN),
-    sapply(denoised_R, getN),
-    sapply(merged_reads, getN),
-    rowSums(seqtab_nochim)
-  ),
-  .name_repair = "unique"
-) %>%
-  mutate(Sample_ID = sample_names_filtered) %>%
-  select(
-    Sample_ID,
-    Denoised_Reads_F = ...1,
-    Denoised_Reads_R = ...2,
-    Merged_Reads = ...3,
-    Non_Chimeras = ...4
+sequence_counts_postfiltered <- setNames(vector("list", length(genes)), genes)
+track_reads <- setNames(vector("list", length(genes)), genes)
+for (gene in genes) {
+  getN <- function(x) sum(getUniques(x))
+  sequence_counts_postfiltered[[gene]] <- tibble(
+    Sample_ID = sample_names_filtered[[gene]],
+    Denoised_Reads_F = sapply(denoised[[gene]]$F, getN),
+    Denoised_Reads_R = sapply(denoised[[gene]]$R, getN),
+    Merged_Reads = sapply(merged_reads[[gene]], getN),
+    Non_Chimeras = as.integer(rowSums(seqtab_nochim[[gene]]))
   )
 
-# Then we are going to add the postfiltered read count data to the three count
-# data objects we already have (raw, trimmed, filtered).
-track_reads <- tibble(
-  sequence_counts_raw,
-  Sample_ID = names(sequence_counts_raw)
-) %>%
-  left_join(
-    tibble(sequence_counts_trimmed, Sample_ID = names(sequence_counts_trimmed)),
-    join_by(Sample_ID)
+  # Then we are going to add the postfiltered read count data to the three count
+  # data objects we already have (raw, trimmed, filtered).
+  track_reads[[gene]] <- tibble(
+    Sample_ID = names(sequence_counts_raw),
+    Raw_Reads = as.numeric(sequence_counts_raw),
   ) %>%
-  left_join(
-    tibble(
-      sequence_counts_filtered,
-      Sample_ID = names(sequence_counts_filtered)
-    ),
-    join_by(Sample_ID)
-  ) %>%
-  left_join(
-    sequence_counts_postfiltered,
-    join_by(Sample_ID)
-  ) %>%
-  mutate(Proportion_Trimmed_Kept = Non_Chimeras / sequence_counts_trimmed) %>%
-  select(Sample_ID, everything()) %>%
-  select(
-    Sample_ID,
-    Raw_Reads = sequence_counts_raw,
-    Trimmed_Reads = sequence_counts_trimmed,
-    Filtered_Reads = sequence_counts_filtered,
-    everything()
-  )
-
-
+    left_join(
+      tibble(
+        sequence_counts_trimmed[[gene]],
+        Sample_ID = names(sequence_counts_trimmed[[gene]]),
+        Trimmed_Reads = as.numeric(sequence_counts_trimmed[[gene]])
+      ),
+      join_by(Sample_ID)
+    ) %>%
+    left_join(
+      tibble(
+        sequence_counts_filtered[[gene]],
+        Sample_ID = names(sequence_counts_filtered[[gene]]),
+        Filtered_Reads = as.numeric(sequence_counts_filtered[[gene]])
+      ),
+      join_by(Sample_ID)
+    ) %>%
+    left_join(
+      sequence_counts_postfiltered[[gene]],
+      join_by(Sample_ID)
+    ) %>%
+    mutate(Proportion_Trimmed_Kept = Non_Chimeras / Trimmed_Reads) %>%
+    mutate(Proportion_Gene = Trimmed_Reads / Raw_Reads) %>%
+    select(
+      Sample_ID,
+      Raw_Reads,
+      Trimmed_Reads,
+      Filtered_Reads,
+      Denoised_Reads_F,
+      Denoised_Reads_R,
+      Merged_Reads,
+      Non_Chimeras,
+      Proportion_Trimmed_Kept,
+      Proportion_Gene
+    )
+}
 # Export this table as a .tsv
-write.table(
-  track_reads,
-  file = paste0("../data/results/", project_name, "_track_reads.tsv"),
-  quote = FALSE,
-  sep = "\t",
-  row.names = TRUE,
-  col.names = NA
-)
+for (gene in genes) {
+  write.table(
+    track_reads[[gene]],
+    file = paste0(
+      "data/results/",
+      project_name,
+      "_track_reads_",
+      gene,
+      ".tsv"
+    ),
+    quote = FALSE,
+    sep = "\t",
+    row.names = TRUE,
+    col.names = NA
+  )
+}
 
 ## Export Sequence-Table =======================================================
 # This exports a sequence-table: columns of ASV's, rows of samples, and
@@ -94,7 +106,15 @@ write.table(
 
 write.table(
   seqtab_nochim,
-  file = paste0("../data/results/", project_name, "_sequence-table.tsv"),
+  file = paste0(
+    "../data/results/",
+    gene,
+    "/",
+    project_name,
+    "_sequence-table_",
+    gene,
+    ".tsv"
+  ),
   quote = FALSE,
   sep = "\t",
   row.names = TRUE,
@@ -119,7 +139,7 @@ write.table(
 
 # This makes a new vector containing all the ASV's (unique sequences) returned
 # by dada2. We are going to use this list to create md5 hashes. Use whatever
-#  table you will later use for your analyses (e.g. seqtab_nochim)
+#  table you will later use for your analyses (e.g. seqtab.nochim)
 repseq_nochim <- getSequences(seqtab_nochim)
 
 # Use the program digest (in a For Loop) to create a new vector containing the
@@ -142,12 +162,21 @@ colnames(seqtab_nochim_md5) <- repseq_nochim_md5
 # sequences
 write.table(
   seqtab_nochim_md5,
-  file = paste0("../data/results/", project_name, "_sequence-table-md5.tsv"),
+  file = paste0(
+    "../data/results/",
+    gene,
+    "/",
+    project_name,
+    "_sequence-table-md5_",
+    gene,
+    ".tsv"
+  ),
   quote = FALSE,
   sep = "\t",
   row.names = TRUE,
   col.names = NA
 )
+
 
 # Create an md5/ASV table, with each row as an ASV and it's representative md5
 # hash.
@@ -167,9 +196,18 @@ feattab_nochim_md5 <- t(seqtab_nochim_md5)
 
 write.table(
   feattab_nochim_md5,
-  file = paste0("../data/results/", project_name, "_feature-table_md5.tsv"),
+  file = paste0(
+    "../data/results/",
+    gene,
+    "/",
+    project_name,
+    "_feature-table_md5_",
+    gene,
+    ".tsv"
+  ),
   quote = FALSE,
   sep = "\t",
+  row.names = TRUE,
   col.names = NA
 )
 
@@ -184,7 +222,15 @@ write.fasta(
   names = repseq_nochim_md5_asv$md5,
   open = "w",
   as.string = FALSE,
-  file.out = paste0("../data/results/", project_name, "_rep-seq.fas")
+  file.out = paste0(
+    "../data/results/",
+    gene,
+    "/",
+    project_name,
+    "_rep-seq_",
+    gene,
+    ".fas"
+  )
 )
 
 # This exports all the ASVs and their respective md5 hashes as a two-column
@@ -193,8 +239,12 @@ write.table(
   repseq_nochim_md5_asv,
   file = paste0(
     "../data/results/",
+    gene,
+    "/",
     project_name,
-    "_representative_sequence_md5_table.tsv"
+    "_representative_sequence_md5_table_",
+    gene,
+    ".tsv"
   ),
   quote = FALSE,
   sep = "\t",
@@ -235,7 +285,6 @@ seqtab_nochim_tall <- as_tibble(seqtab_nochim, rownames = "sample") %>%
     values_to = "count"
   ) %>%
   subset(count != 0)
-
 
 ## Create and Export feature-to-fasta ==========================================
 # This creates a fasta file containing all the ASV's for each sample. Each ASV
@@ -281,11 +330,15 @@ write.fasta(
   as.string = FALSE,
   file.out = paste0(
     "../data/results/",
+    gene,
+    "/",
     project_name,
-    "_feature-to-fasta.fas"
+    "_feature-to-fasta_",
+    gene,
+    ".fas"
   )
 )
 
-save.image(file = "../data/working/8_output.RData")
+save.image(file = paste0("../data/working/", gene, "_8_output.RData"))
 
-print("Job 8_output.job and this analysis has finished")
+print("Job 8_output_multigene.job and this analysis has finished")
