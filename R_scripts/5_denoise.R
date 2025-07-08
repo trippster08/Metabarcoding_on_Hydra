@@ -31,6 +31,7 @@ for (gene in genes) {
       verbose = TRUE
     )
   }
+  print(paste0("Filtering is complete for ", gene))
 }
 
 # Save all the objects created to this point in this section

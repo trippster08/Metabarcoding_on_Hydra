@@ -36,6 +36,7 @@ for (gene in genes) {
     maxMismatch = 0,
     verbose = TRUE
   )
+  print(paste0("Merging is complete for ", gene))
 }
 ## Create Sequence-Table =======================================================
 
