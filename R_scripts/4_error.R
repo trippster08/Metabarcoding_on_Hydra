@@ -52,7 +52,16 @@ for (gene in genes) {
     ggsave(
       filename = file.path(
         path_to_results,
-        paste0(project_name, "_", gene, "_errorplot_", direction, ".pdf")
+        paste0(
+          gene,
+          "/",
+          project_name,
+          "_",
+          gene,
+          "_errorplot_",
+          direction,
+          ".pdf"
+        )
       ),
       plot = error_plots[[gene]][[direction]],
       width = 9,

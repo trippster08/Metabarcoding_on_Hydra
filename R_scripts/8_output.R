@@ -77,12 +77,16 @@ for (gene in genes) {
 for (gene in genes) {
   write.table(
     track_reads[[gene]],
-    file = paste0(
-      "data/results/",
-      project_name,
-      "_track_reads_",
-      gene,
-      ".tsv"
+    file = file.path(
+      path_to_results,
+      paste0(
+        gene,
+        "/",
+        project_name,
+        "_track_reads_",
+        gene,
+        ".tsv"
+      )
     ),
     quote = FALSE,
     sep = "\t",
@@ -106,12 +110,16 @@ for (gene in genes) {
 for (gene in genes) {
   write.table(
     seqtab_nochim[[gene]],
-    file = paste0(
-      "data/results/",
-      project_name,
-      "_sequence-table_",
-      gene,
-      ".tsv"
+    file = file.path(
+      path_to_results,
+      paste0(
+        gene,
+        "/",
+        project_name,
+        "_sequence-table_",
+        gene,
+        ".tsv"
+      )
     ),
     quote = FALSE,
     sep = "\t",
@@ -168,12 +176,16 @@ for (gene in genes) {
   # sequences
   write.table(
     seqtab_nochim_md5[[gene]],
-    file = paste0(
-      "data/results/",
-      project_name,
-      "_sequence-table-md5_",
-      gene,
-      ".tsv"
+    file = file.path(
+      path_to_results,
+      paste0(
+        gene,
+        "/",
+        project_name,
+        "_sequence-table-md5_",
+        gene,
+        ".tsv"
+      )
     ),
     quote = FALSE,
     sep = "\t",
@@ -199,12 +211,16 @@ for (gene in genes) {
 
   write.table(
     feattab_nochim_md5[[gene]],
-    file = paste0(
-      "data/results/",
-      project_name,
-      "_feature-table_md5_",
-      gene,
-      ".tsv"
+    file = file.path(
+      path_to_results,
+      paste0(
+        gene,
+        "/",
+        project_name,
+        "_feature-table_md5_",
+        gene,
+        ".tsv"
+      )
     ),
     quote = FALSE,
     sep = "\t",
@@ -223,12 +239,16 @@ for (gene in genes) {
     names = repseq_nochim_md5_asv[[gene]]$md5,
     open = "w",
     as.string = FALSE,
-    file.out = paste0(
-      "data/results/",
-      project_name,
-      "_rep-seq_",
-      gene,
-      ".fas"
+    file.out = file.path(
+      path_to_results,
+      paste0(
+        gene,
+        "/",
+        project_name,
+        "_rep-seq_",
+        gene,
+        ".fas"
+      )
     )
   )
 
@@ -236,12 +256,16 @@ for (gene in genes) {
   # table.
   write.table(
     repseq_nochim_md5_asv[[gene]],
-    file = paste0(
-      "data/results/",
-      project_name,
-      "_representative_sequence_md5_table_",
-      gene,
-      ".tsv"
+    file = file.path(
+      path_to_results,
+      paste0(
+        gene,
+        "/",
+        project_name,
+        "_representative_sequence_md5_table_",
+        gene,
+        ".tsv"
+      )
     ),
     quote = FALSE,
     sep = "\t",
@@ -333,12 +357,16 @@ for (gene in genes) {
     names = seqtab_nochim_tall_md5[[gene]]$sample_md5_count,
     open = "w",
     as.string = FALSE,
-    file.out = paste0(
-      "data/results/",
-      project_name,
-      "_feature-to-fasta_",
-      gene,
-      ".fas"
+    file.out = file.path(
+      path_to_results,
+      paste0(
+        gene,
+        "/",
+        project_name,
+        "_feature-to-fasta_",
+        gene,
+        ".fas"
+      )
     )
   )
 }

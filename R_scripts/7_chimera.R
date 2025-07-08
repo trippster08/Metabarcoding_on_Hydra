@@ -62,16 +62,18 @@ for (gene in genes) {
     names = repseq_chimera_md5[[gene]],
     open = "w",
     as.string = FALSE,
-    file.out = paste0(
-      "data/results/",
-      "/",
-      project_name,
-      "_",
-      gene,
-      "_rep-seq_chimeras.fas"
+    file.out = file_path(
+      path_to_results,
+      paste0(
+        gene,
+        "/",
+        project_name,
+        "_",
+        gene,
+        "_rep-seq_chimeras.fas"
+      )
     )
   )
-
   ## Examine Sequence Lengths ====================================================
 
   # This shows the length of the representative sequences (ASV's). Typically,
@@ -81,12 +83,16 @@ for (gene in genes) {
 
   write.table(
     seq_length_table[[gene]],
-    file = paste0(
-      "data/results/",
-      project_name,
-      "_ASV_lengths_table_",
-      gene,
-      ".tsv"
+    file = file.path(
+      path_to_results,
+      paste0(
+        gene,
+        "/",
+        project_name,
+        "_ASV_lengths_table_",
+        gene,
+        ".tsv"
+      )
     ),
     quote = FALSE,
     sep = "\t",

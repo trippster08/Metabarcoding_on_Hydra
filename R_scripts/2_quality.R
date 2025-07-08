@@ -31,6 +31,9 @@ path_to_trimmed <- setNames(
   genes
 )
 path_to_results <- "data/results"
+for (gene in genes) {
+  dir.create(paste0(path_to_results, "/", gene))
+}
 ## Get Raw Read Counts =========================================================
 # Make a list of all the files in your "data/raw" folder.
 reads_to_trim <- list.files(path_to_raw_reads)
@@ -252,6 +255,8 @@ for (gene in genes) {
       filename = file.path(
         path_to_results,
         paste0(
+          gene,
+          "/",
           project_name,
           "_",
           gene,
