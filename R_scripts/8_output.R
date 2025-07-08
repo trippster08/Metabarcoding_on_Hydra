@@ -103,23 +103,22 @@ for (gene in genes) {
 # "PROJECTNAME_MISEQRUN_sequence-table.tsv" to differentiate different runs.
 # In "5 Metabarcoding_R_Pipeline_RStudio_ImportCombine" we'll show how to
 # combine data from separate runs for analyses.
-
-write.table(
-  seqtab_nochim,
-  file = paste0(
-    "../data/results/",
-    gene,
-    "/",
-    project_name,
-    "_sequence-table_",
-    gene,
-    ".tsv"
-  ),
-  quote = FALSE,
-  sep = "\t",
-  row.names = TRUE,
-  col.names = NA
-)
+for (gene in genes) {
+  write.table(
+    seqtab_nochim[[gene]],
+    file = paste0(
+      "data/results/",
+      project_name,
+      "_sequence-table_",
+      gene,
+      ".tsv"
+    ),
+    quote = FALSE,
+    sep = "\t",
+    row.names = TRUE,
+    col.names = NA
+  )
+}
 # NOTE!!!
 # The Sequence-Table in this format is very unwieldy, since each column name is
 # an entire ASV. Instead, we can convert each ASV into a short "hash" using
@@ -140,117 +139,115 @@ write.table(
 # This makes a new vector containing all the ASV's (unique sequences) returned
 # by dada2. We are going to use this list to create md5 hashes. Use whatever
 #  table you will later use for your analyses (e.g. seqtab.nochim)
-repseq_nochim <- getSequences(seqtab_nochim)
-
+repseq_nochim <- setNames(vector("list", length(genes)), genes)
+repseq_nochim_md5 <- setNames(vector("list", length(genes)), genes)
+seqtab_nochim_md5 <- setNames(vector("list", length(genes)), genes)
+repseq_nochim_md5_asv <- setNames(vector("list", length(genes)), genes)
+feattab_nochim_md5 <- setNames(vector("list", length(genes)), genes)
 # Use the program digest (in a For Loop) to create a new vector containing the
 # unique md5 hashes of the representative sequences (ASV's). This results in
 # identical feature names to those assigned in Qiime2.
-repseq_nochim_md5 <- c()
-for (i in seq_along(repseq_nochim)) {
-  repseq_nochim_md5[i] <- digest(
-    repseq_nochim[i],
-    serialize = FALSE,
-    algo = "md5"
+for (gene in genes) {
+  repseq_nochim[[gene]] <- getSequences(seqtab_nochim[[gene]])
+
+  repseq_nochim_md5[[gene]] <- c()
+  for (i in seq_along(repseq_nochim[[gene]])) {
+    repseq_nochim_md5[[gene]][i] <- digest(
+      repseq_nochim[[gene]][i],
+      serialize = FALSE,
+      algo = "md5"
+    )
+  }
+
+  # Add md5 hash to the sequence-table from the DADA2 analysis.
+
+  seqtab_nochim_md5[[gene]] <- seqtab_nochim[[gene]]
+  colnames(seqtab_nochim_md5[[gene]]) <- repseq_nochim_md5[[gene]]
+
+  # Export this sequence table with column headings as md5 hashs instead of ASV
+  # sequences
+  write.table(
+    seqtab_nochim_md5[[gene]],
+    file = paste0(
+      "data/results/",
+      project_name,
+      "_sequence-table-md5_",
+      gene,
+      ".tsv"
+    ),
+    quote = FALSE,
+    sep = "\t",
+    row.names = TRUE,
+    col.names = NA
+  )
+
+  # Create an md5/ASV table, with each row as an ASV and it's representative md5
+  # hash.
+  repseq_nochim_md5_asv[[gene]] <- tibble(
+    md5 = repseq_nochim_md5[[gene]],
+    ASV = repseq_nochim[[gene]]
+  )
+
+  ## Create and Export Feature-Table =============================================
+  # This creates and exports a feature-table: row of ASV's (shown as a md5 hash
+  # instead of sequence), columns of samples, and values = number of reads. With
+  # this table you will also need a file that relates each ASV to it's
+  # representative md5 hash. We download this in the next section.
+
+  # Transpose the sequence-table, and convert the result into a tibble.
+  feattab_nochim_md5[[gene]] <- t(seqtab_nochim_md5[[gene]])
+
+  write.table(
+    feattab_nochim_md5[[gene]],
+    file = paste0(
+      "data/results/",
+      project_name,
+      "_feature-table_md5_",
+      gene,
+      ".tsv"
+    ),
+    quote = FALSE,
+    sep = "\t",
+    row.names = TRUE,
+    col.names = NA
+  )
+
+  ## Export Representative Sequences table/fasta =================================
+  # Here we export our our representative sequences, either as a fasta (with the
+  # md5 hash as the ASV name), or as a table with ASV and md5 hash as columns.
+
+  # This exports all the ASVs in fasta format, with ASV hash as the sequence
+  # name. This is analogous to the representative sequence output in Qiime2.
+  write.fasta(
+    sequences = as.list(repseq_nochim_md5_asv[[gene]]$ASV),
+    names = repseq_nochim_md5_asv[[gene]]$md5,
+    open = "w",
+    as.string = FALSE,
+    file.out = paste0(
+      "data/results/",
+      project_name,
+      "_rep-seq_",
+      gene,
+      ".fas"
+    )
+  )
+
+  # This exports all the ASVs and their respective md5 hashes as a two-column
+  # table.
+  write.table(
+    repseq_nochim_md5_asv[[gene]],
+    file = paste0(
+      "data/results/",
+      project_name,
+      "_representative_sequence_md5_table_",
+      gene,
+      ".tsv"
+    ),
+    quote = FALSE,
+    sep = "\t",
+    row.names = FALSE
   )
 }
-
-# Add md5 hash to the sequence-table from the DADA2 analysis.
-seqtab_nochim_md5 <- seqtab_nochim
-colnames(seqtab_nochim_md5) <- repseq_nochim_md5
-
-# Export this sequence table with column headings as md5 hashs instead of ASV
-# sequences
-write.table(
-  seqtab_nochim_md5,
-  file = paste0(
-    "../data/results/",
-    gene,
-    "/",
-    project_name,
-    "_sequence-table-md5_",
-    gene,
-    ".tsv"
-  ),
-  quote = FALSE,
-  sep = "\t",
-  row.names = TRUE,
-  col.names = NA
-)
-
-
-# Create an md5/ASV table, with each row as an ASV and it's representative md5
-# hash.
-repseq_nochim_md5_asv <- tibble(repseq_nochim_md5, repseq_nochim)
-# Rename column headings
-colnames(repseq_nochim_md5_asv) <- c("md5", "ASV")
-
-
-## Create and Export Feature-Table =============================================
-# This creates and exports a feature-table: row of ASV's (shown as a md5 hash
-# instead of sequence), columns of samples, and values = number of reads. With
-# this table you will also need a file that relates each ASV to it's
-# representative md5 hash. We download this in the next section.
-
-# Transpose the sequence-table, and convert the result into a tibble.
-feattab_nochim_md5 <- t(seqtab_nochim_md5)
-
-write.table(
-  feattab_nochim_md5,
-  file = paste0(
-    "../data/results/",
-    gene,
-    "/",
-    project_name,
-    "_feature-table_md5_",
-    gene,
-    ".tsv"
-  ),
-  quote = FALSE,
-  sep = "\t",
-  row.names = TRUE,
-  col.names = NA
-)
-
-## Export Representative Sequences table/fasta =================================
-# Here we export our our representative sequences, either as a fasta (with the
-# md5 hash as the ASV name), or as a table with ASV and md5 hash as columns.
-
-# This exports all the ASVs in fasta format, with ASV hash as the sequence
-# name. This is analogous to the representative sequence output in Qiime2.
-write.fasta(
-  sequences = as.list(repseq_nochim_md5_asv$ASV),
-  names = repseq_nochim_md5_asv$md5,
-  open = "w",
-  as.string = FALSE,
-  file.out = paste0(
-    "../data/results/",
-    gene,
-    "/",
-    project_name,
-    "_rep-seq_",
-    gene,
-    ".fas"
-  )
-)
-
-# This exports all the ASVs and their respective md5 hashes as a two-column
-# table.
-write.table(
-  repseq_nochim_md5_asv,
-  file = paste0(
-    "../data/results/",
-    gene,
-    "/",
-    project_name,
-    "_representative_sequence_md5_table_",
-    gene,
-    ".tsv"
-  ),
-  quote = FALSE,
-  sep = "\t",
-  row.names = FALSE
-)
-
 ## Create a Sequence-List Table ================================================
 # This creates a table containing three columns: sample name, ASV, and read
 # count. Each row is a separate sample/ASV combination. This is a tidy table,
@@ -278,67 +275,73 @@ write.table(
 # (47770 = 2810 x 17. 2810 instead of 2811 because the first column of the
 # original table contains sample names, not counts). This makes the table tidier
 # (meaning that each column is now a true variable).
-seqtab_nochim_tall <- as_tibble(seqtab_nochim, rownames = "sample") %>%
-  pivot_longer(
-    !sample,
-    names_to = "ASV",
-    values_to = "count"
+seqtab_nochim_tall <- setNames(vector("list", length(genes)), genes)
+repseq_tall <- setNames(vector("list", length(genes)), genes)
+repseq_tall_md5 <- setNames(vector("list", length(genes)), genes)
+seqtab_nochim_tall_md5 <- setNames(vector("list", length(genes)), genes)
+
+for (gene in genes) {
+  seqtab_nochim_tall[[gene]] <- as_tibble(
+    seqtab_nochim[[gene]],
+    rownames = "sample"
   ) %>%
-  subset(count != 0)
+    pivot_longer(
+      !sample,
+      names_to = "ASV",
+      values_to = "count"
+    ) %>%
+    subset(count != 0)
 
-## Create and Export feature-to-fasta ==========================================
-# This creates a fasta file containing all the ASV's for each sample. Each ASV
-# will be labeled with the sample name, ASV hash, and number of reads of that
-# ASV in that sample. This was derived from a python script from Matt Kweskin
-# called featuretofasta.py (hence the name).
+  ## Create and Export feature-to-fasta ==========================================
+  # This creates a fasta file containing all the ASV's for each sample. Each ASV
+  # will be labeled with the sample name, ASV hash, and number of reads of that
+  # ASV in that sample. This was derived from a python script from Matt Kweskin
+  # called featuretofasta.py (hence the name).
 
-# Save the ASV sequences from the sequence-list table
-# (seqtab_nochim_tall_nozera) as a new list.
-repseq_tall <- seqtab_nochim_tall$ASV
+  # Save the ASV sequences from the sequence-list table
+  # (seqtab_nochim_tall_nozera) as a new list.
+  repseq_tall[[gene]] <- seqtab_nochim_tall[[gene]]$ASV
 
-# Convert the sequences into md5 hashs, as we did earlier. md5 hashs are
-# consistent across jobs, meaning identical sequences from different projects or
-# being converted by different programs will result in the same hash (i.e.
-# hashs here will match hashs above)
-repseq_tall_md5 <- c()
-for (i in seq_along(repseq_tall)) {
-  repseq_tall_md5[i] <- digest(
-    repseq_tall[i],
-    serialize = FALSE,
-    algo = "md5"
+  # Convert the sequences into md5 hashs, as we did earlier. md5 hashs are
+  # consistent across jobs, meaning identical sequences from different projects or
+  # being converted by different programs will result in the same hash (i.e.
+  # hashs here will match hashs above)
+  repseq_tall_md5[[gene]] <- c()
+  for (i in seq_along(repseq_tall[[gene]])) {
+    repseq_tall_md5[[gene]][i] <- digest(
+      repseq_tall[[gene]][i],
+      serialize = FALSE,
+      algo = "md5"
+    )
+  }
+
+  # Attach the ASV hashes as a column (called "md5") to the tall table. The
+  # table should now have 4 columns, and each row of the "md5" column should
+  # be a md5 hash of its respective ASV.
+  # Also create a new column in this table that contains "sample", "feature",
+  # and "count", concatenated. This is the heading for each sequence in the
+  # fasta file created by Matt Kweskin's script "featuretofasta.py"
+  seqtab_nochim_tall_md5[[gene]] <- seqtab_nochim_tall[[gene]] %>%
+    mutate(md5 = repseq_tall_md5[[gene]]) %>%
+    mutate(sample_md5_count = paste(sample, md5, count, sep = "_")) %>%
+    select(sample, md5, count, sample_md5_count, ASV)
+
+  # Create a fasta-formatted file of each row sequence (i.e. ASV), with a
+  # heading of "sample_feature_count".
+  write.fasta(
+    sequences = as.list(seqtab_nochim_tall_md5[[gene]]$ASV),
+    names = seqtab_nochim_tall_md5[[gene]]$sample_md5_count,
+    open = "w",
+    as.string = FALSE,
+    file.out = paste0(
+      "data/results/",
+      project_name,
+      "_feature-to-fasta_",
+      gene,
+      ".fas"
+    )
   )
 }
+save.image(file = paste0("data/working/8_output.RData"))
 
-# Attach the ASV hashes as a column (called "md5") to the tall table. The
-# table should now have 4 columns, and each row of the "md5" column should
-# be a md5 hash of its respective ASV.
-# Also create a new column in this table that contains "sample", "feature", and
-# "count", concatenated. This is the heading for each sequence in the fasta file
-# created by Matt Kweskin's script "featuretofasta.py"
-seqtab_nochim_tall_md5 <- seqtab_nochim_tall %>%
-  mutate(md5 = repseq_tall_md5) %>%
-  mutate(sample_md5_count = paste(sample, md5, count, sep = "_")) %>%
-  select(sample, md5, count, sample_md5_count, ASV)
-
-
-# Create a fasta-formatted file of each row sequence (i.e. ASV), with a heading
-# of "sample_feature_count".
-write.fasta(
-  sequences = as.list(seqtab_nochim_tall_md5$ASV),
-  names = seqtab_nochim_tall_md5$sample_md5_count,
-  open = "w",
-  as.string = FALSE,
-  file.out = paste0(
-    "../data/results/",
-    gene,
-    "/",
-    project_name,
-    "_feature-to-fasta_",
-    gene,
-    ".fas"
-  )
-)
-
-save.image(file = paste0("../data/working/", gene, "_8_output.RData"))
-
-print("Job 8_output_multigene.job and this analysis has finished")
+print("Job 8_output.job and this analysis has finished")
