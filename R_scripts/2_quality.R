@@ -273,4 +273,4 @@ for (gene in genes) {
 
 save.image(file = "data/working/2_qual.RData")
 
-print("Job 2_quality.job and this analysis has finished")
+print("Job 2_quality.job is complete and quality plots have been created")

@@ -72,4 +72,4 @@ for (gene in genes) {
 # Save all the objects created to this point in this section
 save.image(file = "data/working/6_merge.RData")
 
-print("Job 6_merge.job and this analysis has finished")
+print("Job 6_merge.job is complete and reads have been merged")

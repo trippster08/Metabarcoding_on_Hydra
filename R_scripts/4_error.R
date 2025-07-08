@@ -71,4 +71,4 @@ for (gene in genes) {
 # Save all the objects created to this point in this section
 save.image(file = "data/working/4_error.RData")
 
-print("Job 4_error.job and this analysis has finished")
+print("Job 4_error.job is complete, error rates evaluated, and plots created")

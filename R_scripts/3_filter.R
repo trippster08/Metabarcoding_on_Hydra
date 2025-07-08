@@ -174,4 +174,4 @@ for (gene in genes) {
 # Save all the objects created to this point in this section
 save.image(file = "data/working/3_filter.RData")
 
-print("Job 3_filter.job and this analysis has finished")
+print("Job 3_filter.job is finished and reads have been filtered by DADA2")
