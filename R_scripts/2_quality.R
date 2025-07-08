@@ -26,6 +26,7 @@ print(paste0("This project is named ", project_name))
 
 # Set a path to the directory with the raw reads and cutadapt-trimmed reads.
 path_to_raw_reads <- "data/raw"
+path_to_working <- "data/working"
 path_to_trimmed <- setNames(
   lapply(genes, function(gene) paste0("data/working/trimmed_sequences/", gene)),
   genes
@@ -253,10 +254,8 @@ for (gene in genes) {
     # Save the plot as a PDF
     ggsave(
       filename = file.path(
-        path_to_results,
+        path_to_working,
         paste0(
-          gene,
-          "/",
           project_name,
           "_",
           gene,

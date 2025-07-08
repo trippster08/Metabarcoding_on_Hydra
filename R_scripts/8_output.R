@@ -111,10 +111,8 @@ for (gene in genes) {
   write.table(
     seqtab_nochim[[gene]],
     file = file.path(
-      path_to_results,
+      path_to_working,
       paste0(
-        gene,
-        "/",
         project_name,
         "_sequence-table_",
         gene,

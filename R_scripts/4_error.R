@@ -51,10 +51,8 @@ for (gene in genes) {
     error_plots[[gene]][[direction]] <- plotErrors(err, nominalQ = TRUE)
     ggsave(
       filename = file.path(
-        path_to_results,
+        path_to_working,
         paste0(
-          gene,
-          "/",
           project_name,
           "_",
           gene,
