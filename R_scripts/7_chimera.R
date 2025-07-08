@@ -62,7 +62,7 @@ for (gene in genes) {
     names = repseq_chimera_md5[[gene]],
     open = "w",
     as.string = FALSE,
-    file.out = file_path(
+    file.out = file.path(
       path_to_results,
       paste0(
         gene,
@@ -103,4 +103,4 @@ for (gene in genes) {
 # Save all the objects created to this point in this section
 save.image(file = "data/working/7_chimera.RData")
 
-print("Job 7_chimera.job and this analysis has finished")
+print("Job 7_chimera.job is done and chimeric sequences removed")
