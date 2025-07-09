@@ -37,8 +37,8 @@ primer_files=("$@")  # Get remaining arguments (primer files)
 
 # Determine primer structure
 if [ "${#primer_files[@]}" -eq 2 ]; then
-  primerF="${primer_files[1]}"
-  primerR="${primer_files[2]}"
+  primerF="${primer_files[0]}"
+  primerR="${primer_files[1]}"
   echo "Your gene should not have potential read-through, so we are only removing primers from the 5' end of each read."
 elif [ "${#primer_files[@]}" -eq 4 ]; then
   primerF="${primer_files[0]}"
