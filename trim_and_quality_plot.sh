@@ -1,84 +1,118 @@
 # /bin/bash
-
+# This prints onto the screen the inputs after "sh trim_and_quality_plot.sh"
 #echo ${@}
 #echo ${#}
+# Set path to raw sequences and data directory
 raw=$(readlink -f data/raw)
 #echo ${raw}
 data=$(readlink -f data)
 #echo ${data}
+# Set path to the 4 potential primer files
 primerF=$(readlink -f primers/primerF.fas)
 primerR=$(readlink -f primers/primerR.fas)
 primerFrc=$(readlink -f primers/primerF_RC.fas)
 primerRrc=$(readlink -f primers/primerR_RC.fas)
-# List of possible primers
-possible_primers=(COI 18S MiFish 16S 28SAnth 16Sbac)
-#echo ${possible_primers[@]}
-RC_primers=(MiFish)
+
+# This is a list of currently available primer regions
+available_primers=(COI 18S MiFish 28SAnth 16Sbac)
+#echo ${available_primers[@]}
+# This is a list of the primer regions that are short enough that read-through
+# is possible
+RC_primers=(MiFish 16Sbac)
 #echo ${RC_primers[@]}
 
+# Look to see if there are fastq.gz files in data/raw
 if ! ls "${raw}"/*.fastq.gz 2>/dev/null | grep -q fastq.gz; then
   echo "No sequences (*.fastq.gz) were found in the raw data directory: ${raw}"
   exit 1
 fi
 
+# Create empty files for the primer sequences to be used by cutadapt. These will
+# be filled with sequences below
 : > primers/primerF.fas
 : > primers/primerR.fas
 : > primers/primerF_RC.fas
 : > primers/primerR_RC.fas
 
+# This is the loop to submit the job that will perform primer trimming
+# (and demultiplexing, if necessary) and create quality plots
 
-if [ "$#" -ge 1 ]; then
+# First, see if any variables were submitted?
+if [ "$#" -ge 1 ]; then # If variables were submitted
+  # set path to trimmed sequences and results
   path_to_trimmed="${data}/working/trimmed_sequences"
   path_to_results="${data}/results"
-  if [ -d ${path_to_trimmed} ]; then
-    if find "${path_to_trimmed}" -name "*.fastq.gz" | grep -q .; then
+  # Check if the path to trimmed points to an actual folder
+  if [ -d ${path_to_trimmed} ]; then # if path_to_trimmed does have a folder
+    # Check if there are fastq.gz files in the trimmed folder (which means
+    # trimming has occured)
+    if find "${path_to_trimmed}" -name "*.fastq.gz" | grep -q .; then # If files
+      # do exist, trimming is complete and the next job, 2_quality.job, is
+      # submitted instead
       qsub -o logs/quality.log -N quality \
       jobs/2_quality.job
       echo "Trimming is already completed, we are moving to the next step: 2_quality.job"
-    else
-      if find logs/cutadapt.log -maxdepth 1 -name '*.json' | grep -q .; then 
-        rm -r ${path_to_trimmed} logs/cutadapt.log logs/*.json
-      elif [  -f logs/cutadapt.log ]; then
-        rm -r ${path_to_trimmed} logs/cutadapt.log
-      else
-          rm -r ${path_to_trimmed}
+    else # if path_to_trimmed does NOT have a folder
+      # Check to see if a cutadapt log and json file exist
+      if find logs/cutadapt.log -maxdepth 1 -name '*.json' | grep -q .; then # If
+        # both exist, remove both and the contents of trimmed folder
+        rm -r ${path_to_trimmed}/* logs/cutadapt.log logs/*.json
+      elif [  -f logs/cutadapt.log ]; then # If only log exists, remove log and
+        # contents of trimmed folder
+        rm -r ${path_to_trimmed}/* logs/cutadapt.log
+      else # If log does not exist, only remove trimmed folder contents
+          rm -r ${path_to_trimmed}/*
       fi
     fi
-  else
+  else # If trimmed folder does not exist, trimmed and results folders
     mkdir -p ${path_to_trimmed} ${path_to_results}
   fi
-
+# Set RC_found to false to start, and only change to true if one of the RC
+# primers is given
   RC_found=false # initialize RC_found outside loop
 
+  # Loop through all the variables (genes) given 
   for gene in "$@"; do
-    if [[ ! " ${possible_primers[@]} " =~ (^|[[:space:]])${gene}([[:space:]]|$) ]]; then
-      echo "Error: ${gene} is not a valid primer name. Valid gene names are: ${possible_primers[@]}."
+    if [[ ! " ${available_primers[@]} " =~ (^|[[:space:]])${gene}([[:space:]]|$) ]]; then
+      # If one of the variables is not a valid primer, print error and list of primers
+      echo "Error: ${gene} is not a valid primer name. Valid gene names are: ${available_primers[@]}."
       exit 1
-    else
+    else # If all variables are good primers, make primer-specific folder in
+      # trimmed folder
       mkdir -p ${path_to_trimmed}/${gene}
     fi
-    if [[ " ${RC_primers[*]} " == *" ${gene} "* ]];then
+    # Check to see if one of the submitted variables is a primer with read-through
+    if [[ " ${RC_primers[*]} " == *" ${gene} "* ]];then # If it is, then we need
+    # to pass four primers to the cutadapt
+      # This adds the sequences from the gene-specific files to the files that will
+      # be used by cutadapt. Also set RC_found variable to true
       cat "primers/${gene}F.fas" >> primers/primerF.fas
       cat "primers/${gene}R.fas" >> primers/primerR.fas
       cat "primers/${gene}F_RC.fas" >> primers/primerF_RC.fas
       cat "primers/${gene}R_RC.fas" >> primers/primerR_RC.fas
       RC_found=true
-    else
+    else # If no RC primers are used, we only need 2 primer files
+      # This adds the sequences from the gene-specific files to the files that will
+      # be used by cutadapt.
       cat "primers/${gene}F.fas" >> primers/primerF.fas
       cat "primers/${gene}R.fas" >> primers/primerR.fas
     fi
   done
   #echo ${RC_found}
-
-  if [ "$RC_found" = true ]; then
+  # Check to see if RC_found is true
+  if [ "$RC_found" = true ]; then # If we used a read-through primer
+    # submit job to hydra with primers and rc primers. Also pass number of genes
+    # and list of genes
     qsub -o logs/cutadapt.log -N cutadapt \
     jobs/1_trim.job ${#} ${@} ${data} ${primerF} ${primerR} ${primerFrc} ${primerRrc}
-  else
+  else # If no read-through primer
+    # submit job to hydra with primers, number of genes, and list of genes
     qsub -o logs/cutadapt.log -N cutadapt \
     jobs/1_trim.job ${#} ${@} ${data} ${primerF} ${primerR}
   fi
-else
+else # If no variables were submitted after shell script
+  # Print onto screen that gene names are needed, and gives list of valid primers
   echo "You must provide at least one gene name following the shell script. Valid \
-  gene names are: ${possible_primers[@]}."
+  gene names are: ${available_primers[@]}."
   exit 1
 fi
