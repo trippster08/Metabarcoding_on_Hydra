@@ -10,7 +10,7 @@ suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 # Make objects to fill from job script
 # Load the RData from "quality_plot_multigene.R"
 load("data/working/2_qual.RData")
-
+print(paste0("This project is named ", project_name))
 args <- commandArgs(trailingOnly = TRUE)
 gene_num <- as.numeric(args[1])
 genes <- args[2:(gene_num + 1)]
