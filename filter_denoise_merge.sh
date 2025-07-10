@@ -17,7 +17,7 @@ for arg in "$@"; do
 done
 
 gene_num=${#genes[@]}
-truncation_value_num={#truncation_values[@]}
+truncation_value_num=${#truncation_values[@]}
 
 if (( truncation_value_num < 2 * gene_num )); then
   echo "There are not enough truncation values given, there should be two truncation values given for each gene."
