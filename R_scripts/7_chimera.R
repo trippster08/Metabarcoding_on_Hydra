@@ -32,9 +32,8 @@ for (gene in genes) {
     sep = " "
   ))
 
-  # Make a list of the ASVs that are considered chimeras, in case you want to look
-  # at them later
-
+  # Make a list of the ASVs that are considered chimeras, in case you want to
+  # look at them later
   chimeras_list <- isBimeraDenovoTable(
     seqtab[[gene]],
     multithread = TRUE,
@@ -74,7 +73,7 @@ for (gene in genes) {
       )
     )
   )
-  ## Examine Sequence Lengths ====================================================
+  ## Examine Sequence Lengths ===================================================
 
   # This shows the length of the representative sequences (ASV's). Typically,
   # there are a lot of much longer and much shorter sequences.
