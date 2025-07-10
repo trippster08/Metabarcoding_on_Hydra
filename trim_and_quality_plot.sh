@@ -101,12 +101,12 @@ if [ "$#" -ge 1 ]; then # If variables were submitted
   #echo ${RC_found}
   # Check to see if RC_found is true
   if [ "$RC_found" = true ]; then # If we used a read-through primer
-    # submit job to hydra with primers and rc primers. Also pass number of genes
-    # and list of genes
+    # submit job to hydra with primers and rc primers. Also pass number of genes,
+    # list of genes, and path to data
     qsub -o logs/cutadapt.log -N cutadapt \
     jobs/1_trim.job ${#} ${@} ${data} ${primerF} ${primerR} ${primerFrc} ${primerRrc}
   else # If no read-through primer
-    # submit job to hydra with primers, number of genes, and list of genes
+    # submit job to hydra with primers, number of genes, list of genes, and path to data
     qsub -o logs/cutadapt.log -N cutadapt \
     jobs/1_trim.job ${#} ${@} ${data} ${primerF} ${primerR}
   fi
