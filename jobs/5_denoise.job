@@ -19,6 +19,8 @@ echo + NSLOTS = $NSLOTS
 #
 
 #
+# All arguments from shell script are just a list of genes, so we just pass on the
+# entire array
 Rscript R_scripts/5_denoise.R ${@}
 Rscript R_scripts/6_merge.R ${@}
 Rscript R_scripts/7_chimera.R ${@}

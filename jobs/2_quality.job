@@ -20,6 +20,7 @@ echo + NSLOTS = $NSLOTS
 
 
 #
+# We are only passing on the list of genes here, so we just pass on the entire array
 Rscript R_scripts/2_quality.R ${[@]}
 #
 echo = `date` job $JOB_NAME done

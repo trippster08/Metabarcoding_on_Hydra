@@ -23,12 +23,18 @@ shift         # Remove count argument
 #echo ${@}
 #echo ${num_genes}
 genes=${@:1:$num_genes}   # Extract gene names
+# Remove gene name arguments
 shift ${num_genes}
 #echo ${genes[@]}
 #echo ${@}
+# Remaining arguments are truncation values, and these should be in the same
+# order as the gene list
 trunaction_values=${@}
 #
+# We only need the truncation values and number of genes for the filtering
 Rscript R_scripts/3_filter.R ${num_genes} ${genes} ${trunaction_values}
+# After filtering, since we are only passing the list of genes, we can get gene
+# number from this
 Rscript R_scripts/4_error.R ${genes}
 Rscript R_scripts/5_denoise.R ${genes}
 Rscript R_scripts/6_merge.R ${genes}

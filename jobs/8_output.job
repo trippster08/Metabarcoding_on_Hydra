@@ -19,6 +19,8 @@ echo + NSLOTS = $NSLOTS
 #
 
 #
+# All arguments from shell script are just a list of genes, so we just pass on the
+# entire array
 Rscript R_scripts/8_output.R ${@}
 #
 echo = `date` job $JOB_NAME done
