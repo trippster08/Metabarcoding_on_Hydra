@@ -3,7 +3,8 @@
 # section
 
 ## Load Libraries ==============================================================
-# Load all R packages you may need.
+# Load all R packages you may need. suppressMessages keeps it exporting updates
+# to the log
 suppressMessages(library(dada2, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(digest, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(tidyverse, warn.conflicts = FALSE, quietly = TRUE))
@@ -11,35 +12,46 @@ suppressMessages(library(seqinr, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 
 ## File Housekeeping ===========================================================
+# Save project name as an object
+project_name <- basename(getwd())
+print(paste0("This project is named ", project_name))
+
+# Get list of genes passed from job file
 genes <- commandArgs(trailingOnly = TRUE)
+# Determine number of genes to analyze
 num_genes <- length(genes)
-gene_list <- setNames(as.list(genes), genes)
+# Prints to log a list of genes that will be analyzed
 cat(
   "These are the genes we will be creating quality plots for: ",
   paste(genes, collapse = ", "),
   "\n"
 )
 
-# Save project name as an object
-project_name <- basename(getwd())
-print(paste0("This project is named ", project_name))
-
-# Set a path to the directory with the raw reads and cutadapt-trimmed reads.
+# Set a path to the directory containing raw reads.
 path_to_raw_reads <- "data/raw"
+# Set path to working directory
 path_to_working <- "data/working"
+# Set path to the directory (or directories, depending upon the number of genes)
+# of the trimmed sequences. This creates a list of paths, one path for each gene
 path_to_trimmed <- setNames(
   lapply(genes, function(gene) paste0("data/working/trimmed_sequences/", gene)),
   genes
 )
-path_to_results <- "data/results"
+# Set a path to the results directorie(s), as a list of paths, one for each gene
+path_to_results <- setNames(
+  lapply(genes, function(gene) paste0("data/results", gene)),
+  genes
+)
+# Create the results directories from the paths
 for (gene in genes) {
-  dir.create(paste0(path_to_results, "/", gene))
+  dir.create(paste0(path_to_results))
 }
 ## Get Raw Read Counts =========================================================
 # Make a list of all the files in your "data/raw" folder.
 reads_to_trim <- list.files(path_to_raw_reads)
 
-# Get the names of all the samples in "data/raw"
+# Get the names of all the samples in "data/raw". The name is everything
+# before the illumina barcode
 sample_names_raw <- sapply(
   strsplit(
     basename(
@@ -67,18 +79,14 @@ sequence_counts_raw <- sapply(
 
 # Name these counts with your sample names
 names(sequence_counts_raw) <- sample_names_raw
-
+# Print to log the number of reads for each sample
 print(paste0("Here are the raw read counts for each sample:"))
 sequence_counts_raw
 
 ## Trimmed Reads ===============================================================
-# Create vectors for the trimmed reads, both forward (R1) and reverse (R2) and
-# for gene1 and gene2.
-# Loop through each gene name
-
 # Make a list of all gene-specific trimmed reads (it's a list of 3 gene-specific
-# vectors containing trimmed read names)
-
+# vectors containing trimmed read names), with each gene-specific item
+# containing a list of Forward(R1) and a list of Reverse(R2) reads.
 trimmed_reads <- setNames(
   lapply(genes, function(gene) {
     list(
@@ -96,14 +104,14 @@ trimmed_reads <- setNames(
   }),
   genes
 )
-
+# Make list of gene-specific sample names for trimmed reads, and populate list
+# with names from gene-specific trimmed read files.
 sample_names_trimmed <- setNames(
   lapply(genes, function(gene) {
     files <- trimmed_reads[[gene]]$F
     if (length(files) == 0 || is.null(files)) {
       return(character(0))
     }
-
     sapply(
       strsplit(basename(files), "_trimmed"),
       `[`,
@@ -113,37 +121,36 @@ sample_names_trimmed <- setNames(
   genes
 )
 
-
 ## Remove empty sample files ===================================================
 # This saves the R1 fastq for the sample file only if both the R1 and R2 sample
 # files have reads.
 
-# Create a new list to store non-empty trimmed reads
+# Create a list to store non-empty trimmed reads
 actual_trimmed_reads <- setNames(vector("list", length(genes)), genes)
+# Create a lis to store trimmed read counts
 sequence_counts_trimmed <- setNames(vector("list", length(genes)), genes)
 
-
+# For each gene, create a list of trimmed forward and trimmed reverse reads.
+# These are ephemeral for each gene, and are not
 for (gene in genes) {
-  F_reads <- trimmed_reads[[gene]]$F
-  R_reads <- trimmed_reads[[gene]]$R
-  sample_names <- sample_names_trimmed[[gene]]
-
   # Count reads in R1 files
-  read_counts <- sapply(F_reads, function(file) {
-    fq <- readFastq(file)
-    length(fq)
-  })
+  sequence_counts_trimmed[[gene]] <- sapply(
+    trimmed_reads[[gene]]$F,
+    function(file) {
+      fq <- readFastq(file)
+      length(fq)
+    }
+  )
 
   # Name the read counts using sample_names_trimmed and store them
-  names(read_counts) <- sample_names
-  sequence_counts_trimmed[[gene]] <- read_counts
+  names(sequence_counts_trimmed[[gene]]) <- sample_names_trimmed[[gene]]
 
   # Keep only files with at least 1 read
   valid_indices <- which(read_counts > 0)
 
   actual_trimmed_reads[[gene]] <- list(
-    F = F_reads[valid_indices],
-    R = R_reads[valid_indices]
+    F = trimmed_reads[[gene]]$F[valid_indices],
+    R = trimmed_reads[[gene]]$R[valid_indices]
   )
 }
 
@@ -192,7 +199,7 @@ for (gene in genes) {
   }
 }
 
-#Count the number of samples remaining for each gene, and print
+# Count the number of samples remaining for each gene, and print
 for (gene in genes) {
   nsamples <- length(sample_names_trimmed[[gene]])
   message <- paste("We will analyze", nsamples, "samples for", gene)
@@ -202,27 +209,23 @@ for (gene in genes) {
 
 ### Make Quality Plots ---------------------------------------------------------
 
-# This visualizes the quality plots. If you want to look at quality plots for
-# each individual sample, use "aggregate = FALSE", and include whichever sample
-# number you want in the square brackets (to aggregate all samples, replace N
-# with the number of samples, or with length(fnFs)). For example, "fnFs[1:2]"
-# will result in two plots, one for the first sample and one for the second.
-# "fnFs[1:17]" will result in 17 plots, one for each sample.  Using
-# "aggregate = TRUE" will combine any samples called (for example, "fnFS[1:17]"
-# aggregates sample 1 through 17) into a single plot. This results in the same
-# the quality plots as Qiime2.
+# This creates DADA2 quality plots for each gene. It aggregates all samples and
+# creates a single plot. These are the same quality plots as Qiime2, but
+# maybe slightly easier to interpret.
 
 # For these plots, the green line is the mean quality score at that position,
 # the orange lines are the quartiles (solid for median, dashed for 25% and 75%)
 # and the red line represents the proportion of reads existing at that position.
 
-quality_plots <- setNames(vector("list", length(genes)), genes)
+# Create gene-specific list for the quality plots that will be saved and printed
 quality_plots_better <- setNames(vector("list", length(genes)), genes)
 
+# For each gene, create a list of F and R for storing the forward and reverse
+# plots
 for (gene in genes) {
-  quality_plots[[gene]] <- list(F = NULL, R = NULL)
+  quality_plots <- list(F = NULL, R = NULL)
   quality_plots_better[[gene]] <- list(F = NULL, R = NULL)
-
+  # For each direction for each gene, create quality plots
   for (direction in c("F", "R")) {
     reads <- actual_trimmed_reads[[gene]][[direction]]
     sample_names <- sample_names_trimmed[[gene]]
@@ -232,7 +235,9 @@ for (gene in genes) {
     )
     plot_build <- ggplot_build(quality_plots)
     max_x <- plot_build$layout$panel_params[[1]]$x.range[2]
-
+    # Make the quality plots easier to interpret by changing the x-axis scale,
+    # creating vertical lines every 10 bp to better determine quality scores at
+    # length, add name of gene to plot
     quality_plots_better[[gene]][[direction]] <- quality_plots +
       scale_x_continuous(
         limits = c(0, max_x),
