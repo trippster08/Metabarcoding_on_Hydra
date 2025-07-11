@@ -7,14 +7,19 @@ suppressMessages(library(seqinr, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 
 ## File Housekeeping ===========================================================
-# Make objects to fill from job script
 # Load the RData from "quality_plot_multigene.R"
 load("data/working/2_qual.RData")
 print(paste0("This project is named ", project_name))
+# Get arguments from job file. This should include the number of genes, gene
+# names, and the R1 and R2 truncation values for each gene
 args <- commandArgs(trailingOnly = TRUE)
+# First argument is gene number
 gene_num <- as.numeric(args[1])
+# Save vector of genes (determined by gene number)
 genes <- args[2:(gene_num + 1)]
+# Save vector of truncation values (also determined by gene number)
 truncation_values <- as.integer(args[(gene_num + 2):length(args)])
+# Create a list of R1 and R2 truncation values for each gene
 truncation_list <- setNames(
   lapply(seq_len(gene_num), function(i) {
     start <- (i - 1) * 2 + 1
@@ -25,7 +30,7 @@ truncation_list <- setNames(
 )
 
 # This creates file paths for the reads that will be quality filtered with dada2
-# in the next step.
+# in the next step and a list for storing filtered reads.
 filtered_reads <- setNames(vector("list", length(genes)), genes)
 path_to_filtered <- setNames(
   lapply(genes, function(gene) {
@@ -33,6 +38,9 @@ path_to_filtered <- setNames(
   }),
   genes
 )
+# For each gene, create a list for forward and reverse reads in filtered_reads,
+# and create a list of filtered sample names from trimmed sample
+# names, and add these names to the filtered_reads list,
 for (gene in genes) {
   sample_names_filtered <- sample_names_trimmed[[gene]]
   filtered_reads[[gene]] <- list(F = NULL, R = NULL)
@@ -57,28 +65,16 @@ for (gene in genes) {
 # plots. It also saves into "out" the number of reads in each sample that were
 # filtered, and how many remain after filtering
 
-# On Windows set multithread=FALSE. If you get errors while running this, change
-# to multithread = FALSE, because "error messages and tracking are not handled
-# gracefully when using the multithreading functionality".
-
-# "truncLen=c(i,j)" is how you tell Dada2 where to truncate all forward (i) and
-# reverse (j) reads. Using "0" means reads will not be truncated.
-# maxEE sets how many expected errors are allowed before a read is filtered out.
-
 # The amount to truncate is a common question, and very unsettled. I usually
 # truncate at the point just shorter than where the red line (proportion of
 # reads) in the quality plot reaches 100%.
 
 # Most pipelines use a low maxEE (maximum number of expected errors), but I tend
-# to relax this value (from 0,0 to 6,6) because it increases the number of reads
+# to relax this value (from 0,0 to 4,4) because it increases the number of reads
 # that are kept, and Dada2 incorporates quality scores in its error models, so
 # keeping poorer-quality reads does not adversely effect the results, except in
 # very low quality reads. However, increasing maxEE does increase computational
 # time.
-
-# This step will create any new directories necessary (whatever path
-# filtered_reads uses).
-
 for (gene in genes) {
   filterAndTrim(
     actual_trimmed_reads[[gene]]$F,
@@ -96,7 +92,7 @@ for (gene in genes) {
   )
 }
 
-# Save the reduced sample_names_filtered, since some samples no longer have
+# Create a new sample_names_filtered, since some samples no longer have
 # reads after filtering, and therefore no longer exist in the directory
 for (gene in genes) {
   sample_names_filtered <- setNames(
@@ -142,9 +138,10 @@ for (gene in genes) {
     )
   }
 }
-
+# Create a list to contain the gene-specific filtered read counts
 sequence_counts_filtered <- setNames(vector("list", length(genes)), genes)
 
+# For each gene, count the number of forward reads, and add names to the list
 for (gene in genes) {
   sequence_counts_filtered[[gene]] <- sapply(
     filtered_reads[[gene]]$F,
