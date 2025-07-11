@@ -64,7 +64,6 @@ for (gene in genes) {
     file.out = file.path(
       path_to_results,
       paste0(
-        gene,
         "/",
         project_name,
         "_",
@@ -85,7 +84,6 @@ for (gene in genes) {
     file = file.path(
       path_to_results,
       paste0(
-        gene,
         "/",
         project_name,
         "_ASV_lengths_table_",
