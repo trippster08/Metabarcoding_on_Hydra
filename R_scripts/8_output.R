@@ -80,7 +80,6 @@ for (gene in genes) {
     file = file.path(
       path_to_results,
       paste0(
-        gene,
         "/",
         project_name,
         "_track_reads_",
@@ -177,7 +176,6 @@ for (gene in genes) {
     file = file.path(
       path_to_results,
       paste0(
-        gene,
         "/",
         project_name,
         "_sequence-table-md5_",
@@ -212,7 +210,6 @@ for (gene in genes) {
     file = file.path(
       path_to_results,
       paste0(
-        gene,
         "/",
         project_name,
         "_feature-table_md5_",
@@ -240,7 +237,6 @@ for (gene in genes) {
     file.out = file.path(
       path_to_results,
       paste0(
-        gene,
         "/",
         project_name,
         "_rep-seq_",
@@ -257,7 +253,6 @@ for (gene in genes) {
     file = file.path(
       path_to_results,
       paste0(
-        gene,
         "/",
         project_name,
         "_representative_sequence_md5_table_",
@@ -358,7 +353,6 @@ for (gene in genes) {
     file.out = file.path(
       path_to_results,
       paste0(
-        gene,
         "/",
         project_name,
         "_feature-to-fasta_",
