@@ -17,7 +17,11 @@ load("data/working/4_error.RData")
 # to get corrected unique sequences. The two main inputs are the first, which is
 # the filtered sequences (filtered_F), and "err =" which is the error file from
 # learnErrors (effF).
+
+# First make a list to store the gene-specific denoised sequences
 denoised <- setNames(vector("list", length(genes)), genes)
+# Loop through all genes, denoising reads, after adding read direction to the
+# list.
 for (gene in genes) {
   denoised[[gene]] <- list(F = NULL, R = NULL)
   for (direction in c("F", "R")) {

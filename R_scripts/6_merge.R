@@ -13,9 +13,9 @@ load("data/working/5_denoise.RData")
 
 ## Merge Paired Sequences ======================================================
 
-# Here we merge the paired reads. merged calls for the forward denoising result
-# (dadaFs), then the forward filtered and truncated reads (filtFs), then the
-# same for the reverse reads (dadaRs and filtRs).
+# Here we merge the paired reads. mergePairs calls for the forward denoising
+# result (denoised), then the forward filtered and truncated reads
+# (filtered_reads), then the same for the reverse reads.
 
 # You can change the minimum overlap (minOverlap), and the number of mismatches
 # that are allowed in the overlap region (maxMismatch). Default values are
@@ -25,7 +25,10 @@ load("data/working/5_denoise.RData")
 # "...each unique pairing of forward/reverse denoised sequences." The data.frame
 # also contains multiple columns describing data for each unique merged
 # sequence.
+
+# First, make a list to hold the gene-specific merged reads.
 merged_reads <- setNames(vector("list", length(genes)), genes)
+# Loop through each gene, creating gene-specific merged sequences
 for (gene in genes) {
   merged_reads[[gene]] <- mergePairs(
     denoised[[gene]]$F,
@@ -47,12 +50,15 @@ for (gene in genes) {
 # transpose this table if needed later (and we will later). I think for now, I
 # will use "sequence-table" for the table with columns of sequences, and
 # "feature-table" for tables with columns of samples.
+
+# First make a list to hold the gene-specific sequence-table
 seqtab <- setNames(vector("list", length(genes)), genes)
+# Loop through each gene, making the sequence-table
 for (gene in genes) {
   seqtab[[gene]] <- makeSequenceTable(merged_reads[[gene]])
 
-  # This describes the dimensions of the table just made
-
+  # This describes the dimensions of the gene-specific table just made
+  # First the number of samples
   print(paste(
     "This is the number of samples for your",
     gene,
@@ -60,7 +66,7 @@ for (gene in genes) {
     length(rownames(seqtab[[gene]])),
     sep = " "
   ))
-
+  # Then the number of ASVs
   print(paste(
     "This is the number of ASVs for your",
     gene,

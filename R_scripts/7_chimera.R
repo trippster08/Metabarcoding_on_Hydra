@@ -13,9 +13,12 @@ load("data/working/6_merge.RData")
 ## Remove Chimeric Sequences ===================================================
 
 # Here we remove chimera sequences.
+
+# Make three lists that will be populated later by gene-specific data
 seqtab_nochim <- setNames(vector("list", length(genes)), genes)
 repseq_chimera_md5 <- setNames(vector("list", length(genes)), genes)
 seq_length_table <- setNames(vector("list", length(genes)), genes)
+# Loop through each gene, remove chimeras from the gene-specific sequence-table
 for (gene in genes) {
   seqtab_nochim[[gene]] <- removeBimeraDenovo(
     seqtab[[gene]],
@@ -24,6 +27,7 @@ for (gene in genes) {
     verbose = TRUE
   )
 
+  # Print to the log the number of ASVs remaining in the table.
   print(paste(
     "This is the number of ASVs for your chimera-free",
     gene,
@@ -55,7 +59,7 @@ for (gene in genes) {
     )
   }
 
-  # Export this as a fasta
+  # Export chimeric sequences as fastas
   write.fasta(
     sequences = as.list(repseq_chimera),
     names = repseq_chimera_md5[[gene]],
@@ -72,13 +76,15 @@ for (gene in genes) {
       )
     )
   )
-  ## Examine Sequence Lengths ===================================================
+  ## Examine Sequence Lengths ==================================================
 
   # This shows the length of the representative sequences (ASV's). Typically,
   # there are a lot of much longer and much shorter sequences.
-  seq_length_table[[gene]] <- table(nchar(getSequences(seqtab_nochim[[gene]])))
-  # Export this table as a .tsv
 
+  # Count the number of bp for each gene-specific ASV from the sequence-tables
+  seq_length_table[[gene]] <- table(nchar(getSequences(seqtab_nochim[[gene]])))
+
+  # Export this table as a .tsv
   write.table(
     seq_length_table[[gene]],
     file = file.path(
