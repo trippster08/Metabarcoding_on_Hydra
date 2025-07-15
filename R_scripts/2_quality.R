@@ -42,10 +42,7 @@ path_to_results <- setNames(
   lapply(genes, function(gene) paste0("data/results", gene)),
   genes
 )
-# Create the results directories from the paths
-for (gene in genes) {
-  dir.create(paste0(path_to_results))
-}
+
 ## Get Raw Read Counts =========================================================
 # Make a list of all the files in your "data/raw" folder.
 reads_to_trim <- list.files(path_to_raw_reads)
