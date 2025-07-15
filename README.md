@@ -1,3 +1,7 @@
+![GitHub Release](https://img.shields.io/github/v/release/trippster08/Metabarcoding_on_Hydra?color=green)
+[![DOI](https://zenodo.org/badge/849911002.svg)](https://doi.org/10.5281/zenodo.15635236)
+![GitHub Downloads](https://img.shields.io/github/downloads/trippster08/Metabarcoding_on_Hydra/latest/total?color=orange)
+
 # Metabarcoding_on_Hydra
 
 This protocol is for paired-end demultiplexed miseq sequences that have sufficient overlap to merge R1 and R2, and are going to be run on Hydra, the Smithsonian Institution's High Performance Cluster. This pipeline contains multiple .job files for submission to Hydra. These jobs are called by two shell scripts. The first shell script submits a job to remove primers from raw reads and create and visualize quality plots from trimmed reads, at which point trimming parameters need to be decided. The second shell script submits a job to filter, denoise, and remove chimeras, and outputs multiple files, including a Feature-Table, Sequence-Table, and a representative sequence fasta. This pipeline is also designed to secondarily demuliplex by primer if mulitple genes were sequences in a single run.
