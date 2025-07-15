@@ -143,7 +143,7 @@ for (gene in genes) {
   names(sequence_counts_trimmed[[gene]]) <- sample_names_trimmed[[gene]]
 
   # Keep only files with at least 1 read
-  valid_indices <- which(read_counts > 0)
+  valid_indices <- which(sequence_counts_trimmed[[gene]] > 0)
 
   actual_trimmed_reads[[gene]] <- list(
     F = trimmed_reads[[gene]]$F[valid_indices],
