@@ -77,45 +77,45 @@ if [ "$#" -ge 1 ]; then # If variables were submitted
     for gene in ${@}; do
       mkdir -p "${path_to_trimmed}/${gene}" "${path_to_results}/${gene}"
     done
-  fi
-# Set RC_found to false to start, and only change to true if one of the RC
-# primers is given
-  RC_found=false # initialize RC_found outside loop
-  # Loop through all the variables (genes) given 
-  for gene in "$@"; do
-    if [[ ! " ${available_primers[*]} " =~ (^|[[:space:]])${gene}([[:space:]]|$) ]]; then
-      # If one of the variables is not a valid primer, print error and list of primers
-      echo "Error: ${gene} is not a valid primer name. Valid gene names are: ${available_primers[@]}."
-      exit 1
+  # Set RC_found to false to start, and only change to true if one of the RC
+  # primers is given
+    RC_found=false # initialize RC_found outside loop
+    # Loop through all the variables (genes) given 
+    for gene in "$@"; do
+      if [[ ! " ${available_primers[*]} " =~ (^|[[:space:]])${gene}([[:space:]]|$) ]]; then
+        # If one of the variables is not a valid primer, print error and list of primers
+        echo "Error: ${gene} is not a valid primer name. Valid gene names are: ${available_primers[@]}."
+        exit 1
+      fi
+      # Check to see if one of the submitted variables is a primer with read-through
+      if [[ " ${RC_primers[*]} " == *" ${gene} "* ]];then # If it is, then we need
+      # to pass four primers to the cutadapt
+        # This adds the sequences from the gene-specific files to the files that will
+        # be used by cutadapt. Also set RC_found variable to true
+        cat "primers/${gene}F.fas" >> primers/primerF.fas
+        cat "primers/${gene}R.fas" >> primers/primerR.fas
+        cat "primers/${gene}F_RC.fas" >> primers/primerF_RC.fas
+        cat "primers/${gene}R_RC.fas" >> primers/primerR_RC.fas
+        RC_found=true
+      else # If no RC primers are used, we only need 2 primer files
+        # This adds the sequences from the gene-specific files to the files that will
+        # be used by cutadapt.
+        cat "primers/${gene}F.fas" >> primers/primerF.fas
+        cat "primers/${gene}R.fas" >> primers/primerR.fas
+      fi
+    done
+    #echo ${RC_found}
+    # Check to see if RC_found is true
+    if [ "$RC_found" = true ]; then # If we used a read-through primer
+      # submit job to hydra with primers and rc primers. Also pass number of genes,
+      # list of genes, and path to data
+      qsub -o logs/cutadapt.log -N cutadapt \
+      jobs/1_trim.job ${#} ${@} ${data} ${primerF} ${primerR} ${primerFrc} ${primerRrc}
+    else # If no read-through primer
+      # submit job to hydra with primers, number of genes, list of genes, and path to data
+      qsub -o logs/cutadapt.log -N cutadapt \
+      jobs/1_trim.job ${#} ${@} ${data} ${primerF} ${primerR}
     fi
-    # Check to see if one of the submitted variables is a primer with read-through
-    if [[ " ${RC_primers[*]} " == *" ${gene} "* ]];then # If it is, then we need
-    # to pass four primers to the cutadapt
-      # This adds the sequences from the gene-specific files to the files that will
-      # be used by cutadapt. Also set RC_found variable to true
-      cat "primers/${gene}F.fas" >> primers/primerF.fas
-      cat "primers/${gene}R.fas" >> primers/primerR.fas
-      cat "primers/${gene}F_RC.fas" >> primers/primerF_RC.fas
-      cat "primers/${gene}R_RC.fas" >> primers/primerR_RC.fas
-      RC_found=true
-    else # If no RC primers are used, we only need 2 primer files
-      # This adds the sequences from the gene-specific files to the files that will
-      # be used by cutadapt.
-      cat "primers/${gene}F.fas" >> primers/primerF.fas
-      cat "primers/${gene}R.fas" >> primers/primerR.fas
-    fi
-  done
-  #echo ${RC_found}
-  # Check to see if RC_found is true
-  if [ "$RC_found" = true ]; then # If we used a read-through primer
-    # submit job to hydra with primers and rc primers. Also pass number of genes,
-    # list of genes, and path to data
-    qsub -o logs/cutadapt.log -N cutadapt \
-    jobs/1_trim.job ${#} ${@} ${data} ${primerF} ${primerR} ${primerFrc} ${primerRrc}
-  else # If no read-through primer
-    # submit job to hydra with primers, number of genes, list of genes, and path to data
-    qsub -o logs/cutadapt.log -N cutadapt \
-    jobs/1_trim.job ${#} ${@} ${data} ${primerF} ${primerR}
   fi
 else # If no variables were submitted after shell script
   # Print onto screen that gene names are needed, and gives list of valid primers
