@@ -34,52 +34,59 @@ fi
 : > primers/primerF_RC.fas
 : > primers/primerR_RC.fas
 
+# Create path for trimmed sequences and results
+path_to_trimmed="${data}/working/trimmed_sequences"
+path_to_results="${data}/results"
+# echo ${path_to_trimmed}
+# echo ${path_to_results}
+
 # This is the loop to submit the job that will perform primer trimming
 # (and demultiplexing, if necessary) and create quality plots
-
 # First, see if any variables were submitted?
 if [ "$#" -ge 1 ]; then # If variables were submitted
-  # set path to trimmed sequences and results
-  path_to_trimmed="${data}/working/trimmed_sequences"
-  path_to_results="${data}/results"
-  # Check if the path to trimmed points to an actual folder
-  if [ -d ${path_to_trimmed} ]; then # if path_to_trimmed does have a folder
-    # Check if there are fastq.gz files in the trimmed folder (which means
-    # trimming has occured)
-    if find "${path_to_trimmed}" -name "*.fastq.gz" | grep -q .; then # If files
-      # do exist, trimming is complete and the next job, 2_quality.job, is
-      # submitted instead
+  # Check if all_trimmed = true
+  if  [ -d ${path_to_trimmed} ]; then # if the path_to_trimmed does have a folder (but no sequences in them)
+    # Set variable for whether all trimming has been completed to true
+    all_trimmed=true
+    # Check to see if trimming has been completed for all jobs
+    # Loop through all genes, determining whether to change all_trimmed to false
+    for gene in ${@}; do
+      if ! find "${path_to_trimmed}/${gene}" -maxdepth 1 -name "*.fastq.gz" | grep -q .; then
+        all_trimmed=false
+        break
+      fi
+    done
+    # Check to see if all_trimmed = true (i.e. trimming for all genes is completed)
+    if [ ${all_trimmed} = true ]; then # if trimmed sequences for all genes do exist,
+    # trimming is complete and the next job, 2_quality.job, is submitted instead 
       qsub -o logs/quality.log -N quality \
       jobs/2_quality.job
       echo "Trimming is already completed, we are moving to the next step: 2_quality.job"
-    else # if path_to_trimmed does NOT have a folder
-      # Check to see if a cutadapt log and json file exist
-      if find logs/cutadapt.log -maxdepth 1 -name '*.json' | grep -q .; then # If
-        # both exist, remove both and the contents of trimmed folder
-        rm -r ${path_to_trimmed}/* logs/cutadapt.log logs/*.json
-      elif [  -f logs/cutadapt.log ]; then # If only log exists, remove log and
-        # contents of trimmed folder
-        rm -r ${path_to_trimmed}/* logs/cutadapt.log
-      else # If log does not exist, only remove trimmed folder contents
-          rm -r ${path_to_trimmed}/*
-      fi
+    # If the path_to_trimmed does have a folder (but no sequences in them) Check
+    # to see if a cutadapt log and json file exist
+    elif find logs/cutadapt.log -maxdepth 1 -name '*.json' | grep -q .; then # If
+      # both exist, remove both and the trimmed and results folders
+      rm -r ${path_to_trimmed} ${path_to_results} logs/cutadapt.log logs/*.json
+    elif [  -f logs/cutadapt.log ]; then # If only log exists, remove log and
+      # trimmed and results folders
+      rm -r ${path_to_trimmed} ${path_to_results} logs/cutadapt.log
+    else # If log does not exist, only remove trimmed and results folders
+        rm -r ${path_to_trimmed} ${path_to_results}
     fi
-  else # If trimmed folder does not exist, trimmed and results folders
-    mkdir -p ${path_to_trimmed} ${path_to_results}
+  else # If trimmed folder does not exist, make gene-specific trimmed and results folders
+    for gene in ${@}; do
+      mkdir -p "${path_to_trimmed}/${gene}" "${path_to_results}/${gene}"
+    done
   fi
 # Set RC_found to false to start, and only change to true if one of the RC
 # primers is given
   RC_found=false # initialize RC_found outside loop
-
   # Loop through all the variables (genes) given 
   for gene in "$@"; do
-    if [[ ! " ${available_primers[@]} " =~ (^|[[:space:]])${gene}([[:space:]]|$) ]]; then
+    if [[ ! " ${available_primers[*]} " =~ (^|[[:space:]])${gene}([[:space:]]|$) ]]; then
       # If one of the variables is not a valid primer, print error and list of primers
       echo "Error: ${gene} is not a valid primer name. Valid gene names are: ${available_primers[@]}."
       exit 1
-    else # If all variables are good primers, make primer-specific folder in
-      # trimmed folder
-      mkdir -p ${path_to_trimmed}/${gene}
     fi
     # Check to see if one of the submitted variables is a primer with read-through
     if [[ " ${RC_primers[*]} " == *" ${gene} "* ]];then # If it is, then we need
