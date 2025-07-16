@@ -39,7 +39,7 @@ path_to_trimmed <- setNames(
 )
 # Set a path to the results directorie(s), as a list of paths, one for each gene
 path_to_results <- setNames(
-  lapply(genes, function(gene) paste0("data/results", gene)),
+  lapply(genes, function(gene) paste0("data/results/", gene)),
   genes
 )
 
