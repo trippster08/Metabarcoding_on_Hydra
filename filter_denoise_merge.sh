@@ -15,23 +15,29 @@ for arg in "$@"; do
     genes+=("$arg")
   fi
 done
-
+# assign the number of variables in the genes array as gene_num (the number of genes)
 gene_num=${#genes[@]}
+# assign the number of variables in the truncation_values array as truncation_value_num
 truncation_value_num=${#truncation_values[@]}
 
+# This is a list of currently available primer regions
+available_primers=(COI 18S MiFish 28SAnth 16Sbac)
+
+# Check to make sure there are two truncation values for every gene value
 if (( truncation_value_num < 2 * gene_num )); then
   echo "There are not enough truncation values given, there should be two truncation values given for each gene."
 elif (( truncation_value_num > 2 * gene_num )); then
   echo "There are two many trunction values given, there should be two truncation values given for each gene."
-else 
+else # If there are, print out the genes and their respective truncation values
   echo "Here are the genes you are analyzing, with their respective truncation values:"
   for (( i=0; i<gene_num; i++ )); do
     echo "${genes[i]} R1: ${truncation_values[2*i]} R2: ${truncation_values[2*i+1]}"
   done
 fi
 
-
+# Check to make sure the gene names given are correct
 for gene in ${genes}; do
+  # If one of the variables is not a valid primer, print error and list of primers
   if [[ ! " ${possible_genes[@]} " =~ (^|[[:space:]])${gene}([[:space:]]|$) ]]; then
     echo "Error: ${gene} is not a valid gene name. Valid genes are: ${possible_genes[@]}."
     exit 1
@@ -41,6 +47,9 @@ done
 #echo ${genes[@]}
 #echo ${truncation_values[@]}
 
+# Check to see if the .RData file for each job has been created. If it has, then that
+# job has finished, and submit the next job. The first job for which the .RData file
+# does not exist, start that job.
 if [[ ! -f "data/working/3_filter.RData" ]]; then
   qsub -o logs/filter.log -N filter \
     jobs/3_filter.job ${gene_num} ${genes[@]} ${truncation_values[@]}
