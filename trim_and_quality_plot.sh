@@ -35,8 +35,8 @@ fi
 : > primers/primerR_RC.fas
 
 # Create path for trimmed sequences and results
-path_to_trimmed="${data}/working/trimmed_sequences"
-path_to_results="${data}/results"
+path_to_trimmed="${data}/working/trimmed_sequences/"
+path_to_results="${data}/results/"
 # echo ${path_to_trimmed}
 # echo ${path_to_results}
 
@@ -75,7 +75,7 @@ if [ "$#" -ge 1 ]; then # If variables were submitted
     fi
   else # If trimmed folder does not exist, make gene-specific trimmed and results folders
     for gene in ${@}; do
-      mkdir -p "${path_to_trimmed}/${gene}" "${path_to_results}/${gene}"
+      mkdir -p "${path_to_trimmed}${gene}" "${path_to_results}${gene}"
     done
   # Set RC_found to false to start, and only change to true if one of the RC
   # primers is given
