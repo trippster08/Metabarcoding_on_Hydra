@@ -47,7 +47,7 @@ for (gene in genes) {
   # This makes a new vector containing all the ASV's (unique sequences) returned
   # by dada2.
   repseq_all <- getSequences(seqtab[[gene]])
-  # Get a list of just chimera ASVs
+  # Get a list of just chimera ASVs by filtering all sequences by chimera list
   repseq_chimera <- repseq_all[chimeras_list]
   # Make and add md5 hash to the repseq_chimera
   repseq_chimera_md5[[gene]] <- c()
@@ -66,7 +66,7 @@ for (gene in genes) {
     open = "w",
     as.string = FALSE,
     file.out = file.path(
-      path_to_results,
+      path_to_results[[gene]],
       paste0(
         "/",
         project_name,
@@ -88,7 +88,7 @@ for (gene in genes) {
   write.table(
     seq_length_table[[gene]],
     file = file.path(
-      path_to_results,
+      path_to_results[[gene]],
       paste0(
         "/",
         project_name,

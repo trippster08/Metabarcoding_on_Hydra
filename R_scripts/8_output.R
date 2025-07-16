@@ -78,7 +78,7 @@ for (gene in genes) {
   write.table(
     track_reads[[gene]],
     file = file.path(
-      path_to_results,
+      path_to_results[[gene]],
       paste0(
         "/",
         project_name,
@@ -174,7 +174,7 @@ for (gene in genes) {
   write.table(
     seqtab_nochim_md5[[gene]],
     file = file.path(
-      path_to_results,
+      path_to_results[[gene]],
       paste0(
         "/",
         project_name,
@@ -208,7 +208,7 @@ for (gene in genes) {
   write.table(
     feattab_nochim_md5[[gene]],
     file = file.path(
-      path_to_results,
+      path_to_results[[gene]],
       paste0(
         "/",
         project_name,
@@ -235,7 +235,7 @@ for (gene in genes) {
     open = "w",
     as.string = FALSE,
     file.out = file.path(
-      path_to_results,
+      path_to_results[[gene]],
       paste0(
         "/",
         project_name,
@@ -251,7 +251,7 @@ for (gene in genes) {
   write.table(
     repseq_nochim_md5_asv[[gene]],
     file = file.path(
-      path_to_results,
+      path_to_results[[gene]],
       paste0(
         "/",
         project_name,
@@ -351,7 +351,7 @@ for (gene in genes) {
     open = "w",
     as.string = FALSE,
     file.out = file.path(
-      path_to_results,
+      path_to_results[[gene]],
       paste0(
         "/",
         project_name,
