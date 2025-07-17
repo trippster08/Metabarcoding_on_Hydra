@@ -22,6 +22,7 @@ errors <- setNames(vector("list", length(genes)), genes)
 # Make a loop to determine errors for each gene. First add read direction to
 # each gene in the list, then model errors
 for (gene in genes) {
+  cat("\nModelling error rates and creating plots for", gene)
   errors[[gene]] <- list(F = NULL, R = NULL)
   for (direction in c("F", "R")) {
     errors[[gene]][[direction]] <- learnErrors(
@@ -79,4 +80,4 @@ for (gene in genes) {
 # Save all the objects created to this point in this section
 save.image(file = "data/working/4_error.RData")
 
-print("Job 4_error.job is complete, error rates evaluated, and plots created")
+cat("\nJob 4_error.job is complete, error rates evaluated, and plots created")

@@ -28,13 +28,12 @@ for (gene in genes) {
   )
 
   # Print to the log the number of ASVs remaining in the table.
-  print(paste(
-    "This is the number of ASVs for your chimera-free",
+  cat(
+    "\nThis is the number of ASVs for your chimera-free",
     gene,
     "Sequence-Table:",
-    length(colnames(seqtab_nochim[[gene]])),
-    sep = " "
-  ))
+    length(colnames(seqtab_nochim[[gene]]))
+  )
 
   # Make a list of the ASVs that are considered chimeras, in case you want to
   # look at them later
@@ -106,4 +105,4 @@ for (gene in genes) {
 # Save all the objects created to this point in this section
 save.image(file = "data/working/7_chimera.RData")
 
-print("Job 7_chimera.job is done and chimeric sequences removed")
+cat("\nJob 7_chimera.job is done and chimeric sequences removed")

@@ -14,7 +14,7 @@ suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 ## File Housekeeping ===========================================================
 # Save project name as an object
 project_name <- basename(getwd())
-print(paste0("This project is named ", project_name))
+cat("This project is named ", project_name)
 
 # Get list of genes passed from job file
 genes <- commandArgs(trailingOnly = TRUE)
@@ -77,8 +77,8 @@ sequence_counts_raw <- sapply(
 # Name these counts with your sample names
 names(sequence_counts_raw) <- sample_names_raw
 # Print to log the number of reads for each sample
-print(paste0("Here are the raw read counts for each sample:"))
-sequence_counts_raw
+cat("Here are the raw read counts for each sample:\n")
+print(sequence_counts_raw)
 
 ## Trimmed Reads ===============================================================
 # Make a list of all gene-specific trimmed reads (it's a list of 3 gene-specific
@@ -199,8 +199,7 @@ for (gene in genes) {
 # Count the number of samples remaining for each gene, and print
 for (gene in genes) {
   nsamples <- length(sample_names_trimmed[[gene]])
-  message <- paste("We will analyze", nsamples, "samples for", gene)
-  print(message)
+  cat("\nWe will analyze", nsamples, "samples for", gene)
 }
 
 
@@ -275,4 +274,4 @@ for (gene in genes) {
 
 save.image(file = "data/working/2_qual.RData")
 
-print("Job 2_quality.job is complete and quality plots have been created")
+cdat("\nJob 2_quality.job is complete and quality plots have been created")

@@ -39,7 +39,7 @@ for (gene in genes) {
     maxMismatch = 0,
     verbose = TRUE
   )
-  print(paste0("Merging is complete for ", gene))
+  cat("\nMerging is complete for", gene)
 }
 ## Create Sequence-Table =======================================================
 
@@ -59,23 +59,21 @@ for (gene in genes) {
 
   # This describes the dimensions of the gene-specific table just made
   # First the number of samples
-  print(paste(
-    "This is the number of samples for your",
+  cat(
+    "\nThis is the number of samples for your",
     gene,
     "Sequence-Table:",
-    length(rownames(seqtab[[gene]])),
-    sep = " "
-  ))
+    length(rownames(seqtab[[gene]]))
+  )
   # Then the number of ASVs
-  print(paste(
+  cat(
     "This is the number of ASVs for your",
     gene,
     "Sequence-Table:",
-    length(colnames(seqtab[[gene]])),
-    sep = " "
-  ))
+    length(colnames(seqtab[[gene]]))
+  )
 }
 # Save all the objects created to this point in this section
 save.image(file = "data/working/6_merge.RData")
 
-print("Job 6_merge.job is complete and reads have been merged")
+cat("Job 6_merge.job is complete and reads have been merged")

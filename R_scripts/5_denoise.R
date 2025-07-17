@@ -35,10 +35,10 @@ for (gene in genes) {
       verbose = TRUE
     )
   }
-  print(paste0("Denoising is complete for ", gene))
+  cat("Denoising is complete for", gene)
 }
 
 # Save all the objects created to this point in this section
 save.image(file = "data/working/5_denoise.RData")
 
-print("Job 5_denoise.job is finished and data has been denoised by DADA2")
+cat("\nJob 5_denoise.job is finished and data has been denoised by DADA2")
