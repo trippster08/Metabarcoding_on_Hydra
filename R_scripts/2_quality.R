@@ -14,7 +14,7 @@ suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 ## File Housekeeping ===========================================================
 # Save project name as an object
 project_name <- basename(getwd())
-cat("\nThis project is named ", project_name, ".\n\n")
+cat("\nThis project is named ", project_name, ".\n")
 
 # Get list of genes passed from job file
 genes <- commandArgs(trailingOnly = TRUE)
@@ -22,9 +22,8 @@ genes <- commandArgs(trailingOnly = TRUE)
 num_genes <- length(genes)
 # Prints to log a list of genes that will be analyzed
 cat(
-  "\nThese are the genes we will be creating quality plots for:\n",
-  genes,
-  ".\n"
+  "\nThese are the genes we will be creating quality plots for:",
+  genes
 )
 
 # Set a path to the directory containing raw reads.
@@ -186,22 +185,22 @@ for (gene in genes) {
   # Print results
   if (length(removed_samples) > 0) {
     cat(
-      "\nAfter trimming",
+      "\nAfter trimming,",
       length(removed_samples),
-      "samples had zero reads for this gene and were removed:\n",
+      "samples had zero reads for",
       gene,
-      ".\n"
+      "and were removed:\n"
     )
     print(removed_samples)
   } else {
-    cat("\nAll samples had zero reads for this gene:", gene, ".\n")
+    cat("\nAll samples had zero reads for", gene, "\n")
   }
 }
 
 # Count the number of samples remaining for each gene, and print
 for (gene in genes) {
   nsamples <- length(sample_names_trimmed[[gene]])
-  cat("\nWe will analyze", nsamples, "samples for", gene, ".\n")
+  cat("\nWe will analyze", nsamples, "samples for", gene)
 }
 
 
@@ -276,4 +275,4 @@ for (gene in genes) {
 
 save.image(file = "data/working/2_qual.RData")
 
-cat("\n2_quality.job is complete and quality plots have been created.")
+cat("\n2_quality.job is complete and quality plots have been created.\n")
