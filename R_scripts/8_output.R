@@ -364,4 +364,4 @@ for (gene in genes) {
 }
 save.image(file = paste0("data/working/8_output.RData"))
 
-cat("\n8_output.job and this analysis has finished")
+cat("\n8_output.job and this analysis has finished.")

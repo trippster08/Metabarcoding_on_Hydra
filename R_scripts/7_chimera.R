@@ -20,6 +20,11 @@ repseq_chimera_md5 <- setNames(vector("list", length(genes)), genes)
 seq_length_table <- setNames(vector("list", length(genes)), genes)
 # Loop through each gene, remove chimeras from the gene-specific sequence-table
 for (gene in genes) {
+  cat(
+    "\nRemoving chimeric sequences and creating new sequence table for",
+    gene,
+    ".\n"
+  )
   seqtab_nochim[[gene]] <- removeBimeraDenovo(
     seqtab[[gene]],
     method = "consensus",
@@ -105,4 +110,4 @@ for (gene in genes) {
 # Save all the objects created to this point in this section
 save.image(file = "data/working/7_chimera.RData")
 
-cat("\nJob 7_chimera.job is done and chimeric sequences removed")
+cat("\n7_chimera.job is done and chimeric sequences removed.\n")

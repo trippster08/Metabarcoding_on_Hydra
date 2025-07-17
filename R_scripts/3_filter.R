@@ -9,7 +9,7 @@ suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 ## File Housekeeping ===========================================================
 # Load the RData from "quality_plot_multigene.R"
 load("data/working/2_qual.RData")
-cat("\nThis project is named", project_name, "\n\n")
+cat("\nThis project is named", project_name, ".\n\n")
 # Get arguments from job file. This should include the number of genes, gene
 # names, and the R1 and R2 truncation values for each gene
 args <- commandArgs(trailingOnly = TRUE)
@@ -171,4 +171,4 @@ for (gene in genes) {
 # Save all the objects created to this point in this section
 save.image(file = "data/working/3_filter.RData")
 
-cat("\nJob 3_filter.job is finished and reads have been filtered by DADA2")
+cat("\n3_filter.job is finished and reads have been filtered by DADA2.\n")

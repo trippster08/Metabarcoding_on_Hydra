@@ -30,6 +30,7 @@ load("data/working/5_denoise.RData")
 merged_reads <- setNames(vector("list", length(genes)), genes)
 # Loop through each gene, creating gene-specific merged sequences
 for (gene in genes) {
+  cat("\nMerging forward and reverse reads for", gene)
   merged_reads[[gene]] <- mergePairs(
     denoised[[gene]]$F,
     filtered_reads[[gene]]$F,
@@ -67,7 +68,7 @@ for (gene in genes) {
   )
   # Then the number of ASVs
   cat(
-    "This is the number of ASVs for your",
+    "\nThis is the number of ASVs for your",
     gene,
     "Sequence-Table:",
     length(colnames(seqtab[[gene]]))
@@ -76,4 +77,4 @@ for (gene in genes) {
 # Save all the objects created to this point in this section
 save.image(file = "data/working/6_merge.RData")
 
-cat("Job 6_merge.job is complete and reads have been merged")
+cat("6_merge.job is complete and reads have been merged.\n")

@@ -14,7 +14,7 @@ suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 ## File Housekeeping ===========================================================
 # Save project name as an object
 project_name <- basename(getwd())
-cat("This project is named ", project_name)
+cat("\nThis project is named ", project_name, ".\n\n")
 
 # Get list of genes passed from job file
 genes <- commandArgs(trailingOnly = TRUE)
@@ -22,9 +22,9 @@ genes <- commandArgs(trailingOnly = TRUE)
 num_genes <- length(genes)
 # Prints to log a list of genes that will be analyzed
 cat(
-  "These are the genes we will be creating quality plots for: ",
-  paste(genes, collapse = ", "),
-  "\n"
+  "\nThese are the genes we will be creating quality plots for:\n",
+  genes,
+  ".\n"
 )
 
 # Set a path to the directory containing raw reads.
@@ -77,7 +77,7 @@ sequence_counts_raw <- sapply(
 # Name these counts with your sample names
 names(sequence_counts_raw) <- sample_names_raw
 # Print to log the number of reads for each sample
-cat("Here are the raw read counts for each sample:\n")
+cat("\nHere are the raw read counts for each sample:\n")
 print(sequence_counts_raw)
 
 ## Trimmed Reads ===============================================================
@@ -186,20 +186,22 @@ for (gene in genes) {
   # Print results
   if (length(removed_samples) > 0) {
     cat(
-      "\nThese samples had zero reads for this gene and were removed:",
+      "\nAfter trimming",
+      length(removed_samples),
+      "samples had zero reads for this gene and were removed:\n",
       gene,
-      "\n"
+      ".\n"
     )
     print(removed_samples)
   } else {
-    cat("\nNo samples had zero reads for this gene:", gene, "\n")
+    cat("\nAll samples had zero reads for this gene:", gene, ".\n")
   }
 }
 
 # Count the number of samples remaining for each gene, and print
 for (gene in genes) {
   nsamples <- length(sample_names_trimmed[[gene]])
-  cat("\nWe will analyze", nsamples, "samples for", gene)
+  cat("\nWe will analyze", nsamples, "samples for", gene, ".\n")
 }
 
 
@@ -274,4 +276,4 @@ for (gene in genes) {
 
 save.image(file = "data/working/2_qual.RData")
 
-cdat("\nJob 2_quality.job is complete and quality plots have been created")
+cat("\n2_quality.job is complete and quality plots have been created.")
