@@ -23,7 +23,7 @@ for (gene in genes) {
   cat(
     "\nRemoving chimeric sequences and creating new sequence table for",
     gene,
-    ".\n"
+    "\n"
   )
   seqtab_nochim[[gene]] <- removeBimeraDenovo(
     seqtab[[gene]],

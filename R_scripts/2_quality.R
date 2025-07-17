@@ -21,10 +21,7 @@ genes <- commandArgs(trailingOnly = TRUE)
 # Determine number of genes to analyze
 num_genes <- length(genes)
 # Prints to log a list of genes that will be analyzed
-cat(
-  "\nThese are the genes we will be creating quality plots for:",
-  genes
-)
+cat("\nWe will be creating quality plots for:", genes, "\n")
 
 # Set a path to the directory containing raw reads.
 path_to_raw_reads <- "data/raw"
@@ -200,7 +197,7 @@ for (gene in genes) {
 # Count the number of samples remaining for each gene, and print
 for (gene in genes) {
   nsamples <- length(sample_names_trimmed[[gene]])
-  cat("\nWe will analyze", nsamples, "samples for", gene)
+  cat("\nWe will analyze", nsamples, "samples for", gene, "\n")
 }
 
 

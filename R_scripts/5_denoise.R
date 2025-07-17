@@ -23,7 +23,7 @@ denoised <- setNames(vector("list", length(genes)), genes)
 # Loop through all genes, denoising reads, after adding read direction to the
 # list.
 for (gene in genes) {
-  cat("\nDenoising reads for", gene, ".\n")
+  cat("\nDenoising reads for", gene, "\n")
   denoised[[gene]] <- list(F = NULL, R = NULL)
   for (direction in c("F", "R")) {
     denoised[[gene]][[direction]] <- dada(
@@ -36,7 +36,7 @@ for (gene in genes) {
       verbose = TRUE
     )
   }
-  cat("\nDenoising is complete for", gene, ".\n")
+  cat("\nDenoising is complete for", gene, "\n")
 }
 
 # Save all the objects created to this point in this section

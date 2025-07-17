@@ -22,7 +22,7 @@ errors <- setNames(vector("list", length(genes)), genes)
 # Make a loop to determine errors for each gene. First add read direction to
 # each gene in the list, then model errors
 for (gene in genes) {
-  cat("\nModelling error rates and creating plots for", gene, ".\n")
+  cat("\nModelling error rates and creating plots for", gene, "\n")
   errors[[gene]] <- list(F = NULL, R = NULL)
   for (direction in c("F", "R")) {
     errors[[gene]][[direction]] <- learnErrors(
