@@ -30,7 +30,7 @@ Go to the the directory assigned to you for short-term storage of large data-set
 ```
 cd /scratch/genomics/USERNAME
 ```
-Make a project-specific directory, with the subdirectory `data/raw/`. -p allows you to create subdirectories and any parental ones that don't already exist (in this case, PROJECT). Again, replace PROJECT with your project name.
+Make a project-specific directory, with the subdirectory `data/raw/`. -p allows you to create subdirectories and any parental ones that don't already exist (in this case, PROJECT). Again, replace PROJECT with your project name. Everything will be run from this main project directory.
 
 ```
 mkdir -p PROJECT/data/raw
