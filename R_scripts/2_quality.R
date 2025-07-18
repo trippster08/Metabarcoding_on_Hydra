@@ -190,7 +190,7 @@ for (gene in genes) {
     )
     print(removed_samples)
   } else {
-    cat("\nAll samples had zero reads for", gene, "\n")
+    cat("\nAll samples contained reads for", gene, "\n")
   }
 }
 
