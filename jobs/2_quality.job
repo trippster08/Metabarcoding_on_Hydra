@@ -23,15 +23,7 @@ shift         # Remove count argument
 #echo ${@}
 #echo ${num_genes}
 genes=("${@:1:$num_genes}")   # Uses number of genes to extract gene names
-shift ${num_genes} # remove gene arguments
-#echo ${@}
-data=${1} # Next argument is path to data directory
-#echo ${data}
-shift # remove data argument
-#echo ${@}
-primer_files=("$@")  # assign remaining arguments as primers
-#echo ${primer_files[@]}
-#echo ${primer_files[1]}
+
 
 #
 # We are only passing on the list of genes here, so we just pass on the entire array
