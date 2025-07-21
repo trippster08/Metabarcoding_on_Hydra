@@ -30,19 +30,19 @@ Go to the the directory assigned to you for short-term storage of large data-set
 ```
 cd /scratch/genomics/USERNAME
 ```
-Make a project-specific directory, with the subdirectory `data/raw/`. -p allows you to create subdirectories and any parental ones that don't already exist (in this case, PROJECT). I use the same directory tree here as on my local computer, to lessen confusion. Again, replace PROJECT with your project name.
+Make a project-specific directory, with the subdirectory `data/raw/`. -p allows you to create subdirectories and any parental ones that don't already exist (in this case, PROJECT). Again, replace PROJECT with your project name. Everything will be run from this main project directory.
 
 ```
 mkdir -p PROJECT/data/raw
 
 ```
 ### Transfer Files to Hydra 
-Download the pipeline to jobs/ in your Hydra account using `wget` (see code below). This downloads a compressed file that contains all job files (\*.job), shell scripts (\*.sh), R scripts (\*.R), and primer definition files (\*.fas) necessary for your analysis. This command downloads a compressed file that will become a directory upon unzipping. Don't forget to move into your jobs folder first: `cd PROJECT/jobs`.
+From the main project directory, download the pipeline using `wget` (see code below). This downloads a compressed file that contains all job files (\*.job), shell scripts (\*.sh), R scripts (\*.R), and primer definition files (\*.fas) necessary for your analysis. 
 
 ```
 wget https://github.com/trippster08/Metabarcoding_on_Hydra/archive/refs/heads/main.zip
 ```
-Using the script below, unzip the pipeline, and move all the \*.sh, \*.job, and \*.R files from your newly unzipped directory into the job directory and the primer folder into the main project directory. Delete the now-empty pipeline directory and zipped download.
+Copy and paste the script below into your terminal. It will unzip the pipeline, and move all the \*.sh files and the job, R_script and primer directories from your newly unzipped directory into the main project directory. It will also delete the now-empty pipeline directory and zipped download.
 ```
 unzip main.zip
 mv Metabarcoding_on_Hydra-main/*.sh \
