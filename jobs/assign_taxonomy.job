@@ -19,13 +19,15 @@ module load bioinformatics/blast
 echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
 echo + NSLOTS = $NSLOTS
 #
+# This just starts the rescript for running the DADA2 identifier
+Rscript ../R_scripts/assign_taxonomy.R
 
-ref="$1"
-project="$2"
-
-Rscript assign_taxonomy.R ${ref}
-
-
+# This starts a blastn search against your reference database
+# replace -query with the path to your representative sequence fasta
+# replace -out with your desired out path.
+# replace -db with the database you want to use. I don't know what is available
+# on hydra currently
+# Everything else should work
 blastn \
 -query /scratch/nmnh_lab/macdonaldk/pseudodec/data/working/PseudoDec_v2_rep-seq_md5.fas \
 -db mito \

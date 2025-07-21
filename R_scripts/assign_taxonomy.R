@@ -8,13 +8,20 @@ suppressMessages(library(rBLAST, warn.conflicts = FALSE, quietly = TRUE))
 
 
 ## File Housekeeping ===========================================================
-args <- commandArgs(trailingOnly = TRUE)
-ref <- args[1]
 
+# You need a reference database. This one is a COI one that works for most
+# marine COI sequences, but has all insects removed. You can provide your own
+# but it needs to be in the correct DADA2 format (see
+# https://benjjneb.github.io/dada2/training.html) for formatting or downloading
+# DADA2 formatted databases.
+
+# If you are using your own reference database, put the path to the database
+# here
+reference_fasta = "/scratch/nmnh_lab/macdonaldk/metabarcoding/ref/MIDORI2_UNIQ_NUC_GB260_CO1_DADA2_noInsect_unzipped.fasta"
 
 # Load the RData from "quality_plot_multigene.R"
 load("../data/working/8_output.RData")
-
+# Make sure the taxonomic levels match the levels in your reference database
 tax_levels <- c(
   "Phylum",
   "Class",
@@ -23,8 +30,8 @@ tax_levels <- c(
   "Genus",
   "species"
 )
-reference_fasta = "/scratch/nmnh_lab/macdonaldk/metabarcoding/ref/MIDORI2_UNIQ_NUC_GB260_CO1_DADA2_noInsect_unzipped.fasta"
 
+# Assign taxonomy
 taxonomy <- assignTaxonomy(
   seqtab_nochim,
   reference_fasta,
