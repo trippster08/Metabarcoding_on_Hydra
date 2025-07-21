@@ -14,7 +14,7 @@ suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 ## File Housekeeping ===========================================================
 # Save project name as an object
 project_name <- basename(getwd())
-cat("\nThis project is named ", project_name, ".\n")
+cat("\nThis project is named", project_name, ".\n")
 
 # Get list of genes passed from job file
 genes <- commandArgs(trailingOnly = TRUE)
