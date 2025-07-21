@@ -19,7 +19,7 @@ cat("\nThis project is named", project_name, ".\n")
 # Get list of genes passed from job file
 genes <- commandArgs(trailingOnly = TRUE)
 # Determine number of genes to analyze
-num_genes <- length(genes)
+gene_num <- length(genes)
 # Prints to log a list of genes that will be analyzed
 cat("\nWe will be creating quality plots for:", genes, "\n")
 
