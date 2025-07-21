@@ -96,48 +96,24 @@ for (gene in genes) {
 
 ## Export Sequence-Table =======================================================
 # This exports a sequence-table: columns of ASV's, rows of samples, and
-# values = number of reads. This is the only export you need for downstream
-# analyses. You can do anything you want in this pipeline with this table. This
-# table can also be easily merged with other tables from the same project but
-# from different runs before downstream analyses.
+# values = number of reads.
 
 # If you have mulitple Miseqruns for the same project that will need to be
 # combined for further analyses, you may want to name this file
 # "PROJECTNAME_MISEQRUN_sequence-table.tsv" to differentiate different runs.
 # In "5 Metabarcoding_R_Pipeline_RStudio_ImportCombine" we'll show how to
 # combine data from separate runs for analyses.
-for (gene in genes) {
-  write.table(
-    seqtab_nochim[[gene]],
-    file = file.path(
-      path_to_working,
-      paste0(
-        project_name,
-        "_sequence-table_",
-        gene,
-        ".tsv"
-      )
-    ),
-    quote = FALSE,
-    sep = "\t",
-    row.names = TRUE,
-    col.names = NA
-  )
-}
+
 # NOTE!!!
-# The Sequence-Table in this format is very unwieldy, since each column name is
-# an entire ASV. Instead, we can convert each ASV into a short "hash" using
-# the md5 encryption model, creating a 32bit representative of each ASV. Each
+# The Sequence-Table we have now (seqtab_nochim) is very unwieldy, since each
+# column name is an entire ASV. Instead, we will convert ASVs using the md5
+# encryption model, creating a 32bit representative "hash" of each ASV. Every
 # hash is essentially unique to the ASV it is representing. We would then
 # replace the ASVs in the column headings with their representative md5 hash.
 # However, having an ASV hash as a column heading requires the creation of a
-# Representative Sequence list, which tells us which hash goes with which ASV.
-# gives the user a representative-sequence fasta that contains the ASV, labelled
-# with its specfic md5 hash.
-# If you want to export a Sequence-Table with a md5 hash instead of ASV sequence
-# for each ASV, skip this and go to the next section.
+# Representative Sequence list, which tells us which hash represents which ASV.
 
-## Create And Use md5 Hash =====================================================
+### Create And Use md5 Hash ----------------------------------------------------
 # To create a Sequence list with md5 hash instead of ASVs, we first need to
 # create a list of md5 hash's of all ASV's.
 
@@ -196,7 +172,7 @@ for (gene in genes) {
     ASV = repseq_nochim[[gene]]
   )
 
-  ## Create and Export Feature-Table =============================================
+  ## Create and Export Feature-Table ===========================================
   # This creates and exports a feature-table: row of ASV's (shown as a md5 hash
   # instead of sequence), columns of samples, and values = number of reads. With
   # this table you will also need a file that relates each ASV to it's
@@ -223,7 +199,7 @@ for (gene in genes) {
     col.names = NA
   )
 
-  ## Export Representative Sequences table/fasta =================================
+  ## Export Representative Sequences table/fasta ===============================
   # Here we export our our representative sequences, either as a fasta (with the
   # md5 hash as the ASV name), or as a table with ASV and md5 hash as columns.
 
@@ -309,7 +285,7 @@ for (gene in genes) {
     ) %>%
     subset(count != 0)
 
-  ## Create and Export feature-to-fasta ==========================================
+  ## Create and Export feature-to-fasta ========================================
   # This creates a fasta file containing all the ASV's for each sample. Each ASV
   # will be labeled with the sample name, ASV hash, and number of reads of that
   # ASV in that sample. This was derived from a python script from Matt Kweskin
@@ -320,8 +296,8 @@ for (gene in genes) {
   repseq_tall[[gene]] <- seqtab_nochim_tall[[gene]]$ASV
 
   # Convert the sequences into md5 hashs, as we did earlier. md5 hashs are
-  # consistent across jobs, meaning identical sequences from different projects or
-  # being converted by different programs will result in the same hash (i.e.
+  # consistent across jobs, meaning identical sequences from different projects
+  # or being converted by different programs will result in the same hash (i.e.
   # hashs here will match hashs above)
   repseq_tall_md5[[gene]] <- c()
   for (i in seq_along(repseq_tall[[gene]])) {
