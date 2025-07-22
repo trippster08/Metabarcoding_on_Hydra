@@ -60,7 +60,7 @@ if [ "$#" -ge 1 ]; then # If variables were submitted
     if [ ${all_trimmed} = true ]; then # if trimmed sequences for all genes do exist,
     # trimming is complete and the next job, 2_quality.job, is submitted instead 
       qsub -o logs/quality.log -N quality \
-      jobs/2_quality.job
+      jobs/2_quality.job  ${#} ${@}
       echo "Trimming is already completed, we are moving to the next step: 2_quality.job"
     # If the path_to_trimmed does have a folder (but no sequences in them) Check
     # to see if a cutadapt log and json file exist
