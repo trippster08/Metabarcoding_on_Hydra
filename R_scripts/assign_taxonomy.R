@@ -19,8 +19,8 @@ suppressMessages(library(rBLAST, warn.conflicts = FALSE, quietly = TRUE))
 # here
 reference_fasta = "/scratch/nmnh_lab/macdonaldk/metabarcoding/ref/MIDORI2_UNIQ_NUC_GB260_CO1_DADA2_noInsect_unzipped.fasta"
 
-# Load the RData from "quality_plot_multigene.R"
-load("../data/working/8_output.RData")
+# Load the RData from "8_output.R"
+load("data/working/8_output.RData")
 # Make sure the taxonomic levels match the levels in your reference database
 tax_levels <- c(
   "Phylum",
