@@ -1,9 +1,9 @@
 # /bin/sh
 # ----------------Parameters---------------------- #
 #$ -S /bin/sh
-#$ -pe mthread 24
+#$ -pe mthread 20
 #$ -q mThC.q
-#$ -l mres=192G,h_data=8G,h_vmem=10G
+#$ -l mres=160G,h_data=8G,h_vmem=10G
 #$ -cwd
 #$ -j y
 #$ -N denoise

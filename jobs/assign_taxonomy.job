@@ -3,7 +3,7 @@
 #$ -S /bin/sh
 #$ -pe mthread 12
 #$ -q sThM.q
-#$ -l mres=288G,h_data=24G,h_vmem=24G,himem
+#$ -l mres=288G,h_data=24G,h_vmem=48G,himem
 #$ -cwd
 #$ -j y
 #$ -N trimmed
