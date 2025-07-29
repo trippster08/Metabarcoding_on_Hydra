@@ -40,8 +40,8 @@ fi
 path_to_trimmed="${path_to_data}/working/trimmed_sequences/"
 path_to_results="${path_to_data}/results/"
 path_to_primers="primers/active"
-# Create directory for plots
-
+# Create directory for active primers
+mkdir ${path_to_primers}
 # echo ${path_to_trimmed}
 # echo ${path_to_results}
 
