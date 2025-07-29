@@ -253,8 +253,9 @@ for (gene in genes) {
     # Save the plot as a PDF
     ggsave(
       filename = file.path(
-        path_to_working,
+        path_to_results[[gene]],
         paste0(
+          "plots/",
           project_name,
           "_",
           gene,
