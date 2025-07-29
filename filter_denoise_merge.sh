@@ -29,8 +29,8 @@ for file in primers/*F.fas; do
   gene_name=${primer_file%F.fas}
   available_genes+=(${gene_name})
 done
-echo ${available_genes[@]}
-echo ${genes[@]}
+#echo ${available_genes[@]}
+#echo ${genes[@]}
 # Check to make sure there are two truncation values for every gene value
 if (( truncation_value_num < 2 * gene_num )); then
   echo "There are not enough truncation values given, there should be two truncation values given for each gene."
