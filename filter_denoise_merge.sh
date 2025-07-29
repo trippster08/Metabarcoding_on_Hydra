@@ -1,10 +1,11 @@
 # /bin/bash
 
-data=$(readlink -f data)
-path_to_results=${data}/results
+path_to_data=$(cd ./data && pwd)
+path_to_results=${path_to_data}/results
 genes=()
 truncation_values=()
-possible_genes=(COI 18S MiFish 16S 28SAnth 16Sbac)
+available_genes=()
+
 # Loop through all arguments
 for arg in "$@"; do
   if [[ $arg =~ ^[0-9]+$ ]]; then
@@ -20,14 +21,23 @@ gene_num=${#genes[@]}
 # assign the number of variables in the truncation_values array as truncation_value_num
 truncation_value_num=${#truncation_values[@]}
 
-# This is a list of currently available primer regions
-available_primers=(COI 18S MiFish 28SAnth 16Sbac)
-
+# Loop through all the files in the primer folder and get the names from
+# ecah forward primer file. Then add them to the variable of available primer
+# names
+for file in primers/*F.fas; do
+  primer_file=${file##*/}
+  gene_name=${primer_file%F.fas}
+  available_genes+=(${gene_name})
+done
+echo ${available_genes[@]}
+echo ${genes[@]}
 # Check to make sure there are two truncation values for every gene value
 if (( truncation_value_num < 2 * gene_num )); then
   echo "There are not enough truncation values given, there should be two truncation values given for each gene."
+  exit 1
 elif (( truncation_value_num > 2 * gene_num )); then
   echo "There are two many trunction values given, there should be two truncation values given for each gene."
+  exit 1
 else # If there are, print out the genes and their respective truncation values
   echo "Here are the genes you are analyzing, with their respective truncation values:"
   for (( i=0; i<gene_num; i++ )); do
@@ -36,10 +46,10 @@ else # If there are, print out the genes and their respective truncation values
 fi
 
 # Check to make sure the gene names given are correct
-for gene in ${genes}; do
+for gene in ${genes[@]}; do
   # If one of the variables is not a valid primer, print error and list of primers
-  if [[ ! " ${possible_genes[@]} " =~ (^|[[:space:]])${gene}([[:space:]]|$) ]]; then
-    echo "Error: ${gene} is not a valid gene name. Valid genes are: ${possible_genes[@]}."
+  if [[ ! " ${available_genes[@]} " =~ (^|[[:space:]])${gene}([[:space:]]|$) ]]; then
+    echo "Error: ${gene} is not a valid gene name. Valid genes are: ${available_genes[@]}."
     exit 1
   fi
 done
