@@ -80,7 +80,7 @@ for (gene in genes) {
     file = file.path(
       path_to_results[[gene]],
       paste0(
-        "/",
+        "additional_results/",
         project_name,
         "_track_reads_",
         gene,
@@ -118,8 +118,7 @@ for (gene in genes) {
 # create a list of md5 hash's of all ASV's.
 
 # This makes a new vector containing all the ASV's (unique sequences) returned
-# by dada2. We are going to use this list to create md5 hashes. Use whatever
-#  table you will later use for your analyses (e.g. seqtab.nochim)
+# by dada2. We are going to use this list to create md5 hashes.
 repseq_nochim <- setNames(vector("list", length(genes)), genes)
 repseq_nochim_md5 <- setNames(vector("list", length(genes)), genes)
 seqtab_nochim_md5 <- setNames(vector("list", length(genes)), genes)
@@ -231,7 +230,7 @@ for (gene in genes) {
       paste0(
         "/",
         project_name,
-        "_representative_sequence_md5_table_",
+        "_representative-seq-md5-table_",
         gene,
         ".tsv"
       )
@@ -241,7 +240,14 @@ for (gene in genes) {
     row.names = FALSE
   )
 }
-## Create a Sequence-List Table ================================================
+
+## Create and Export feature-to-fasta ========================================
+# This creates a fasta file containing all the ASV's for each sample. Each ASV
+# will be labeled with the sample name, ASV hash, and number of reads of that
+# ASV in that sample. This was derived from a python script from Matt Kweskin
+# called featuretofasta.py (hence the name).
+
+### Create a Sequence-List Table -----------------------------------------------
 # This creates a table containing three columns: sample name, ASV, and read
 # count. Each row is a separate sample/ASV combination. This is a tidy table,
 # which means each column contains a single variable and each rowh a single
@@ -285,12 +291,6 @@ for (gene in genes) {
     ) %>%
     subset(count != 0)
 
-  ## Create and Export feature-to-fasta ========================================
-  # This creates a fasta file containing all the ASV's for each sample. Each ASV
-  # will be labeled with the sample name, ASV hash, and number of reads of that
-  # ASV in that sample. This was derived from a python script from Matt Kweskin
-  # called featuretofasta.py (hence the name).
-
   # Save the ASV sequences from the sequence-list table
   # (seqtab_nochim_tall_nozera) as a new list.
   repseq_tall[[gene]] <- seqtab_nochim_tall[[gene]]$ASV
@@ -319,6 +319,7 @@ for (gene in genes) {
     mutate(sample_md5_count = paste(sample, md5, count, sep = "_")) %>%
     select(sample, md5, count, sample_md5_count, ASV)
 
+  ### Export feature-to-fasta fas file -----------------------------------------
   # Create a fasta-formatted file of each row sequence (i.e. ASV), with a
   # heading of "sample_feature_count".
   write.fasta(
@@ -329,7 +330,7 @@ for (gene in genes) {
     file.out = file.path(
       path_to_results[[gene]],
       paste0(
-        "/",
+        "additional_results/",
         project_name,
         "_feature-to-fasta_",
         gene,

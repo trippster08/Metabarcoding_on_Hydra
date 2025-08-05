@@ -93,7 +93,8 @@ if [ "$#" -ge 1 ]; then # If variables were submitted
     fi
   else # If trimmed folder does not exist, make gene-specific trimmed and results folders
     for gene in ${@}; do
-      mkdir -p "${path_to_trimmed}${gene}" "${path_to_results}${gene}/plots"
+      mkdir -p "${path_to_trimmed}${gene}" "${path_to_results}${gene}/plots" \
+      "${path_to_results}${gene}/additional_results"
     done
   # Set RC_found to false to start, and only change to true if one of the RC
   # primers is given
