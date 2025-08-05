@@ -64,14 +64,16 @@ for (gene in genes) {
     "\nThis is the number of samples for your",
     gene,
     "Sequence-Table:",
-    length(rownames(seqtab[[gene]]))
+    length(rownames(seqtab[[gene]])),
+    "\n"
   )
   # Then the number of ASVs
   cat(
     "\nThis is the number of ASVs for your",
     gene,
     "Sequence-Table:",
-    length(colnames(seqtab[[gene]]))
+    length(colnames(seqtab[[gene]])),
+    "\n"
   )
 }
 # Save all the objects created to this point in this section
