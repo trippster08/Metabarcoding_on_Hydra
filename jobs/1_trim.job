@@ -40,14 +40,14 @@ if [ "${#primer_files[@]}" -eq 2 ]; then # If there are 2 primer files
   # Assign arguments to forward and reverse primers
   primerF="${primer_files[0]}"
   primerR="${primer_files[1]}"
-  echo "Your gene should not have potential read-through, so we are only removing primers from the 5' end of each read."
+  echo "Your reads should not have potential read-through, so we are only removing primers from the 5' end of each read."
 elif [ "${#primer_files[@]}" -eq 4 ]; then # if there are 4 primer files
   # Assign arguments to foward, reverse, and F-RC and R-RC primers
   primerF="${primer_files[0]}"
   primerR="${primer_files[1]}"
   primerFrc="${primer_files[2]}"
   primerRrc="${primer_files[3]}"
-  echo "Your gene has potential read-through, so we will attempt to trim primers from 3' read ends before 5'"
+  echo "Your reads have potential read-through, so we will attempt to trim primers from 3' read ends before 5'"
 else # If there are any other number of arguments (0, 1, 3, >5)
   echo "Error: Unexpected number of primer arguments (${#primer_files[@]})."
   exit 1
