@@ -141,7 +141,8 @@ for (gene in genes) {
 # Create a list to contain the gene-specific filtered read counts
 sequence_counts_filtered <- setNames(vector("list", length(genes)), genes)
 
-# For each gene, count the number of forward reads, and add names to the list
+# For each gene, count the number of forward reads, and add names to the read
+# counts
 for (gene in genes) {
   sequence_counts_filtered[[gene]] <- sapply(
     filtered_reads[[gene]]$F,
