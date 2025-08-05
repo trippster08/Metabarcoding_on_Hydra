@@ -2,7 +2,7 @@ The first time you run this pipeline on Hydra, you need to install several R lib
 ```
 module load tools/R/4.4.1
 ```
-Next we need to start R. To do that, you just type "R".  
+Next we need to start R. To do that, you just type "R".  You can also go to an RStudio server and open this page and run the installations through the server.
 
 ```
 R
