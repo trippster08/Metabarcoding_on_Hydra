@@ -39,11 +39,9 @@ mkdir -p PROJECT/data/raw
 ### Transfer Files to Hydra 
 From the main project directory, download the pipeline using `wget` (see code below). This downloads a compressed file that contains all job files (\*.job), shell scripts (\*.sh), R scripts (\*.R), and primer definition files (\*.fas) necessary for your analysis. 
 
+Copy and paste the script below into your terminal. It will download the pipeline, unzip it, and move all the \*.sh files and the job, R_script and primer directories from your newly unzipped directory into the main project directory. It will also delete the now-empty pipeline directory and zipped download.
 ```
 wget https://github.com/trippster08/Metabarcoding_on_Hydra/archive/refs/heads/main.zip
-```
-Copy and paste the script below into your terminal. It will unzip the pipeline, and move all the \*.sh files and the job, R_script and primer directories from your newly unzipped directory into the main project directory. It will also delete the now-empty pipeline directory and zipped download.
-```
 unzip main.zip
 mv Metabarcoding_on_Hydra-main/*.sh \
 Metabarcoding_on_Hydra-main/jobs \
