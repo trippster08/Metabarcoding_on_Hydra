@@ -83,9 +83,8 @@ for (gene in genes) {
     filtered_reads[[gene]]$R,
     truncLen = c(truncation_list[[gene]]),
     maxN = 0,
-    maxEE = c(4, 4),
+    maxEE = c(2, 2),
     rm.phix = TRUE,
-    truncQ = 2,
     compress = TRUE,
     multithread = TRUE,
     verbose = TRUE
