@@ -1,6 +1,7 @@
 # /bin/bash
 # This prints onto the screen the inputs after "sh trim_and_quality_plot.sh"
 #echo ${@}
+# This counts and onto the screen the number of inputs after "sh trim_and_quality_plot.sh"
 #echo ${#}
 # Set path to raw sequences and data directory
 path_to_data=$(cd ./data && pwd)
