@@ -22,7 +22,7 @@ gene_num=${#genes[@]}
 truncation_value_num=${#truncation_values[@]}
 
 # Loop through all the files in the primer folder and get the names from
-# ecah forward primer file. Then add them to the variable of available primer
+# each forward primer file. Then add them to the variable of available primer
 # names
 for file in primers/*F.fas; do
   primer_file=${file##*/}
