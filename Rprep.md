@@ -50,6 +50,15 @@ library(tidyverse)
 library(digest)
 library(seqinr)
 library(ape)
+library(DECIPHER)
+library(phyloseq)
+library(msa)
+library(ShortRead)
+library(rBLAST)
+library(vegan)
+library(patchwork)
+library(phylotools)
+library(data.table)
 ```
 If all libraries load appropriately, quit R and continue with pipeline.
 ```
