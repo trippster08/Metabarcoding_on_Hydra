@@ -21,12 +21,12 @@ if (!requireNamespace("BiocManager", quietly = TRUE)){
 ```
 Install all of the libraries needed through BiocManager.
 ```
-BiocManager::install("dada2", ask = FALSE)
-BiocManager::install("phyloseq", ask = FALSE)
-BiocManager::install("msa", ask = FALSE)
-BiocManager::install("DECIPHER", ask = FALSE)
-BiocManager::install("ShortRead", ask = FALSE)
-BiocManager::install("rBLAST", ask = FALSE)
+BiocManager::install("dada2", ask = FALSE, Ncpus = 4)
+BiocManager::install("phyloseq", ask = FALSE, Ncpus = 4)
+BiocManager::install("msa", ask = FALSE, Ncpus = 4)
+BiocManager::install("DECIPHER", ask = FALSE, Ncpus = 4)
+BiocManager::install("ShortRead", ask = FALSE, Ncpus = 4)
+BiocManager::install("rBLAST", ask = FALSE, Ncpus = 4)
 ```
 
 Install any other libraries you may need. Libraries will only need to be installed once. If you get a message saying some packages have more recent versions available,
