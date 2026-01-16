@@ -1,4 +1,9 @@
-The first time you run this pipeline on Hydra, you need to install several R libraries first, and this needs to be done by hand. First, load the R module. There are two R modules currently installed on Hydra (4.4.0 and 4.4.1), with the default being 4.4.0. We want to use 4.4.1, so you have to specify that when you load the module. Installing these will take some time, especially tidyverse (>15 min) and dada2 (~ 10 min), so plan accordingly.
+The first time you run this pipeline on Hydra, you need to install several R libraries first, and this needs to be done by hand. This may take some time, and it is recommended you use an interactive node.  
+Start and interactive session. You can use more than one cpu to speed up installation of packages.
+```
+qrsh -pe mthread 4
+```
+Next, load the R module. There are two R modules currently installed on Hydra (4.4.0 and 4.4.1), with the default being 4.4.0. We want to use 4.4.1, so you have to specify that when you load the module. Installing these will take some time, especially tidyverse (>15 min) and dada2 (~ 10 min), so plan accordingly.
 ```
 module load tools/R/4.4.1
 ```
