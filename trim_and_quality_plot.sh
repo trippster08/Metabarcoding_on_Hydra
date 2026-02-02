@@ -1,8 +1,5 @@
 # /bin/bash
-# This prints onto the screen the inputs after "sh trim_and_quality_plot.sh"
-#echo ${@}
-# This counts and onto the screen the number of inputs after "sh trim_and_quality_plot.sh"
-#echo ${#}
+
 # Set path to raw sequences and data directory
 path_to_data=$(cd ../data && pwd)
 path_to_raw=${path_to_data}/raw
@@ -32,9 +29,9 @@ done
 #echo ${RC_primers[@]}
 
 # Look to see if there are fastq.gz files in data/raw
-if ! ls "${path_to_raw}"/*.fastq.gz 2>/dev/null | grep -q fastq.gz; then
-  echo "No sequences (*.fastq.gz) were found in the raw data directory: ${raw}"
-  exit 1
+if ! compgen -G "${path_to_raw}"/*.fastq.gz > /dev/null; then
+    echo "No sequences (*.fastq.gz) were found in the raw data directory: ${raw}"
+    exit 1
 fi
 
 # Create path for trimmed sequences, results, and primers for cutadapt
