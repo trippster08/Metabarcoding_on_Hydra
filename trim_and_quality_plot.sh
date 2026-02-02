@@ -1,7 +1,7 @@
-# /bin/bash
+#!/bin/bash
 
 # Set path to raw sequences and data directory
-path_to_data=$(cd ../data && pwd)
+path_to_data=$(realpath ./data)
 path_to_raw=${path_to_data}/raw
 #echo ${path_to_raw}
 

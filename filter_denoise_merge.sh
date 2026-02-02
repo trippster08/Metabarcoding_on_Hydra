@@ -1,6 +1,6 @@
-# /bin/bash
+#!/bin/bash
 
-path_to_data=$(cd ./data && pwd)
+path_to_data=$(realpath ./data)
 path_to_results=${path_to_data}/results
 genes=()
 truncation_values=()
