@@ -4,17 +4,19 @@ These are the fasta files called in Cutadapt to search for primers to cut. For 5
 For primer files that end in "RC.fas", these are the reverse complement of their respective primers. These primers are not anchored (therefore the read is kept regardless of whether the primer is found). Cutadapt will search for these primers on the 3' end of the complementary read (i.e. the RC Forward primer will be found on the 3' end of the R2 (reverse) read). These are used to remove primers when there is read-through (i.e. when the amplicon is shorter than sequencing length).
 
 
-We currently have 5 primer-pairs available:
+We currently have 6 primer-pairs available:
 
 COImlIntF/jgCOI2198 - General COI primers, located at the 3' end of the Folmer region. 
 
-MiFish_12SF/MiFish12SR - Fish 12S rRNA primers
+MiFish_12SF/MiFish12SR - Fish 12S rRNA primers.
 
-18S_V4F/18S_V4R - 18S rRNA primers, amplifying the V4 region
+18S_V4F/18S_V4R - 18S rRNA primers, amplifying the V4 region.
 
-16SbacF/16SbacR: 16S_F515/16S_R806 - 16S bacterial rRNA primers, amplifying the V4 region
+16SbacF/16SbacR: 16S_F515/16S_R806 - 16S bacterial rRNA primers, amplifying the V4 region.
 
 28SAnthF/28SAnthR: 28S primers developed for certain anthozoans.
+
+ANMLF/ANMLR: COI metabarcoding primers that amplify the 5' end of the folmer region.
 
 ### Custom Primers
 To make your own primer pairs for cutadapt to remove, follow the format of existing primers. The primer pair files should be named simply, ending in "F.fas" and "R.fas". In the file, the primers need to have the same name as the primer filename preceeding "F.fas". If you are using primers that have spacers, your file needs to include the separate primer sequences for each spacer (and include the primer without spacers). All primer sequences need to have the same name. For example, COIF.fas has five primer sequences, and all are named COI. Each sequence should be preceded by a "^", because this is a 5' sequence that is required.
