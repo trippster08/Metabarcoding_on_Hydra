@@ -25,6 +25,7 @@ shift         # Remove count argument
 #echo ${@}
 #echo ${num_genes}
 genes=("${@:1:$num_genes}")   # Uses number of genes to extract gene names
+#echo ${genes}
 shift ${num_genes} # remove gene arguments
 #echo ${@}
 path_to_data=${1} # Next argument is path to data directory
@@ -125,8 +126,8 @@ for x in ${path_to_data}/raw/*_R1*; do
     # in nextseq runs, not miseq runs), so we have cutadapt output fastq files instead
     # of fastq.gz. Here we use gzip to create fastq.gz files, which replace the fastq files
     gzip -2 \
-    ${path_to_data}/working/trimmed_sequences/${gene}/${name}_trimmed_R1.fastq \
-    ${path_to_data}/working/trimmed_sequences/${gene}/${name}_trimmed_R2.fastq 
+    ${path_to_data}/working/trimmed_sequences/${genes[@]}/${name}_trimmed_R1.fastq \
+    ${path_to_data}/working/trimmed_sequences/${genes[@]}/${name}_trimmed_R2.fastq 
   else # If there are multiple genes we have to not only remove primers, but also
   # move trimmed reads to their gene-specific folders
     # Check to see if there are 4 or two primers
@@ -163,8 +164,8 @@ for x in ${path_to_data}/raw/*_R1*; do
       # in the gene-specific trimmed sequences folder
       for gene in ${genes[@]}; do
         gzip -2 \
-        ${path_to_data}/working/trimmed_sequences/${gene}/${name}_trimmed_R1.fastq \
-        ${path_to_data}/working/trimmed_sequences/${gene}/${name}_trimmed_R2.fastq
+        ${path_to_data}/working/trimmed_sequences/${genes[@]}/${name}_trimmed_R1.fastq \
+        ${path_to_data}/working/trimmed_sequences/${genes[@]}/${name}_trimmed_R2.fastq
       done
     else # If there is only 2 primer arguments, we only need to run the 5' primer
     # trimming, removing both reads if either does not have a primer sequence removed
@@ -182,8 +183,8 @@ for x in ${path_to_data}/raw/*_R1*; do
       # in the gene-specific trimmed sequences folder      
       for gene in ${genes[@]}; do
         gzip -2 \
-        ${path_to_data}/working/trimmed_sequences/${gene}/${name}_trimmed_R1.fastq \
-        ${path_to_data}/working/trimmed_sequences/${gene}/${name}_trimmed_R2.fastq
+        ${path_to_data}/working/trimmed_sequences/${genes[@]}/${name}_trimmed_R1.fastq \
+        ${path_to_data}/working/trimmed_sequences/${genes[@]}/${name}_trimmed_R2.fastq
       done
     fi
   fi
