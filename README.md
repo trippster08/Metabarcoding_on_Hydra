@@ -30,10 +30,10 @@ Go to the the directory assigned to you for short-term storage of large data-set
 ```
 cd /scratch/genomics/USERNAME
 ```
-Make a project-specific directory, with the subdirectory `data/raw/`. -p allows you to create subdirectories and any parental ones that don't already exist (in this case, PROJECT). Again, replace PROJECT with your project name. Everything will be run from this main project directory.
+Make a project-specific directory. Again, replace PROJECT with your project name. Everything will be run from this main project directory.
 
 ```
-mkdir -p PROJECT/data/raw
+mkdir -p PROJECT
 
 ```
 ### Transfer Files to Hydra 
@@ -48,6 +48,7 @@ Metabarcoding_on_Hydra-main/jobs \
 Metabarcoding_on_Hydra-main/primers \
 Metabarcoding_on_Hydra-main/R_scripts .
 rm -r Metabarcoding_on_Hydra-main main.zip
+mkdir -p data/raw
 
 ```
 ### Get Raw Reads
