@@ -28,10 +28,40 @@ for file in primers/*F_RC.fas; do
 done
 #echo ${RC_primers[@]}
 
-# Look to see if there are fastq.gz files in data/raw
+# Look to see if there are fastq.gz files in data/raw. 
 if ! compgen -G "${path_to_raw}"/*.fastq.gz > /dev/null; then
-    echo "No sequences (*.fastq.gz) were found in the raw data directory: ${raw}"
-    exit 1
+  echo "No sequences (*.fastq.gz) were found in the raw data directory: ${path_to_raw}."
+  echo "Looking for fastq.gz files in other project directories."
+ 
+  copied_count=0
+  touched_flag="/tmp/found_fastqs_$$"
+  : > "$touched_flag"   # empty file, marks no files found ye
+
+  # If no fastq.gz in data/raw, search for the fastq.gz files in other project directories
+  find . \
+    -mindepth 2 \
+    -type f \
+    -name '*.fastq.gz' \
+    ! -path "./${raw}/*" \
+    -print0 | \
+  # If fastq.gz files are found
+  while IFS= read -r -d '' file; do
+    if [ ! -s "$touched_flag" ]; then
+      echo "Sequences found. Copying fastq.gz files to ${path_to_raw}."
+      echo found > "$touched_flag"
+    fi
+  # Copy to data/raw, and count the number of files copied. 
+    if cp -n -- "$file" "${path_to_raw}/"; then
+        copied_count=$((copied_count + 1))
+    fi
+  done
+# If no fastq.gz files found, end script with error message
+  if [ ! -s "$touched_flag" ]; then
+      echo "No sequences (*.fastq.gz) were found in this project directory"
+      exit 1
+  fi
+  echo "Finished copying fastq.gz files to ${path_to_raw}."
+  echo "Total FASTQ files copied: ${copied_count}"
 fi
 
 # Create path for trimmed sequences, results, and primers for cutadapt
