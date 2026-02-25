@@ -30,7 +30,7 @@ load("data/working/5_denoise.RData")
 merged_reads <- setNames(vector("list", length(genes)), genes)
 # Loop through each gene, creating gene-specific merged sequences
 for (gene in genes) {
-  cat("\nMerging forward and reverse reads for", gene)
+  cat("\nMerging forward and reverse reads for", gene, "\n")
   merged_reads[[gene]] <- mergePairs(
     denoised[[gene]]$F,
     filtered_reads[[gene]]$F,
@@ -40,7 +40,7 @@ for (gene in genes) {
     maxMismatch = 0,
     verbose = TRUE
   )
-  cat("\nMerging is complete for", gene)
+  cat("\nMerging is complete for", gene, "\n")
 }
 ## Create Sequence-Table =======================================================
 
