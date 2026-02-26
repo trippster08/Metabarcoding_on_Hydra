@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Set path to raw sequences and data directory
 path_to_data=$(realpath ./data)
@@ -65,16 +65,10 @@ if ! compgen -G "${path_to_raw}"/*.fastq.gz > /dev/null; then
   rm -f "$filelist"
   echo "Finished copying fastq.gz files to ${path_to_raw}."
 fi  
-  
-# count number of files in data/raw and print to screen
-set -- "${path_to_raw}"/*.fastq.gz
-if [ -e "$1" ]; then
-    count=$#
-else
-    count=0
-fi
-echo "Total fastq.gz files in ${path_to_raw}: $count"
 
+# count number of files in data/raw and print to screen
+count=$(ls -1 "${path_to_raw}"/*.fastq.gz 2>/dev/null | wc -l)
+echo "Total fastq.gz files in ${path_to_raw}: $count"
 
 # Create path for trimmed sequences, results, and primers for cutadapt
 path_to_trimmed="${path_to_data}/working/trimmed_sequences/"
