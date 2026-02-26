@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Set path to raw sequences and data directory
 path_to_data=$(realpath ./data)
