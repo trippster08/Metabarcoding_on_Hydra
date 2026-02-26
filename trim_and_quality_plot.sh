@@ -42,7 +42,7 @@ if ! compgen -G "${path_to_raw}"/*.fastq.gz > /dev/null; then
     -mindepth 2 \
     -type f \
     -name '*.fastq.gz' \
-    ! -path "./${raw}/*" \
+    ! -path "./${path_to_raw}/*" \
     -print0 | \
   # If fastq.gz files are found
   while IFS= read -r -d '' file; do
