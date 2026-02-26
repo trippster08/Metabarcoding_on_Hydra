@@ -32,37 +32,49 @@ done
 if ! compgen -G "${path_to_raw}"/*.fastq.gz > /dev/null; then
   echo "No sequences (*.fastq.gz) were found in the raw data directory: ${path_to_raw}."
   echo "Looking for fastq.gz files in other project directories."
- 
-  copied_count=0
-  touched_flag="/tmp/found_fastqs_$$"
-  : > "$touched_flag"   # empty file, marks no files found ye
 
   # If no fastq.gz in data/raw, search for the fastq.gz files in other project directories
+  filelist="/tmp/fastq_list_$$"
+  found_fastq=0
+  # Make the raw directory path relative to current directory (so find can exclude it)
+  raw_rel="./$(realpath --relative-to="." "$path_to_raw")"
+
   find . \
     -mindepth 2 \
     -type f \
     -name '*.fastq.gz' \
-    ! -path "./${path_to_raw}/*" \
-    -print0 | \
-  # If fastq.gz files are found
+    ! -path "${raw_rel}/*" \
+    -print0 > "$filelist"
+  # If no fastq.gz files are found
+  if [ ! -s "$filelist" ]; then
+    echo "No fastq.gz files were found in any project directories. Please add your raw sequences to the data/raw directory and rerun the script."
+    rm -f "$filelist"
+    exit 1
+  fi 
+  
   while IFS= read -r -d '' file; do
-    if [ ! -s "$touched_flag" ]; then
-      echo "Sequences found. Copying fastq.gz files to ${path_to_raw}."
-      echo found > "$touched_flag"
+    if [ "$found_fastq" -eq 0 ]; then
+      # Get directory of the first found fastq.gz file
+      first_dir=$(dirname -- "$file")
+      echo "Found fastq.gz files in the following locations: ${first_dir}"
+      echo "Copying fastq.gz files to ${path_to_raw}."
+      found_fastq=1
     fi
-  # Copy to data/raw, and count the number of files copied. 
-    if cp -n -- "$file" "${path_to_raw}/"; then
-        copied_count=$((copied_count + 1))
-    fi
-  done
-# If no fastq.gz files found, end script with error message
-  if [ ! -s "$touched_flag" ]; then
-      echo "No sequences (*.fastq.gz) were found in this project directory"
-      exit 1
-  fi
+    cp -n -- "$file" "${path_to_raw}/"
+  done < "$filelist"
+  rm -f "$filelist"
   echo "Finished copying fastq.gz files to ${path_to_raw}."
-  echo "Total FASTQ files copied: ${copied_count}"
+fi  
+  
+# count number of files in data/raw and print to screen
+set -- "${path_to_raw}"/*.fastq.gz
+if [ -e "$1" ]; then
+    count=$#
+else
+    count=0
 fi
+echo "Total fastq.gz files in ${path_to_raw}: $count"
+
 
 # Create path for trimmed sequences, results, and primers for cutadapt
 path_to_trimmed="${path_to_data}/working/trimmed_sequences/"
