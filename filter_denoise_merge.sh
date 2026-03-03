@@ -57,32 +57,64 @@ done
 #echo ${genes[@]}
 #echo ${truncation_values[@]}
 
-# Check to see if the .RData file for each job has been created. If it has, then that
-# job has finished, and submit the next job. The first job for which the .RData file
-# does not exist, start that job.
-if [[ ! -f "data/working/3_filter.RData" ]]; then
-  qsub -o logs/filter.log -N filter \
-    jobs/3_filter.job ${gene_num} ${genes[@]} ${truncation_values[@]}
-elif [[ ! -f "data/working/4_error.RData" ]]; then
-  qsub -o logs/error.log -N error \
-    jobs/4_error.job ${gene_num} ${genes[@]}
-  echo "Filtering is already complete; we will start with error modelling."
-elif [[ ! -f "data/working/5_denoise.RData" ]]; then
-  qsub -o logs/denoise.log -N denoise \
-    jobs/5_denoise.job ${gene_num} ${genes[@]}
-  echo "Error modelling is already complete; we will start with denoising."
-elif [[ ! -f "data/working/6_merge.RData" ]]; then
-  qsub -o logs/merge.log -N merge \
-    jobs/6_merge.job ${gene_num} ${genes[@]}
-  echo "Denoising is already complete; we will start with merging reads."
-elif [[ ! -f "data/working/7_chimera.RData" ]]; then
-  qsub -o logs/chimera.log -N chimera \
-    jobs/7_chimera.job ${gene_num} ${genes[@]}
-  echo "Merging of reads is already complete; we will start with chimera removal."
-elif [[ ! -f "data/working/8_output.RData" ]]; then
-  qsub -o logs/output.log -N output \
-    jobs/8_output.job ${gene_num} ${genes[@]}
-  echo "Chimera removal is already complete; we will start with exporting results."
-else
-  echo "All steps for this analysis have already completed"
-fi
+
+
+# For each gene, submit its own job(s)
+for (( i=0; i<gene_num; i++ )); do
+  gene=${genes[i]}
+  r1=${truncation_values[2*i]}
+  r2=${truncation_values[2*i+1]}
+
+  echo "Processing gene: ${gene} (R1 trunc=${r1}, R2 trunc=${r2})"
+
+
+  # Gene-specific checkpoint paths (you'll need R to write these)
+  filter_rdata="data/working/${gene}_3_filter.RData"
+  error_rdata="data/working/${gene}_4_error.RData"
+  denoise_rdata="data/working/${gene}_5_denoise.RData"
+  merge_rdata="data/working/${gene}_6_merge.RData"
+  chimera_rdata="data/working/${gene}_7_chimera.RData"
+  output_rdata="data/working/${gene}_8_output.RData"
+
+
+  if [[ ! -f "$filter_daata" ]]; then
+    # Step 3: filter, per gene
+    qsub -o "logs/filter_${gene}.log" -N "filter_${gene}" \
+      jobs/3_filter.job "$gene" "$r1" "$r2"
+    echo "Submitted filter job for ${gene}"
+
+  elif [[ ! -f "$error_rdata" ]]; then
+    # Step 4: error modelling, per gene
+    qsub -o "logs/error_${gene}.log" -N "error_${gene}" \
+      jobs/4_error.job "$gene"
+    echo "Filtering complete for ${gene}; starting error modelling."
+
+  elif [[ ! -f "$denoise_rdata" ]]; then
+    # Step 5: denoise, per gene
+    qsub -o "logs/denoise_${gene}.log" -N "denoise_${gene}" \
+      jobs/5_denoise.job "$gene"
+    echo "Error modelling complete for ${gene}; starting denoising."
+
+  elif [[ ! -f "$merge_rdata" ]]; then
+    # Step 6: merge, per gene
+    qsub -o "logs/merge_${gene}.log" -N "merge_${gene}" \
+      jobs/6_merge.job "$gene"
+    echo "Denoising complete for ${gene}; starting merging."
+
+  elif [[ ! -f "$chimera_rdata" ]]; then
+    # Step 7: chimera
+    qsub -o "logs/chimera_${gene}.log" -N "chimera_${gene}" \
+      jobs/7_chimera.job "$gene"
+    echo "Merging complete for ${gene}; starting chimera removal."
+
+  elif [[ ! -f "$output_rdata" ]]; then
+    # Step 8: output
+    qsub -o "logs/output_${gene}.log" -N "output_${gene}" \
+      jobs/8_output.job "$gene"
+    echo "Chimera removal complete for ${gene}; exporting results."
+
+  else
+    echo "All steps for gene ${gene} have already completed."
+  fi
+
+done
