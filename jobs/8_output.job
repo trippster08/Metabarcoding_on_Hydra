@@ -17,10 +17,10 @@ module load tools/R/4.4.1
 echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
 echo + NSLOTS = $NSLOTS
 #
-
+gene=${1}   # Extract gene name
 #
 # All arguments from shell script are just a list of genes, so we just pass on the
 # entire array
-Rscript R_scripts/8_output.R ${@}
+Rscript R_scripts/8_output.R ${gene}
 #
 echo = `date` job $JOB_NAME done

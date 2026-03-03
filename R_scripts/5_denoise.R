@@ -7,9 +7,18 @@ suppressMessages(library(seqinr, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 
 ## File Housekeeping ===========================================================
+# Get argument containing the gene name from job file.
+args <- commandArgs(trailingOnly = TRUE)
 
+# Check to make sure there is an argument for the gene name
+if (length(args) < 1) {
+    stop(paste0("No gene argument provided in job file 5_denoise_", gene, ".job."))
+}
+
+# get gene name from argument
+gene <- args[1]
 # Load the RData from "quality_plot_multigene.R"
-load("data/working/4_error.RData")
+load(paste0("data/working/4_error_", gene, ".RData"))
 
 ## Denoising ===================================================================
 
@@ -18,28 +27,25 @@ load("data/working/4_error.RData")
 # the filtered sequences (filtered_F), and "err =" which is the error file from
 # learnErrors (effF).
 
-# First make a list to store the gene-specific denoised sequences
-denoised <- setNames(vector("list", length(genes)), genes)
-# Loop through all genes, denoising reads, after adding read direction to the
-# list.
-for (gene in genes) {
-  cat("\nDenoising reads for", gene, "\n")
-  denoised[[gene]] <- list(F = NULL, R = NULL)
-  for (direction in c("F", "R")) {
-    denoised[[gene]][[direction]] <- dada(
-      filtered_reads[[gene]][[direction]],
-      err = errors[[gene]][[direction]],
-      errorEstimationFunction = loessErrfun,
-      selfConsist = FALSE,
-      pool = FALSE,
-      multithread = TRUE,
-      verbose = TRUE
-    )
-  }
-  cat("\nDenoising is complete for", gene, "\n")
+cat("\nDenoising reads for", gene, "\n")
+# Make a list for forward and reverse denoised sequences
+denoised <- list(F = NULL, R = NULL)
+# denoise forward and reverse reads
+for (direction in c("F", "R")) {
+  denoised[[direction]] <- dada(
+    filtered_reads[[direction]],
+    err = errors[[direction]],
+    errorEstimationFunction = loessErrfun,
+    selfConsist = FALSE,
+    pool = FALSE,
+    multithread = TRUE,
+    verbose = TRUE
+  )
 }
+cat("\nDenoising is complete for", gene, "\n")
+
 
 # Save all the objects created to this point in this section
-save.image(file = "data/working/5_denoise.RData")
+save.image(file = paste0("data/working/5_denoise_", gene, ".RData"))
 
-cat("\n5_denoise.job is finished and data has been denoised by DADA2.\n")
+cat("\n5_denoise.job for", gene, "is finished and data has been denoised by DADA2.\n")

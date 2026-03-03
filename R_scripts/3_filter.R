@@ -7,58 +7,61 @@ suppressMessages(library(seqinr, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 
 ## File Housekeeping ===========================================================
-# Load the RData from "quality_plot_multigene.R"
-load("data/working/2_qual.RData")
-cat("\nThis project is named", project_name, "\n\n")
-# Get arguments from job file. This should include the number of genes, gene
-# names, and the R1 and R2 truncation values for each gene
+# Get arguments from job file. This should include the gene name
+# and the R1 and R2 truncation values
 args <- commandArgs(trailingOnly = TRUE)
+
+# Check to make sure there are three arguments
+if (length(args) < 3) {
+    stop(paste0("Not enough arguments provided in filter job file. We need three arguments: gene name, R1 truncation value, and R2 truncation value."))
+}
+
+# Load the RData from "quality_plot_multigene.R"
+load(paste0("data/working/2_qual.RData"))
+cat("\nThis project is named", project_name, "\n")
+
 # First argument is gene number
-gene_num <- as.numeric(args[1])
-# Save vector of genes (determined by gene number)
-genes <- args[2:(gene_num + 1)]
-# Save vector of truncation values (also determined by gene number)
-truncation_values <- as.integer(args[(gene_num + 2):length(args)])
-# Create a list of R1 and R2 truncation values for each gene
-truncation_list <- setNames(
-  lapply(seq_len(gene_num), function(i) {
-    start <- (i - 1) * 2 + 1
-    end <- start + 1
-    truncation_values[start:end]
-  }),
-  genes
-)
+gene <- args[1]
+
+# Save 2nd and 3rd arguments as r1 and r2 truncation values
+r1_trunc <- as.numeric(args[2])
+r2_trunc <- as.numeric(args[3])
+
+cat("\nFiltering reads for gene:", gene,
+    "with truncLen =", r1_trunc, r2_trunc, "\n")
+
+# If path_to_results was stored as a list by gene, reduce to just this gene
+if (exists("path_to_results") && is.list(path_to_results)) {
+  path_to_results <- path_to_results[[gene]]
+}
+
 
 # This creates file paths for the reads that will be quality filtered with dada2
 # in the next step and a list for storing filtered reads.
-filtered_reads <- setNames(vector("list", length(genes)), genes)
-path_to_filtered <- setNames(
-  lapply(genes, function(gene) {
-    paste0("data/working/filtered_sequences/", gene)
-  }),
-  genes
-)
-# For each gene, create a list for forward and reverse reads in filtered_reads,
+path_to_filtered <- paste0("data/working/filtered_sequences/", gene)
+
+# Rename sample_names_trimmed to be gene-specific, because this is now a gene-specific script, and we will be saving gene-specific RData files, so we want to make sure the objects in those files are gene-specific as well.
+sample_names_filtered <- sample_names_trimmed[[gene]]
+
+# Create a list for forward and reverse reads in filtered_reads,
 # and create a list of filtered sample names from trimmed sample
 # names, and add these names to the filtered_reads list,
-for (gene in genes) {
-  sample_names_filtered <- sample_names_trimmed[[gene]]
-  filtered_reads[[gene]] <- list(F = NULL, R = NULL)
-  for (direction in c("F", "R")) {
-    filtered_reads[[gene]][[direction]] <- setNames(
-      file.path(
-        path_to_filtered[[gene]],
-        paste0(
-          sample_names_filtered,
-          "_filt_",
-          direction,
-          ".fastq.gz"
-        )
-      ),
-      sample_names_filtered
-    )
-  }
+filtered_reads <- list(F = NULL, R = NULL)
+for (direction in c("F", "R")) {
+  filtered_reads[[direction]] <- setNames(
+    file.path(
+      path_to_filtered,
+      paste0(
+        sample_names_filtered,
+        "_filt_",
+        direction,
+        ".fastq.gz"
+      )
+    ),
+    sample_names_filtered
+  )
 }
+
 
 # This filters all reads depending upon the quality (as assigned by the user)
 # and trims the ends off the reads for all samples as determined by the quality
@@ -75,100 +78,85 @@ for (gene in genes) {
 # keeping poorer-quality reads does not adversely effect the results, except in
 # very low quality reads. However, increasing maxEE does increase computational
 # time.
-for (gene in genes) {
-  filterAndTrim(
-    actual_trimmed_reads[[gene]]$F,
-    filtered_reads[[gene]]$F,
-    actual_trimmed_reads[[gene]]$R,
-    filtered_reads[[gene]]$R,
-    truncLen = c(truncation_list[[gene]]),
-    maxN = 0,
-    maxEE = c(2, 2),
-    rm.phix = TRUE,
-    compress = TRUE,
-    multithread = TRUE,
-    verbose = TRUE
-  )
-}
+filterAndTrim(
+  actual_trimmed_reads[[gene]]$F,
+  filtered_reads$F,
+  actual_trimmed_reads[[gene]]$R,
+  filtered_reads$R,
+  truncLen = c(r1_trunc, r2_trunc),
+  maxN = 0,
+  maxEE = c(4, 4),
+  rm.phix = TRUE,
+  compress = TRUE,
+  multithread = TRUE,
+  verbose = TRUE
+)
+
 
 # Create a new sample_names_filtered, since some samples no longer have
 # reads after filtering, and therefore no longer exist in the directory
-for (gene in genes) {
-  sample_names_filtered <- setNames(
-    lapply(genes, function(gene) {
-      files <- list.files(path_to_filtered[[gene]], pattern = "filt_F")
-      sapply(strsplit(basename(files), "_filt_F"), `[`, 1)
-    }),
-    genes
-  )
-}
+files_F <- list.files(path_to_filtered, pattern = "filt_F", full.names = TRUE)
+samples_names_filtered <- sapply(strsplit(basename(files_F), "_filt_F"), `[`, 1)
+
 # Update filtered_reads, since some samples no longer have
 # reads after filtering, and therefore no longer exist in the directory
-for (gene in genes) {
-  for (direction in c("F", "R")) {
-    F_filtered <- list.files(
-      path_to_filtered[[gene]],
-      pattern = "_filt_F",
-      full.names = TRUE
-    )
-    R_filtered <- list.files(
-      path_to_filtered[[gene]],
-      pattern = "_filt_R",
-      full.names = TRUE
-    )
+F_filtered <- list.files(
+  path_to_filtered,
+  pattern = "_filt_F",
+  full.names = TRUE
+)
+R_filtered <- list.files(
+  path_to_filtered,
+  pattern = "_filt_R",
+  full.names = TRUE
+)
 
-    filtered_reads[[gene]] <- list(
-      F = setNames(
-        list.files(
-          path_to_filtered[[gene]],
-          pattern = "filt_F",
-          full.names = TRUE
-        ),
-        sapply(strsplit(basename(F_filtered), "_filt_F"), `[`, 1)
-      ),
-      R = setNames(
-        list.files(
-          path_to_filtered[[gene]],
-          pattern = "filt_R",
-          full.names = TRUE
-        ),
-        sapply(strsplit(basename(R_filtered), "_filt_R"), `[`, 1)
-      )
-    )
-  }
-}
-# Create a list to contain the gene-specific filtered read counts
-sequence_counts_filtered <- setNames(vector("list", length(genes)), genes)
+filtered_reads <- list(
+  F = setNames(
+    list.files(
+      path_to_filtered,
+      pattern = "filt_F",
+      full.names = TRUE
+    ),
+    sapply(strsplit(basename(F_filtered), "_filt_F"), `[`, 1)
+  ),
+  R = setNames(
+    list.files(
+      path_to_filtered,
+      pattern = "filt_R",
+      full.names = TRUE
+    ),
+    sapply(strsplit(basename(R_filtered), "_filt_R"), `[`, 1)
+  )
+)
 
-# For each gene, count the number of forward reads, and add names to the read
+# Count the number of forward reads, and add names to the read
 # counts
-for (gene in genes) {
-  sequence_counts_filtered[[gene]] <- sapply(
-    filtered_reads[[gene]]$F,
-    function(file) {
-      fq <- readFastq(file)
-      length(fq)
-    }
-  )
-  sample_names <- sapply(
-    strsplit(basename(filtered_reads[[gene]]$F), "_filt_F"),
-    `[`,
-    1
-  )
-  names(sequence_counts_filtered[[gene]]) <- sample_names
-}
+sequence_counts_filtered <- sapply(
+  filtered_reads$F,
+  function(file) {
+    fq <- readFastq(file)
+    length(fq)
+  }
+)
+sample_names <- sapply(
+  strsplit(basename(filtered_reads$F), "_filt_F"),
+  `[`,
+  1
+)
+names(sequence_counts_filtered) <- sample_names
+
 
 # Report removed samples
-for (gene in genes) {
-  removed <- setdiff(
-    sample_names_trimmed[[gene]],
-    sample_names_filtered[[gene]]
-  )
-  cat("\nHere are the samples removed after filtering for", gene, "\n")
-  print(removed)
-}
+removed <- setdiff(
+  sample_names_trimmed[[gene]],
+  sample_names_filtered
+)
+cat("\nHere are the", gene, "samples removed after filtering\n")
+print(removed)
+
 
 # Save all the objects created to this point in this section
-save.image(file = "data/working/3_filter.RData")
+save.image(file = paste0("data/working/3_filter_", gene, ".RData"))
 
-cat("\n3_filter.job is finished and reads have been filtered by DADA2.\n")
+cat("\n3_filter.job for ", gene, " is finished and reads have been filtered by DADA2.\n")

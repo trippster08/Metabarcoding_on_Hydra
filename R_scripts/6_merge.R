@@ -7,9 +7,19 @@ suppressMessages(library(seqinr, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 
 ## File Housekeeping ===========================================================
+# Get argument containing the gene name from job file.
+args <- commandArgs(trailingOnly = TRUE)
 
-# Load the RData from "quality_plot_multigene.R"
-load("data/working/5_denoise.RData")
+# Check to make sure there is an argument for the gene name
+if (length(args) < 1) {
+    stop(paste0("No gene argument provided in job file 6_merge_", gene, ".job"))
+}
+
+# get gene name from argument
+gene <- args[1]
+
+# Load the RData from the denoising step
+load(paste0("data/working/5_denoise_", gene, ".RData"))
 
 ## Merge Paired Sequences ======================================================
 
@@ -26,22 +36,21 @@ load("data/working/5_denoise.RData")
 # also contains multiple columns describing data for each unique merged
 # sequence.
 
-# First, make a list to hold the gene-specific merged reads.
-merged_reads <- setNames(vector("list", length(genes)), genes)
-# Loop through each gene, creating gene-specific merged sequences
-for (gene in genes) {
-  cat("\nMerging forward and reverse reads for", gene, "\n")
-  merged_reads[[gene]] <- mergePairs(
-    denoised[[gene]]$F,
-    filtered_reads[[gene]]$F,
-    denoised[[gene]]$R,
-    filtered_reads[[gene]]$R,
-    minOverlap = 12,
-    maxMismatch = 0,
-    verbose = TRUE
-  )
-  cat("\nMerging is complete for", gene, "\n")
-}
+# Merge sequences with a 12 bp minimum overflap and no mismatches allowed in the overlap region. 
+# This is a pretty strict merge, but I have found that it is better to be strict here and lose 
+# some reads than to be more lenient and have more spurious sequences in the final results.
+cat("\nMerging forward and reverse reads for", gene, "\n")
+merged_reads <- mergePairs(
+  denoised$F,
+  filtered_reads$F,
+  denoised$R,
+  filtered_reads$R,
+  minOverlap = 12,
+  maxMismatch = 0,
+  verbose = TRUE
+)
+cat("\nMerging is complete for", gene, "\n")
+
 ## Create Sequence-Table =======================================================
 
 # Now we make a sequence-table containing columns for unique sequence (ASV),
@@ -52,31 +61,27 @@ for (gene in genes) {
 # will use "sequence-table" for the table with columns of sequences, and
 # "feature-table" for tables with columns of samples.
 
-# First make a list to hold the gene-specific sequence-table
-seqtab <- setNames(vector("list", length(genes)), genes)
-# Loop through each gene, making the sequence-table
-for (gene in genes) {
-  seqtab[[gene]] <- makeSequenceTable(merged_reads[[gene]])
+seqtab <- makeSequenceTable(merged_reads)
 
-  # This describes the dimensions of the gene-specific table just made
-  # First the number of samples
-  cat(
-    "\nThis is the number of samples for your",
-    gene,
-    "Sequence-Table:",
-    length(rownames(seqtab[[gene]])),
-    "\n"
-  )
-  # Then the number of ASVs
-  cat(
-    "\nThis is the number of ASVs for your",
-    gene,
-    "Sequence-Table:",
-    length(colnames(seqtab[[gene]])),
-    "\n"
-  )
-}
+# This describes the dimensions of the gene-specific table just made
+# First the number of samples
+cat(
+  "\nThis is the number of samples for your",
+  gene,
+  "Sequence-Table:",
+  length(rownames(seqtab)),
+  "\n"
+)
+# Then the number of ASVs
+cat(
+  "\nThis is the number of ASVs for your",
+  gene,
+  "Sequence-Table:",
+  length(colnames(seqtab)),
+  "\n"
+)
+
 # Save all the objects created to this point in this section
-save.image(file = "data/working/6_merge.RData")
+save.image(file = paste0("data/working/6_merge_", gene, ".RData"))
 
-cat("6_merge.job is complete and reads have been merged.\n")
+cat("6_merge.job is complete and reads have been merged for", gene, "\n")
