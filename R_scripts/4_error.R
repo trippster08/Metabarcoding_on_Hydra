@@ -1,10 +1,7 @@
 # LEARN ERRORS #################################################################
 ## Load Libraries ==============================================================
 suppressMessages(library(dada2, warn.conflicts = FALSE, quietly = TRUE))
-suppressMessages(library(digest, warn.conflicts = FALSE, quietly = TRUE))
-suppressMessages(library(tidyverse, warn.conflicts = FALSE, quietly = TRUE))
-suppressMessages(library(seqinr, warn.conflicts = FALSE, quietly = TRUE))
-suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
+suppressMessages(library(ggplot2, warn.conflicts = FALSE, quietly = TRUE))
 
 ## File Housekeeping ===========================================================
 # Get argument containing the gene name from job file.
@@ -29,7 +26,7 @@ cat("\nModelling error rates and creating plots for", gene, "\n")
 # Create list for forward and reverse error rates
 errors <- list(F = NULL, R = NULL)
 for (direction in c("F", "R")) {
-  errors[[direction]] <- learnErrors(
+  errors[[direction]] <- dada2::learnErrors(
     filtered_reads[[direction]],
     nbases = 1e+08,
     errorEstimationFunction = loessErrfun,
@@ -56,8 +53,8 @@ error_plots <- list(F = NULL, R = NULL)
 # Make a loop to create error plots.
 for (direction in c("F", "R")) {
   err <- errors[[direction]]
-  error_plots[[direction]] <- plotErrors(err, nominalQ = TRUE)
-  ggsave(
+  error_plots[[direction]] <- dada2::plotErrors(err, nominalQ = TRUE)
+  ggplot2::ggsave(
     filename = file.path(
       path_to_results,
       paste0(

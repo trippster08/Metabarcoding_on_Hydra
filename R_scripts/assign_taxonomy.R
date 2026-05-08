@@ -32,7 +32,7 @@ tax_levels <- c(
 )
 
 # Assign taxonomy
-taxonomy <- assignTaxonomy(
+taxonomy <- dada2::dassignTaxonomy(
   seqtab_nochim,
   reference_fasta,
   taxLevels = tax_levels,

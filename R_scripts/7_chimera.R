@@ -1,10 +1,7 @@
 # REMOVE CHIMERAS ##############################################################
 ## Load Libraries ==============================================================
 suppressMessages(library(dada2, warn.conflicts = FALSE, quietly = TRUE))
-suppressMessages(library(digest, warn.conflicts = FALSE, quietly = TRUE))
-suppressMessages(library(tidyverse, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(seqinr, warn.conflicts = FALSE, quietly = TRUE))
-suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 
 ## File Housekeeping ===========================================================
 # Get argument containing the gene name from job file.
@@ -29,7 +26,7 @@ cat(
   gene,
   "\n"
 )
-seqtab_nochim <- removeBimeraDenovo(
+seqtab_nochim <- dada2::removeBimeraDenovo(
   seqtab,
   method = "consensus",
   multithread = TRUE,
@@ -47,7 +44,7 @@ cat(
 
 # Make a list of the ASVs that are considered chimeras, in case you want to
 # look at them later
-chimeras_list <- isBimeraDenovoTable(
+chimeras_list <- dada2::isBimeraDenovoTable(
   seqtab,
   multithread = TRUE,
   verbose = TRUE
@@ -55,7 +52,7 @@ chimeras_list <- isBimeraDenovoTable(
 
 # This makes a new vector containing all the ASV's (unique sequences) returned
 # by dada2.
-repseq_all <- getSequences(seqtab)
+repseq_all <- dada2::getSequences(seqtab)
 # Get a list of just chimera ASVs by filtering all sequences by chimera list
 repseq_chimera <- repseq_all[chimeras_list]
 # Make and add md5 hash to the repseq_chimera

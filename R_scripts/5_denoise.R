@@ -1,10 +1,6 @@
 # DENOISE ######################################################################
 ## Load Libraries ==============================================================
 suppressMessages(library(dada2, warn.conflicts = FALSE, quietly = TRUE))
-suppressMessages(library(digest, warn.conflicts = FALSE, quietly = TRUE))
-suppressMessages(library(tidyverse, warn.conflicts = FALSE, quietly = TRUE))
-suppressMessages(library(seqinr, warn.conflicts = FALSE, quietly = TRUE))
-suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 
 ## File Housekeeping ===========================================================
 # Get argument containing the gene name from job file.
@@ -32,7 +28,7 @@ cat("\nDenoising reads for", gene, "\n")
 denoised <- list(F = NULL, R = NULL)
 # denoise forward and reverse reads
 for (direction in c("F", "R")) {
-  denoised[[direction]] <- dada(
+  denoised[[direction]] <- dada2::dada(
     filtered_reads[[direction]],
     err = errors[[direction]],
     errorEstimationFunction = loessErrfun,

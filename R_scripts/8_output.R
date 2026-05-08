@@ -2,9 +2,9 @@
 ## Load Libraries ==============================================================
 suppressMessages(library(dada2, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(digest, warn.conflicts = FALSE, quietly = TRUE))
-suppressMessages(library(tidyverse, warn.conflicts = FALSE, quietly = TRUE))
+suppressMessages(library(dplyr, warn.conflicts = FALSE, quietly = TRUE))
+suppressMessages(library(tibble, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(seqinr, warn.conflicts = FALSE, quietly = TRUE))
-suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 
 ## File Housekeeping ===========================================================
 # Get argument containing the gene name from job file.
@@ -12,7 +12,7 @@ args <- commandArgs(trailingOnly = TRUE)
 
 # Check to make sure there is an argument for the gene name
 if (length(args) < 1) {
-    stop("No gene argument provided in job file 8_output_<gene>.job")
+  stop("No gene argument provided in job file 8_output_<gene>.job")
 }
 
 # get gene name from argument
@@ -30,8 +30,8 @@ load(paste0("data/working/7_chimera_", gene, ".RData"))
 # First make a table for the post-filtered samples, including denoised,
 # merged, and non-chimeric read counts
 
-getN <- function(x) sum(getUniques(x))
-sequence_counts_postfiltered <- tibble(
+getN <- function(x) sum(dada2::getUniques(x))
+sequence_counts_postfiltered <- tibble::tibble(
   Sample_ID = sample_names_filtered,
   Denoised_Reads_F = sapply(denoised$F, getN),
   Denoised_Reads_R = sapply(denoised$R, getN),
@@ -41,31 +41,31 @@ sequence_counts_postfiltered <- tibble(
 
   # Then we are going to add the postfiltered read count data to the three count
   # data objects we already have (raw, trimmed, filtered).
-track_reads <- tibble(
+track_reads <- tibble::tibble(
   Sample_ID = names(sequence_counts_raw),
   Raw_Reads = as.numeric(sequence_counts_raw),
 ) %>%
-  left_join(
-    tibble(
+  dplyr::left_join(
+    tibble::tibble(
       Sample_ID = names(sequence_counts_trimmed[[gene]]),
       Trimmed_Reads = as.numeric(sequence_counts_trimmed[[gene]])
     ),
     join_by(Sample_ID)
   ) %>%
-  left_join(
-    tibble(
+  dplyr::left_join(
+    tibble::tibble(
       Sample_ID = names(sequence_counts_filtered),
       Filtered_Reads = as.numeric(sequence_counts_filtered)
     ),
     join_by(Sample_ID)
   ) %>%
-  left_join(
+  dplyr::left_join(
     sequence_counts_postfiltered,
     join_by(Sample_ID)
   ) %>%
-  mutate(Proportion_Trimmed_Kept = Non_Chimeras / Trimmed_Reads) %>%
-  mutate(Proportion_Gene = Trimmed_Reads / Raw_Reads) %>%
-  select(
+  dplyr::mutate(Proportion_Trimmed_Kept = Non_Chimeras / Trimmed_Reads) %>%
+  dplyr::mutate(Proportion_Gene = Trimmed_Reads / Raw_Reads) %>%
+  dplyr::select(
     Sample_ID,
     Raw_Reads,
     Trimmed_Reads,
@@ -124,11 +124,11 @@ track_reads <- tibble(
 # unique md5 hashes of the representative sequences (ASV's). This results in
 # identical feature names to those assigned in Qiime2.
 
-repseq_nochim <- getSequences(seqtab_nochim)
+repseq_nochim <- dada2::getSequences(seqtab_nochim)
 
 repseq_nochim_md5 <- c()
 for (i in seq_along(repseq_nochim)) {
-  repseq_nochim_md5[i] <- digest(
+  repseq_nochim_md5[i] <- digest::digest(
     repseq_nochim[i],
     serialize = FALSE,
     algo = "md5"
@@ -160,7 +160,7 @@ write.table(
 
 # Create an md5/ASV table, with each row as an ASV and it's representative md5
 # hash.
-repseq_nochim_md5_asv <- tibble(
+repseq_nochim_md5_asv <- tibble::tibble(
   md5 = repseq_nochim_md5,
   ASV = repseq_nochim
 )
@@ -197,7 +197,7 @@ write.table(
 
 # This exports all the ASVs in fasta format, with ASV hash as the sequence
 # name. This is analogous to the representative sequence output in Qiime2.
-write.fasta(
+seqinr::write.fasta(
   sequences = as.list(repseq_nochim_md5_asv$ASV),
   names = repseq_nochim_md5_asv$md5,
   open = "w",
@@ -266,11 +266,11 @@ write.table(
 # original table contains sample names, not counts). This makes the table tidier
 # (meaning that each column is now a true variable).
 
-seqtab_nochim_tall <- as_tibble(
+seqtab_nochim_tall <- tibble::tibble(
   seqtab_nochim,
   rownames = "sample"
 ) %>%
-  pivot_longer(
+  dplyr::pivot_longer(
     !sample,
     names_to = "ASV",
     values_to = "count"
@@ -287,7 +287,7 @@ repseq_tall <- seqtab_nochim_tall$ASV
 # hashs here will match hashs above)
 repseq_tall_md5 <- c()
 for (i in seq_along(repseq_tall)) {
-  repseq_tall_md5[i] <- digest(
+  repseq_tall_md5[i] <- digest::digest(
     repseq_tall[i],
     serialize = FALSE,
     algo = "md5"
@@ -301,14 +301,14 @@ for (i in seq_along(repseq_tall)) {
 # and "count", concatenated. This is the heading for each sequence in the
 # fasta file created by Matt Kweskin's script "featuretofasta.py"
 seqtab_nochim_tall_md5 <- seqtab_nochim_tall %>%
-  mutate(md5 = repseq_tall_md5) %>%
-  mutate(sample_md5_count = paste(sample, md5, count, sep = "_")) %>%
-  select(sample, md5, count, sample_md5_count, ASV)
+  dplyr::mutate(md5 = repseq_tall_md5) %>%
+  dplyr::mutate(sample_md5_count = paste(sample, md5, count, sep = "_")) %>%
+  dplyr::select(sample, md5, count, sample_md5_count, ASV)
 
 ### Export feature-to-fasta fas file -----------------------------------------
 # Create a fasta-formatted file of each row sequence (i.e. ASV), with a
 # heading of "sample_feature_count".
-write.fasta(
+seqinr::write.fasta(
   sequences = as.list(seqtab_nochim_tall_md5$ASV),
   names = seqtab_nochim_tall_md5$sample_md5_count,
   open = "w",

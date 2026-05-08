@@ -1,10 +1,6 @@
 # MERGE ########################################################################
 ## Load Libraries ==============================================================
 suppressMessages(library(dada2, warn.conflicts = FALSE, quietly = TRUE))
-suppressMessages(library(digest, warn.conflicts = FALSE, quietly = TRUE))
-suppressMessages(library(tidyverse, warn.conflicts = FALSE, quietly = TRUE))
-suppressMessages(library(seqinr, warn.conflicts = FALSE, quietly = TRUE))
-suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 
 ## File Housekeeping ===========================================================
 # Get argument containing the gene name from job file.
@@ -12,7 +8,7 @@ args <- commandArgs(trailingOnly = TRUE)
 
 # Check to make sure there is an argument for the gene name
 if (length(args) < 1) {
-    stop(paste0("No gene argument provided in job file 6_merge_", gene, ".job"))
+  stop(paste0("No gene argument provided in job file 6_merge_", gene, ".job"))
 }
 
 # get gene name from argument
@@ -36,11 +32,12 @@ load(paste0("data/working/5_denoise_", gene, ".RData"))
 # also contains multiple columns describing data for each unique merged
 # sequence.
 
-# Merge sequences with a 12 bp minimum overflap and no mismatches allowed in the overlap region. 
-# This is a pretty strict merge, but I have found that it is better to be strict here and lose 
-# some reads than to be more lenient and have more spurious sequences in the final results.
+# Merge sequences with a 12 bp minimum overflap and no mismatches allowed in the
+# overlap region. This is a pretty strict merge, but I have found that it is
+# better to be strict here and lose some reads than to be more lenient and have
+# more spurious sequences in the final results.
 cat("\nMerging forward and reverse reads for", gene, "\n")
-merged_reads <- mergePairs(
+merged_reads <- dada2::mergePairs(
   denoised$F,
   filtered_reads$F,
   denoised$R,
@@ -61,7 +58,7 @@ cat("\nMerging is complete for", gene, "\n")
 # will use "sequence-table" for the table with columns of sequences, and
 # "feature-table" for tables with columns of samples.
 
-seqtab <- makeSequenceTable(merged_reads)
+seqtab <- dada2::makeSequenceTable(merged_reads)
 
 # This describes the dimensions of the gene-specific table just made
 # First the number of samples

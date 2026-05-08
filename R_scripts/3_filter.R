@@ -1,9 +1,6 @@
 # FILTER #######################################################################
 ## Load Libraries ==============================================================
 suppressMessages(library(dada2, warn.conflicts = FALSE, quietly = TRUE))
-suppressMessages(library(digest, warn.conflicts = FALSE, quietly = TRUE))
-suppressMessages(library(tidyverse, warn.conflicts = FALSE, quietly = TRUE))
-suppressMessages(library(seqinr, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 
 ## File Housekeeping ===========================================================
@@ -40,7 +37,9 @@ if (exists("path_to_results") && is.list(path_to_results)) {
 # in the next step and a list for storing filtered reads.
 path_to_filtered <- paste0("data/working/filtered_sequences/", gene)
 
-# Rename sample_names_trimmed to be gene-specific, because this is now a gene-specific script, and we will be saving gene-specific RData files, so we want to make sure the objects in those files are gene-specific as well.
+# Rename sample_names_trimmed to be gene-specific, because this is now a
+# gene-specific script, and we will be saving gene-specific RData files, so we
+# want to make sure the objects in those files are gene-specific as well.
 sample_names_filtered <- sample_names_trimmed[[gene]]
 
 # Create a list for forward and reverse reads in filtered_reads,
@@ -78,7 +77,7 @@ for (direction in c("F", "R")) {
 # keeping poorer-quality reads does not adversely effect the results, except in
 # very low quality reads. However, increasing maxEE does increase computational
 # time.
-filterAndTrim(
+dada2::filterAndTrim(
   actual_trimmed_reads[[gene]]$F,
   filtered_reads$F,
   actual_trimmed_reads[[gene]]$R,
@@ -135,7 +134,7 @@ filtered_reads <- list(
 sequence_counts_filtered <- sapply(
   filtered_reads$F,
   function(file) {
-    fq <- readFastq(file)
+    fq <- ShortRead::readFastq(file)
     length(fq)
   }
 )

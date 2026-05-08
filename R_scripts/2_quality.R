@@ -6,9 +6,8 @@
 # Load all R packages you may need. suppressMessages keeps it exporting updates
 # to the log
 suppressMessages(library(dada2, warn.conflicts = FALSE, quietly = TRUE))
-suppressMessages(library(digest, warn.conflicts = FALSE, quietly = TRUE))
-suppressMessages(library(tidyverse, warn.conflicts = FALSE, quietly = TRUE))
-suppressMessages(library(seqinr, warn.conflicts = FALSE, quietly = TRUE))
+suppressMessages(library(ggplot2, warn.conflicts = FALSE, quietly = TRUE))
+suppressMessages(library(stringr, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(ShortRead, warn.conflicts = FALSE, quietly = TRUE))
 
 ## File Housekeeping ===========================================================
@@ -48,7 +47,7 @@ reads_to_trim <- list.files(path_to_raw_reads)
 sample_names_raw <- sapply(
   strsplit(
     basename(
-      reads_to_trim[str_detect(reads_to_trim, "R1_001.fastq.gz")]
+      reads_to_trim[stringr::str_detect(reads_to_trim, "R1_001.fastq.gz")]
     ),
     "_S\\d{1,3}_"
   ),
@@ -61,11 +60,11 @@ sample_names_raw <- sapply(
 sequence_counts_raw <- sapply(
   paste(
     path_to_raw_reads,
-    reads_to_trim[str_detect(reads_to_trim, "R1_001.fastq.gz")],
+    reads_to_trim[stringr::str_detect(reads_to_trim, "R1_001.fastq.gz")],
     sep = "/"
   ),
   function(file) {
-    fastq_data <- readFastq(file)
+    fastq_data <- ShortRead::readFastq(file)
     length(fastq_data)
   }
 )
@@ -124,13 +123,13 @@ actual_trimmed_reads <- setNames(vector("list", length(genes)), genes)
 sequence_counts_trimmed <- setNames(vector("list", length(genes)), genes)
 
 # For each gene, create a list of trimmed forward and trimmed reverse reads.
-# These are ephemeral for each gene, and are not
+# These are ephemeral for each gene, and are not saved
 for (gene in genes) {
   # Count reads in R1 files
   sequence_counts_trimmed[[gene]] <- sapply(
     trimmed_reads[[gene]]$F,
     function(file) {
-      fq <- readFastq(file)
+      fq <- ShortRead::readFastq(file)
       length(fq)
     }
   )
@@ -223,26 +222,26 @@ for (gene in genes) {
   for (direction in c("F", "R")) {
     reads <- actual_trimmed_reads[[gene]][[direction]]
     sample_names <- sample_names_trimmed[[gene]]
-    quality_plots <- plotQualityProfile(
+    quality_plots <- dada2::plotQualityProfile(
       reads[1:length(sample_names)],
       aggregate = TRUE
     )
-    plot_build <- ggplot_build(quality_plots)
+    plot_build <- ggplot2::ggplot_build(quality_plots)
     max_x <- plot_build$layout$panel_params[[1]]$x.range[2]
     # Make the quality plots easier to interpret by changing the x-axis scale,
     # creating vertical lines every 10 bp to better determine quality scores at
     # length, add name of gene to plot
     quality_plots_better[[gene]][[direction]] <- quality_plots +
-      scale_x_continuous(
+      ggplot2::scale_x_continuous(
         limits = c(0, max_x),
         breaks = seq(0, max_x, 10)
       ) +
-      geom_vline(
+      ggplot2::geom_vline(
         xintercept = seq(0, max_x, 10),
         color = "blue",
         linewidth = 0.25
       ) +
-      annotate(
+      ggplot2::annotate(
         "text",
         x = 30,
         y = 2,
@@ -251,7 +250,7 @@ for (gene in genes) {
       )
 
     # Save the plot as a PDF
-    ggsave(
+    ggplot2::ggsave(
       filename = file.path(
         path_to_results[[gene]],
         paste0(
