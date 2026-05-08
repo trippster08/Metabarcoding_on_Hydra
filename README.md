@@ -37,7 +37,6 @@ mkdir -p PROJECT
 ```
 ```
 cd PROJECT
-
 ```
 ### Transfer Files to Hydra 
 From the main project directory, download the pipeline using `wget` (see code below). This downloads a compressed file that contains all job files (\*.job), shell scripts (\*.sh), R scripts (\*.R), and primer definition files (\*.fas) necessary for your analysis. 
