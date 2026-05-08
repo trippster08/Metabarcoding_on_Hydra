@@ -30,10 +30,13 @@ Go to the the directory assigned to you for short-term storage of large data-set
 ```
 cd /scratch/genomics/USERNAME
 ```
-Make a project-specific directory. Again, replace PROJECT with your project name. Everything will be run from this main project directory.
+Make a project-specific directory and move into that directory. Again, replace PROJECT with your project name. Everything will be run from this main project directory.
 
 ```
 mkdir -p PROJECT
+```
+```
+cd PROJECT
 
 ```
 ### Transfer Files to Hydra 
