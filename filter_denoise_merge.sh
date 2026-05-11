@@ -69,15 +69,15 @@ for (( i=0; i<gene_num; i++ )); do
 
 
   # Gene-specific checkpoint paths (you'll need R to write these)
-  filter_rdata="data/working/${gene}_3_filter.RData"
-  error_rdata="data/working/${gene}_4_error.RData"
-  denoise_rdata="data/working/${gene}_5_denoise.RData"
-  merge_rdata="data/working/${gene}_6_merge.RData"
-  chimera_rdata="data/working/${gene}_7_chimera.RData"
-  output_rdata="data/working/${gene}_8_output.RData"
+  filter_rdata="data/working/3_filter_${gene}.RData"
+  error_rdata="data/working/4_error_${gene}.RData"
+  denoise_rdata="data/working/5_denoise_${gene}.RData"
+  merge_rdata="data/working/6_merge_${gene}.RData"
+  chimera_rdata="data/working/7_chimera_${gene}.RData"
+  output_rdata="data/working/8_output_${gene}.RData"
 
 
-  if [[ ! -f "$filter_daata" ]]; then
+  if [[ ! -f "$filter_rdata" ]]; then
     # Step 3: filter, per gene
     qsub -o "logs/filter_${gene}.log" -N "filter_${gene}" \
       jobs/3_filter.job "$gene" "$r1" "$r2"
