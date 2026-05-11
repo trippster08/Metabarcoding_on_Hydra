@@ -2,6 +2,7 @@
 ## Load Libraries ==============================================================
 suppressMessages(library(dada2, warn.conflicts = FALSE, quietly = TRUE))
 suppressMessages(library(seqinr, warn.conflicts = FALSE, quietly = TRUE))
+suppressMessages(library(digest, warn.conflicts = FALSE, quietly = TRUE))
 
 ## File Housekeeping ===========================================================
 # Get argument containing the gene name from job file.
@@ -66,7 +67,7 @@ for (i in seq_along(repseq_chimera)) {
 }  
 
 # Export chimeric sequences as fastas
-write.fasta(
+seqinr::write.fasta(
   sequences = as.list(repseq_chimera),
   names = repseq_chimera_md5,
   open = "w",
@@ -88,7 +89,7 @@ write.fasta(
 # there are a lot of much longer and much shorter sequences.
 
 # Count the number of bp for each gene-specific ASV from the sequence-tables
-seq_length_table <- table(nchar(getSequences(seqtab_nochim)))
+seq_length_table <- table(nchar(dada2::getSequences(seqtab_nochim)))
 
 # Export this table as a .tsv
 write.table(
