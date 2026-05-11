@@ -266,11 +266,11 @@ write.table(
 # original table contains sample names, not counts). This makes the table tidier
 # (meaning that each column is now a true variable).
 
-seqtab_nochim_tall <- tibble::tibble(
+seqtab_nochim_tall <- tibble::as_tibble(
   seqtab_nochim,
   rownames = "sample"
 ) %>%
-  dplyr::pivot_longer(
+  tidyr::pivot_longer(
     !sample,
     names_to = "ASV",
     values_to = "count"
