@@ -63,8 +63,8 @@ track_reads <- tibble::tibble(
     sequence_counts_postfiltered,
     join_by(Sample_ID)
   ) %>%
-  dplyr::mutate(Proportion_Trimmed_Kept = Non_Chimeras / Trimmed_Reads) %>%
-  dplyr::mutate(Proportion_Gene = Trimmed_Reads / Raw_Reads) %>%
+  dplyr::mutate(Proportion_Trimmed_Passed = Non_Chimeras / Trimmed_Reads) %>%
+  dplyr::mutate(Proportion_Raw_Passed = Trimmed_Reads / Raw_Reads) %>%
   dplyr::select(
     Sample_ID,
     Raw_Reads,
