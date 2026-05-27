@@ -30,6 +30,9 @@ BiocManager::install("ShortRead", ask = FALSE, Ncpus = 4)
 
 Install any other libraries you may need. Libraries will only need to be installed once. If you get a message saying some packages have more recent versions available,
 and asking if you want to update them, chose "1: ALL".
+There have been some issues with installing certain packages (such as DADA2, ShortRead, seqinr, etc). If you are getting errors when attempting to install these packages, see our [R and RStudio help page](https://confluence.si.edu/spaces/HPC/pages/385975502/Using+the+RStudio+Server). This page currently says it is only for the RStudio Server, but it also helps with command-line R problems.
+
+
 ```
 install.packages("digest", Ncpus = 4)
 install.packages("ggplot2", Ncpus = 4)
