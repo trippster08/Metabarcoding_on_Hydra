@@ -12,18 +12,18 @@ available_primers=()
 # Loop through all the files in the primer folder and get the names from
 # ecah forward primer file. Then add them to the variable of available primer
 # names
-for file in primers/*F.fas; do
+for file in primers/*-F.fas; do
   primer_file=${file##*/}
-  primer_name=${primer_file%F.fas}
+  primer_name=${primer_file%-F.fas}
   available_primers+=(${primer_name})
 done
 #echo ${available_primers[@]}
 
 # Do the same for primers with potential readthrough
 RC_primers=()
-for file in primers/*F_RC.fas; do
+for file in primers/*-F_RC.fas; do
   primer_file=${file##*/}
-  primer_name=${primer_file%F_RC.fas}
+  primer_name=${primer_file%-F_RC.fas}
   RC_primers+=(${primer_name})
 done
 #echo ${RC_primers[@]}
