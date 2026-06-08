@@ -145,16 +145,16 @@ if [ "$#" -ge 1 ]; then # If variables were submitted
       # to pass four primers to the cutadapt
         # This adds the sequences from the gene-specific files to the files that will
         # be used by cutadapt. Also set RC_found variable to true
-        cat "primers/${gene}F.fas" >> ${PrimerF}
-        cat "primers/${gene}R.fas" >> ${PrimerR}
-        cat "primers/${gene}F_RC.fas" >> ${PrimerFrc}
-        cat "primers/${gene}R_RC.fas" >> ${PrimerRrc}
+        cat "primers/${gene}-F.fas" >> ${PrimerF}
+        cat "primers/${gene}-R.fas" >> ${PrimerR}
+        cat "primers/${gene}-F_RC.fas" >> ${PrimerFrc}
+        cat "primers/${gene}-R_RC.fas" >> ${PrimerRrc}
         RC_found=true
       else # If no RC primers are used, we only need 2 primer files
         # This adds the sequences from the gene-specific files to the files that will
         # be used by cutadapt.
-        cat "primers/${gene}F.fas" >> ${PrimerF}
-        cat "primers/${gene}R.fas" >> ${PrimerR}
+        cat "primers/${gene}-F.fas" >> ${PrimerF}
+        cat "primers/${gene}-R.fas" >> ${PrimerR}
       fi
     done
     #echo ${RC_found}

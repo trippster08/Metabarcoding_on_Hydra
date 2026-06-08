@@ -26,7 +26,7 @@ truncation_value_num=${#truncation_values[@]}
 # names
 for file in primers/*F.fas; do
   primer_file=${file##*/}
-  gene_name=${primer_file%F.fas}
+  gene_name=${primer_file%-F.fas}
   available_genes+=(${gene_name})
 done
 #echo ${available_genes[@]}
