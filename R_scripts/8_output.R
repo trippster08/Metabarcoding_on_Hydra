@@ -74,8 +74,8 @@ track_reads <- tibble::tibble(
     Denoised_Reads_R,
     Merged_Reads,
     Non_Chimeras,
-    Proportion_Trimmed_Kept,
-    Proportion_Gene
+    Proportion_Trimmed_Passed,
+    Proportion_Raw_Passed
   )
 
 # Export this table as a .tsv
