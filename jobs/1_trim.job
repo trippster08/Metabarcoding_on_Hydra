@@ -91,7 +91,6 @@ for x in ${path_to_data}/raw/*_R1*; do
       -a file:${primerRrc} \
       -A file:${primerFrc} \
       -e 0.2 --cores=$NSLOTS -O 6 --quiet \
-      --json=logs/terminal_trim_cutadapt.json \
       -o ${path_to_data}/raw/${name}_trimmed_R1.fastq \
       -p ${path_to_data}/raw/${name}_trimmed_R2.fastq \
       ${path_to_data}/raw/${namepre}_R1${namepost} \
@@ -102,7 +101,6 @@ for x in ${path_to_data}/raw/*_R1*; do
       -g file:${primerF} \
       -G file:${primerR} \
       -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed --quiet \
-      --json=logs/front_trim_cutadapt.json \
       -o ${path_to_data}/working/trimmed_sequences/${genes[0]}/${name}_trimmed_R1.fastq \
       -p ${path_to_data}/working/trimmed_sequences/${genes[0]}/${name}_trimmed_R2.fastq \
       ${path_to_data}/raw/${name}_trimmed_R1.fastq \
@@ -115,7 +113,6 @@ for x in ${path_to_data}/raw/*_R1*; do
       -g file:${primerF} \
       -G file:${primerR} \
       -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed --quiet \
-      --json=logs/front_trim_cutadapt.json \
       -o ${path_to_data}/working/trimmed_sequences/${genes[0]}/${name}_trimmed_R1.fastq \
       -p ${path_to_data}/working/trimmed_sequences/${genes[0]}/${name}_trimmed_R2.fastq \
       ${path_to_data}/raw/${namepre}_R1${namepost} \
@@ -140,8 +137,7 @@ for x in ${path_to_data}/raw/*_R1*; do
       -a file:${primerRrc} \
       -A file:${primerFrc} \
       -e 0.2 --cores=$NSLOTS -O 10 --quiet \
-      --json=logs/terminal_trim_cutadapt.json \
-      -o ${path_to_data}/raw/${name}_trimmed_R1.fastq \
+        -o ${path_to_data}/raw/${name}_trimmed_R1.fastq \
       -p ${path_to_data}/raw/${name}_trimmed_R2.fastq \
       ${path_to_data}/raw/${namepre}_R1${namepost} \
       ${path_to_data}/raw/${namepre}_R2${namepost}
@@ -152,7 +148,6 @@ for x in ${path_to_data}/raw/*_R1*; do
       -g file:${primerF} \
       -G file:${primerR} \
       -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed --quiet \
-      --json=logs/front_trim_cutadapt.json \
       -o ${path_to_data}/working/trimmed_sequences/{name}/${name}_trimmed_R1.fastq \
       -p ${path_to_data}/working/trimmed_sequences/{name}/${name}_trimmed_R2.fastq \
       ${path_to_data}/raw/${name}_trimmed_R1.fastq \
@@ -172,7 +167,6 @@ for x in ${path_to_data}/raw/*_R1*; do
       -g file:${primerF} \
       -G file:${primerR} \
       -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed --quiet \
-      --json=logs/front_trim_cutadapt.json \
       -o ${path_to_data}/working/trimmed_sequences/{name}/${name}_trimmed_R1.fastq \
       -p ${path_to_data}/working/trimmed_sequences/{name}/${name}_trimmed_R2.fastq \
       ${path_to_data}/raw/${namepre}_R1${namepost} \
