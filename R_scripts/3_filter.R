@@ -95,7 +95,7 @@ dada2::filterAndTrim(
 # Create a new sample_names_filtered, since some samples no longer have
 # reads after filtering, and therefore no longer exist in the directory
 files_F <- list.files(path_to_filtered, pattern = "filt_F", full.names = TRUE)
-samples_names_filtered <- sapply(strsplit(basename(files_F), "_filt_F"), `[`, 1)
+sample_names_filtered <- sapply(strsplit(basename(files_F), "_filt_F"), `[`, 1)
 
 # Update filtered_reads, since some samples no longer have
 # reads after filtering, and therefore no longer exist in the directory
