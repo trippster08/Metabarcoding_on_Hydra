@@ -10,9 +10,6 @@
 #$ -o trimmed.log
 #
 # ----------------Modules------------------------- #
-module load gcc/14.2.0
-module load tools/R/4.4.1
-module load tools/cmake
 module load bioinformatics/blast
 
 #
@@ -20,9 +17,9 @@ module load bioinformatics/blast
 #
 echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
 echo + NSLOTS = $NSLOTS
-#
-# This just starts the rescript for running the DADA2 identifier
-Rscript ../R_scripts/assign_taxonomy.R
+gene="$1"
+path_to_data="$2"
+project_name="$3"
 
 # This starts a blastn search against your reference database
 # replace -query with the path to your representative sequence fasta
@@ -31,12 +28,12 @@ Rscript ../R_scripts/assign_taxonomy.R
 # on hydra currently
 # Everything else should work
 blastn \
--query /scratch/nmnh_lab/macdonaldk/pseudodec/data/working/PseudoDec_v2_rep-seq_md5.fas \
+-query ${path_to_data}/results/${gene}/${project_name}_rep-seq_${gene}.fas \
 -db mito \
 -task "blastn" \
--out /scratch/nmnh_lab/macdonaldk/pseudodec/data/results/meyer_pseudec_ind_v2_COI_blast.txt \
+-out ${path_to_data}/results/${gene}/${project_name}_blast_${gene}.txt \
 -num_threads $NSLOTS \
--max_target_seqs 10 \
+-max_target_seqs 5 \
 -outfmt "6 qseqid sacc staxids sscinames qcovs pident"
 
 
