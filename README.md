@@ -54,7 +54,7 @@ mkdir -p data/raw
 
 ```
 ### Get Raw Reads
-Your raw reads need to be in a folder in your project directory. This folder can be `data/raw/` or it's own folder loded onto hydra. Any raw fasta.gz files in a separate folder will be moved into `data/raw` as the first step of the pipeline. Download to your local computer and use scp or filezilla to upload to `data/raw/`. See [Transferring Files to/from Hydra](https://confluence.si.edu/pages/viewpage.action?pageId=163152227) for help with transferring files between Hydra and your computer. *NOTE: Remove any "undetermined" read files from the folder containing your raw reads. You do not want to include these reads in your analyses.*
+Your raw reads need to be in a folder in your project directory. This folder can be `data/raw/` or it's own folder loaded onto hydra. Any raw fasta.gz files in a separate folder will be moved into `data/raw` as the first step of the pipeline. Download to your local computer and use scp or filezilla to upload to `data/raw/`. See [Transferring Files to/from Hydra](https://confluence.si.edu/pages/viewpage.action?pageId=163152227) for help with transferring files between Hydra and your computer. *NOTE: Remove any "undetermined" read files from the folder containing your raw reads. You do not want to include these reads in your analyses.*
 If your files are saved as a dropbox link to a .zip file, you can upload your raw reads directly to hydra without first saving to your computer (remembering that /scratch is not for long-term storage of data) using wget. However, for large datasets we often run into errors both in uploading the file and in unzipping it. If you want to attempt this, I can walk you through the process.
 
 ### Preparing R
