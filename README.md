@@ -68,11 +68,14 @@ You can monitor job progress by examining the logs in the logs/ directory. If th
 ### Trim Primers and Create Quality Plots
 This pipeline uses Cutadapt to remove primers from reads, remove poly-G tails if necessary, and remove short reads. It will also demultiplex by amplicon primer if more than one gene region was part of the same run. The following shell script submits a job to run Cutadapt for all samples in a run on Hydra. Run this script, followed by the names of the one or more gene regions in the run. As an example, `sh trim_and_quality_plot.sh COI` will search for and remove "mlCOIintF/jgCOIR" from each pair of reads, while `sh trim_and_quality_plot.sh MiFish COI` will search for both the COI primers and MiFish 12S prmers. It will also demultiplex reads, moving each read into a gene-specific folder depending on the primers removed. In our example the gene-specific folders are `data/working/trimmed_sequences/COI` and `data/working/trimmed_sequences/MiFish`. Following trimming, gene-specific quality plots are created using DADA2
 
-We currently have primer sets for five gene regions, COI, 18S-v4, MiFish-12S, 16S-v4 for soil microbiomes, and 28S for Anthozoans. The default names for these five regions are "COI", "18S", "MiFish", "16Sbac" and "28SAnth. If you give it an incorrect or unavailable name, you will get a message telling you so and giving a list of compatible names. If you have additional primers to trim, I can add them to the default primer list, or you can add custom primers yourself on a per-analysis basis.
+We currently have common metabarcoding primer sets for multiple gene regions. To get a list of the current available primer sets, run the following code in the termninal:
+```
+basename -a primers/*.fas | grep -v '_RC' | sed -E 's/-(F|R)\.fas$//' | sort -u
+```
+ Additionally, if you give it an incorrect or unavailable name, you will get a message telling you so and giving a list of compatible names. If you have additional primers to trim, I can add them to the default primer list, or you can add custom primers yourself on a per-analysis basis.
 
 #### Custom Primers
 You can currently trim custom primers in addition to those that come with the pipeline. See the instructions at the bottom of [Custom Primers](https://github.com/trippster08/Metabarcoding_on_Hydra/blob/main/primers/primer_info.md) for directions on how to add your own primer files with sequences. You then append the name of your custom primers (i.e. gene region) to `sh trim_and_quality_plot.sh`.
-
 
 ```
 sh trim_and_quality_plot.sh <gene_region_used>
