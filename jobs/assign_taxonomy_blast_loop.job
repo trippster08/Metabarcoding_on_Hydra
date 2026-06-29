@@ -34,7 +34,7 @@ blastn \
 -out ${path_to_data}/results/${gene}/${project_name}_blast_${gene}.tsv \
 -num_threads $NSLOTS \
 -max_target_seqs 5 \
--outfmt "6 qseqid sacc staxids sscinames qcovs pident"
+-outfmt "6 qseqid sacc staxids sscinames scomnames qcovs pident"
 
 
 
