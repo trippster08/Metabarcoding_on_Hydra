@@ -298,14 +298,14 @@ stopifnot(all(file.exists(all_reads)))
 results <- t(sapply(all_reads, fastq_stats))
 
 quality_summary <- data.frame(
-  file = basename(all_reads),
+  file_name = basename(all_reads),
   mean_phred = results[, "mean_phred"],
   pct_Q30 = results[, "pct_Q30"],
   row.names = NULL
 )
 
 quality_summary <- quality_summary[
-  order(quality_summary$file),
+  order(quality_summary$file_name),
 ]
 
 write.table(
