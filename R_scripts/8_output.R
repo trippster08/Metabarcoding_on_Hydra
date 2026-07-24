@@ -231,6 +231,99 @@ write.table(
   row.names = FALSE
 )
 
+## Create and Export Quality Scores =========================================
+# Create a table to get mean sample quality (phred) scores, and % of reads
+# within each sample with phred scores > Q30
+
+### Create a Quality Score function -------------------------------------------
+# o look at each fastq.gz, get the sum of scores and total
+# number of bases for that .fastq.gz
+fastq_stats <- function(file) {
+  # Create a connection to the .fastq.gz file. "rt" means read text. This does
+  # not unzip the file. We would just use file instead of gzfile for a .fastq
+  con <- gzfile(file, "rt")
+  # This will close the file after the function is done, even if the function
+  # creashes
+  on.exit(close(con))
+  # Totals scores and bases...so you divide the total score by the number of
+  # bases, and we have the average score for the file
+  total_score <- 0
+  total_bases <- 0
+  q30_bases <- 0
+  # Create a loop that goes on until we stop it (infinite loop)
+  repeat {
+    # read the lines, 400000 at a time, which equals 100000 reads (each read
+    # contains 4 lines). This reduces memory usage 
+    lines <- readLines(con, n = 400000)
+    # when we run out of lines, rreadLines = 0, and we stop the loop
+    if (length(lines) == 0)
+      break
+    # Take each 4th line, which is the quality score, make a vector of them
+    qual <- lines[seq(4, length(lines), 4)]
+    # save phred score from ASCI quality. This takes each symbol, converts
+    # to its ASCI numerical value, and subtracts 33, and does it for each read
+    qvals <- unlist(
+      lapply(
+        qual,
+        function(x) as.integer(charToRaw(x)) - 33L
+      ),
+      use.names = FALSE
+    )
+
+    # total all phred scores
+    total_score <- total_score + sum(qvals)
+    # count number of bases
+    total_bases <- total_bases + length(qvals)
+    # count number reads with pred scores greater than 30
+    q30_bases <- q30_bases + sum(qvals >= 30)
+  }
+  
+  c(
+    # calculate mean phred and percentage of reads with phred over 30
+    mean_phred = total_score / total_bases,
+    pct_Q30 = 100 * q30_bases / total_bases
+  )
+}
+
+### Create and Export Quality Score Table ------------------------------------
+all_reads <- c(filtered_reads$F, filtered_reads$R)
+direction <- c(
+  rep("F", length(filtered_reads$F)),
+  rep("R", length(filtered_reads$R))
+)
+
+stopifnot(is.character(all_reads))
+stopifnot(all(file.exists(all_reads)))
+
+results <- t(sapply(all_reads, fastq_stats))
+
+quality_summary <- data.frame(
+  file_name = basename(all_reads),
+  mean_phred = results[, "mean_phred"],
+  pct_Q30 = results[, "pct_Q30"],
+  row.names = NULL
+)
+
+quality_summary <- quality_summary[
+  order(quality_summary$file_name),
+]
+
+write.table(
+  quality_summary,
+  file = file.path(
+    path_to_results,
+    paste0(
+      "/additional_results/",
+      project_name,
+      "_quality_scores_",
+      gene,
+      ".tsv"
+    )
+  ),
+  quote = FALSE,
+  sep = "\t",
+  row.names = FALSE
+)
 
 ## Create and Export feature-to-fasta ========================================
 # This creates a fasta file containing all the ASV's for each sample. Each ASV

@@ -2,8 +2,8 @@
 # ----------------Parameters---------------------- #
 #$ -S /bin/sh
 #$ -pe mthread 4
-#$ -q sThC.q
-#$ -l mres=16G,h_data=4G,h_vmem=4G
+#$ -q sThM.q
+#$ -l mres=48G,h_data=12G,h_vmem=12G,himem
 #$ -cwd
 #$ -j y
 #$ -N denoise

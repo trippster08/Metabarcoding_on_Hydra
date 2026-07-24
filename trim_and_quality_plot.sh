@@ -43,6 +43,7 @@ if ! compgen -G "${path_to_raw}"/*.fastq.gz > /dev/null; then
     -mindepth 2 \
     -type f \
     -name '*.fastq.gz' \
+    ! -iname '*undetermined*' \
     ! -path "${raw_rel}/*" \
     -print0 > "$filelist"
   # If no fastq.gz files are found
