@@ -72,11 +72,12 @@ We currently have common metabarcoding primer sets for multiple gene regions. To
 ```
 basename -a primers/*.fas | grep -v '_RC' | sed -E 's/-(F|R)\.fas$//' | sort -u
 ```
- Additionally, if you give it an incorrect or unavailable name, you will get a message telling you so and giving a list of compatible names. If you have additional primers to trim, I can add them to the default primer list, or you can add custom primers yourself on a per-analysis basis.
+ Additionally, if you give it an incorrect or unavailable name, you will get a message telling you so and giving a list of compatible names. If you have additional primers to trim, I can add them to the default primer list, or you can add custom primers yourself on a per-analysis basis (see next section).
 
 #### Custom Primers
 You can currently trim custom primers in addition to those that come with the pipeline. See the instructions at the bottom of [Custom Primers](https://github.com/trippster08/Metabarcoding_on_Hydra/blob/main/primers/primer_info.md) for directions on how to add your own primer files with sequences. You then append the name of your custom primers (i.e. gene region) to `sh trim_and_quality_plot.sh`.
 
+Run trim_and_quality_plot shell script to submit job:
 ```
 sh trim_and_quality_plot.sh <gene_region_used>
 ```
