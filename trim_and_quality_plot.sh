@@ -19,15 +19,6 @@ for file in primers/*-F.fas; do
 done
 #echo ${available_primers[@]}
 
-# Do the same for primers with potential readthrough
-RC_primers=()
-for file in primers/*-F_RC.fas; do
-  primer_file=${file##*/}
-  primer_name=${primer_file%-F_RC.fas}
-  RC_primers+=(${primer_name})
-done
-#echo ${RC_primers[@]}
-
 # Look to see if there are fastq.gz files in data/raw. 
 if ! compgen -G "${path_to_raw}"/*.fastq.gz > /dev/null; then
   echo "No sequences (*.fastq.gz) were found in the raw data directory: ${path_to_raw}."
@@ -71,104 +62,59 @@ fi
 count=$(ls -1 "${path_to_raw}"/*.fastq.gz 2>/dev/null | wc -l)
 echo "Total fastq.gz files in ${path_to_raw}: $count"
 
-# Create path for trimmed sequences, results, and primers for cutadapt
-path_to_trimmed="${path_to_data}/working/trimmed_sequences/"
-path_to_results="${path_to_data}/results/"
+# Create path for demulitplexed sequences, trimmed sequences,
+# results, and primers for cutadapt
+path_to_demultiplexed="${path_to_data}/raw/demultiplexed_sequences"
+path_to_trimmed="${path_to_data}/working/trimmed_sequences"
+path_to_results="${path_to_data}/results"
 path_to_primers="primers/active"
-# Create directory for active primers
-mkdir ${path_to_primers}
+# Create directory for active primers, but it only makes it if it does not
+# already exist, it won't give an error if it does exist
+mkdir -p "${path_to_primers}"
 # echo ${path_to_trimmed}
 # echo ${path_to_results}
-
-# Set path to the 4 potential primer files
+# Remove any primer files that are currently in the activep primer folder before
+# adding the new primer files
+rm -f "${path_to_primers}"/*.fas
+# Set path to the two 5' primer files
 PrimerF=${path_to_primers}/primerF.fas
 PrimerR=${path_to_primers}/primerR.fas
-PrimerFrc=${path_to_primers}/primerF_RC.fas
-PrimerRrc=${path_to_primers}/primerR_RC.fas
-
-# Create empty files for the primer sequences to be used by cutadapt. These will
+# Create empty files for the 5' primer sequences to be used by cutadapt. These will
 # be filled with sequences below
-: > ${PrimerF}
-: > ${PrimerR}
-: > ${PrimerFrc}
-: > ${PrimerRrc}
+: > "${PrimerF}"
+: > "${PrimerR}"
 
 # This is the loop to submit the job that will perform primer trimming
 # (and demultiplexing, if necessary) and create quality plots
 # First, see if any variables were submitted?
 if [ "$#" -ge 1 ]; then # If variables were submitted
   # Check if all_trimmed = true
-  if  [ -d ${path_to_trimmed} ]; then # if the path_to_trimmed does have a folder (but no sequences in them)
+  if  [ -d "${path_to_trimmed}" ]; then # if the path_to_trimmed does have a folder
     # Set variable for whether all trimming has been completed to true
     all_trimmed=true
-    # Check to see if trimming has been completed for all jobs
-    # Loop through all genes, determining whether to change all_trimmed to false
-    for gene in ${@}; do
+    # Check to see if trimming has been completed for all genes
+    # Loop through all genes to see if there are sequences in the trimmed_sequences
+    # folder. If not we change all_trimmed to false
+    for gene in "$@"; do
       if ! find "${path_to_trimmed}/${gene}" -maxdepth 1 -name "*.fastq.gz" | grep -q .; then
         all_trimmed=false
         break
       fi
     done
     # Check to see if all_trimmed = true (i.e. trimming for all genes is completed)
-    if [ ${all_trimmed} = true ]; then # if trimmed sequences for all genes do exist,
+    if [ "${all_trimmed}" = true ]; then # if trimmed sequences for all genes do exist,
     # trimming is complete and the next job, 2_quality.job, is submitted instead 
       qsub -o logs/quality.log -N quality \
-      jobs/2_quality.job  ${#} ${@}
+      jobs/2_quality.job  ${#} "$@"
       echo "Trimming is already completed, we are moving to the next step: 2_quality.job"
-    # If the path_to_trimmed does have a folder (but no sequences in them) Check
-    # to see if a cutadapt log and json file exist
-    elif find logs/cutadapt* -maxdepth 1 -name '*.json' | grep -q .; then # If
-      # both exist, remove both and the trimmed and results folders
-      rm -r ${path_to_trimmed} ${path_to_results} logs/cutadapt.log logs/*.json
-    elif [  -f logs/cutadapt.log ]; then # If only log exists, remove log and
+      exit 0
+    # If the path_to_trimmed does have a folder (but at least one gene has no sequences in it),
+    # check to see if a cutadapt log exists.
+    elif [  -f logs/cutadapt.log ]; then # If the log exists, remove log and
       # trimmed and results folders
-      rm -r ${path_to_trimmed} ${path_to_results} logs/cutadapt.log
+      rm -rf "${path_to_trimmed}" "${path_to_results}" logs/cutadapt.log
     else # If log does not exist, only remove trimmed and results folders
-        rm -r ${path_to_trimmed} ${path_to_results}
-    fi
-  else # If trimmed folder does not exist, make gene-specific trimmed and results folders
-    for gene in ${@}; do
-      mkdir -p "${path_to_trimmed}${gene}" "${path_to_results}${gene}/plots" \
-      "${path_to_results}${gene}/additional_results"
-    done
-  # Set RC_found to false to start, and only change to true if one of the RC
-  # primers is given
-    RC_found=false # initialize RC_found outside loop
-    # Loop through all the variables (genes) given 
-    for gene in "$@"; do
-      if [[ ! " ${available_primers[*]} " =~ (^|[[:space:]])${gene}([[:space:]]|$) ]]; then
-        # If one of the variables is not a valid primer, print error and list of primers
-        echo "Error: ${gene} is not a valid primer name. Valid gene names are: ${available_primers[@]}."
-        exit 1
-      fi
-      # Check to see if one of the submitted variables is a primer with read-through
-      if [[ " ${RC_primers[*]} " == *" ${gene} "* ]];then # If it is, then we need
-      # to pass four primers to the cutadapt
-        # This adds the sequences from the gene-specific files to the files that will
-        # be used by cutadapt. Also set RC_found variable to true
-        cat "primers/${gene}-F.fas" >> ${PrimerF}
-        cat "primers/${gene}-R.fas" >> ${PrimerR}
-        cat "primers/${gene}-F_RC.fas" >> ${PrimerFrc}
-        cat "primers/${gene}-R_RC.fas" >> ${PrimerRrc}
-        RC_found=true
-      else # If no RC primers are used, we only need 2 primer files
-        # This adds the sequences from the gene-specific files to the files that will
-        # be used by cutadapt.
-        cat "primers/${gene}-F.fas" >> ${PrimerF}
-        cat "primers/${gene}-R.fas" >> ${PrimerR}
-      fi
-    done
-    #echo ${RC_found}
-    # Check to see if RC_found is true
-    if [ "$RC_found" = true ]; then # If we used a read-through primer
-      # submit job to hydra with primers and rc primers. Also pass number of genes,
-      # list of genes, and path to data
-      qsub -o logs/cutadapt.log -N cutadapt \
-      jobs/1_trim.job ${#} ${@} ${path_to_data} ${PrimerF} ${PrimerR} ${PrimerFrc} ${PrimerRrc}
-    else # If no read-through primer
-      # submit job to hydra with primers, number of genes, list of genes, and path to data
-      qsub -o logs/cutadapt.log -N cutadapt \
-      jobs/1_trim.job ${#} ${@} ${path_to_data} ${PrimerF} ${PrimerR}
+        rm -rf "${path_to_trimmed}" "${path_to_results}"
     fi
   fi
 else # If no variables were submitted after shell script
@@ -177,3 +123,39 @@ else # If no variables were submitted after shell script
   gene names are: ${available_primers[@]}."
   exit 1
 fi
+for gene in "$@"; do
+  mkdir -p "${path_to_trimmed}/${gene}" \
+  "${path_to_results}/${gene}/plots" \
+  "${path_to_results}/${gene}/additional_results" \
+  "${path_to_demultiplexed}/${gene}"
+done
+# We need to set up the primer files for cutadapt before submitting the cutadapt job.
+# Loop through all the variables (genes) given 
+for gene in "$@"; do
+  if [[ ! " ${available_primers[*]} " =~ (^|[[:space:]])${gene}([[:space:]]|$) ]]; then
+    # If one of the variables is not a valid primer, print error and list of primers
+    echo "Error: ${gene} is not a valid primer name. Valid gene names are: ${available_primers[@]}."
+    exit 1
+  fi
+  # This adds the sequences from the gene-specific files to the files that will
+  # be used by cutadapt. Also set RC_found variable to true
+  cat "primers/${gene}-F.fas" >> "${PrimerF}"
+  cat "primers/${gene}-R.fas" >> "${PrimerR}"
+
+  # Check to see if each of the submitted variables is a primer with read-through
+  if [[ -f "primers/${gene}-F_RC.fas" && \
+    -f "primers/${gene}-R_RC.fas" ]]; then 
+    # If it is, then we need to copy the RC primers into the active primer folder
+    # This copies each gene-specific 3' primer file to the active primers folder, and sets the path to
+    # each of the gene-specific 3' primer files to be used by cutadapt
+    cp "primers/${gene}-F_RC.fas" "${path_to_primers}/${gene}-F_RC.fas"
+    cp "primers/${gene}-R_RC.fas" "${path_to_primers}/${gene}-R_RC.fas"
+  fi
+done
+# Submit the job, which will run cutadapt and create quality plots. We are also passing
+# the path to the data, the 5' primer files, and the path to the active primers folder,
+# as well as the number of variables (genes) and the variables (gene names) that were
+# submitted by the user
+  qsub -o logs/cutadapt.log -N cutadapt \
+  jobs/1_trim.job "${#}" "$@" "${path_to_data}" "${path_to_primers}" "${PrimerF}" "${PrimerR}"
+

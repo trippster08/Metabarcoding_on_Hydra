@@ -21,40 +21,29 @@ echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
 echo + NSLOTS = $NSLOTS
 #
 
-#echo ${@}
-num_genes=$1  # First argument is the count of genes
-shift         # Remove count argument
-#echo ${@}
+#echo "$@"
+num_genes="$1"  # First argument is the count of genes
 #echo ${num_genes}
+shift # Remove count argument
 genes=("${@:1:$num_genes}")   # Uses number of genes to extract gene names
-#echo ${genes}
-shift ${num_genes} # remove gene arguments
-#echo ${@}
-path_to_data=${1} # Next argument is path to data directory
-#echo ${path_to_data}
+#echo "$genes"
+shift "$num_genes" # remove gene arguments
+#echo "$@"
+path_to_data="$1" # Next argument is path to data directory
+#echo "${path_to_data}"
 shift # remove data argument
 #echo ${@}
+path_to_primers="$1" # Next argument is path to primers directory
+# echo "${path_to_primers}"
+shift
 primer_files=("$@")  # assign remaining arguments as primers
 #echo ${primer_files[@]}
 #echo ${primer_files[1]}
 
-# Determine primer structure
-if [ "${#primer_files[@]}" -eq 2 ]; then # If there are 2 primer files
-  # Assign arguments to forward and reverse primers
-  primerF="${primer_files[0]}"
-  primerR="${primer_files[1]}"
-  echo "Your reads should not have potential read-through, so we are only removing primers from the 5' end of each read."
-elif [ "${#primer_files[@]}" -eq 4 ]; then # if there are 4 primer files
-  # Assign arguments to foward, reverse, and F-RC and R-RC primers
-  primerF="${primer_files[0]}"
-  primerR="${primer_files[1]}"
-  primerFrc="${primer_files[2]}"
-  primerRrc="${primer_files[3]}"
-  echo "Your reads have potential read-through, so we will attempt to trim primers from 3' read ends before 5'"
-else # If there are any other number of arguments (0, 1, 3, >5)
-  echo "Error: Unexpected number of primer arguments (${#primer_files[@]})."
-  exit 1
-fi
+
+primerF="${primer_files[0]}"
+primerR="${primer_files[1]}"
+
 # This is the standard loop to look in the raw files and get sample names
 for x in ${path_to_data}/raw/*_R1*; do
   # Assign the name of the file to "sample"
@@ -72,116 +61,46 @@ for x in ${path_to_data}/raw/*_R1*; do
 #echo ${namepre}
 #echo ${path_to_data}/raw/${namepre}_R2${namepost}
 
-# Here we run Cutadapt and the r script for quality plots
-# First, we check to see if there are reverse files with the correct names in the raw folder
-# Sometimes both forward and reverse files do not get copied
-  if [[ ! -f ${path_to_data}/raw/${namepre}_R2${namepost} ]]; then # If there are no R2 files, print error
-    echo "Error, ${namepre}_R2${namepost} can not be found in data/raw/, please make sure all read pairs exist" >> "logs/cutadapt.log"
-    exit 1
-  fi
-# Check to see how many genes there are
-  if [ "${num_genes}" -eq 1 ]; then # If there is a single gene, run this
-    # This checks if there are 4 or 2 primer arguments
-    if [ "${#primer_files[@]}" -eq 4 ]; then # If there are 4 primers, then we have
-    # to run cutadapt twice, once to look for reverse complemented primers on the
-    # 3' end. These primers are not mandatory, and reads are kept even if primers
-    # are not found. This outputs fastq files (instead of fastq.gz), and it keeps
-    # them in the raw folder
+  cutadapt \
+  -g file:${primerF} \
+  -G file:${primerR} \
+  -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed --quiet \
+  -o "${path_to_data}/raw/demultiplexed_sequences/{name}/${name}_trimmed_R1.fastq" \
+  -p "${path_to_data}/raw/demultiplexed_sequences/{name}/${name}_trimmed_R2.fastq" \
+  "${path_to_data}/raw/${namepre}_R1${namepost}" \
+  "${path_to_data}/raw/${namepre}_R2${namepost}"
+done   
+
+for gene in "${genes[@]}"; do
+  if [[ -f "${path_to_primers}/${gene}-F_RC.fas" &&
+        -f "${path_to_primers}/${gene}-R_RC.fas" ]]; then
+    for x in ${path_to_data}/raw/demultiplexed_sequences/"${gene}"/*_R1*; do
+      sample=${x##*/}
+      name=${sample%_trimmed_R1.fastq}
       cutadapt \
-      -a file:${primerRrc} \
-      -A file:${primerFrc} \
+      -a file:"${path_to_primers}/${gene}-F_RC.fas" \
+      -A file:"${path_to_primers}/${gene}-R_RC.fas" \
       -e 0.2 --cores=$NSLOTS -O 6 --quiet \
-      -o ${path_to_data}/raw/${name}_trimmed_R1.fastq \
-      -p ${path_to_data}/raw/${name}_trimmed_R2.fastq \
-      ${path_to_data}/raw/${namepre}_R1${namepost} \
-      ${path_to_data}/raw/${namepre}_R2${namepost}
-      # Run cutadapt the second time to find the normal primers on the 5' end, and
-      # remove both reads if either does not have a primer sequence removed
-      cutadapt \
-      -g file:${primerF} \
-      -G file:${primerR} \
-      -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed --quiet \
-      -o ${path_to_data}/working/trimmed_sequences/${genes[0]}/${name}_trimmed_R1.fastq \
-      -p ${path_to_data}/working/trimmed_sequences/${genes[0]}/${name}_trimmed_R2.fastq \
-      ${path_to_data}/raw/${name}_trimmed_R1.fastq \
-      ${path_to_data}/raw/${name}_trimmed_R2.fastq
-    # This removes the fastq 3' trimmed reads from the raw folder
-    rm ${path_to_data}/raw/${name}_trimmed_R1.fastq ${path_to_data}/raw/${name}_trimmed_R2.fastq
-    else # If there is only 2 primer arguments, we only need to run the 5' primer
-    # trimming, removing both reads if either does not have a primer sequence removed
-      cutadapt \
-      -g file:${primerF} \
-      -G file:${primerR} \
-      -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed --quiet \
-      -o ${path_to_data}/working/trimmed_sequences/${genes[0]}/${name}_trimmed_R1.fastq \
-      -p ${path_to_data}/working/trimmed_sequences/${genes[0]}/${name}_trimmed_R2.fastq \
-      ${path_to_data}/raw/${namepre}_R1${namepost} \
-      ${path_to_data}/raw/${namepre}_R2${namepost}
-    fi
-    # There appears to be a problem with cutadapt gziping when there are lots of 
-    # reads/samples (not sure what is actually causing the problems, but it only occurs
-    # in nextseq runs, not miseq runs), so we have cutadapt output fastq files instead
-    # of fastq.gz. Here we use gzip to create fastq.gz files, which replace the fastq files
-    gzip -2 \
-    ${path_to_data}/working/trimmed_sequences/${genes[@]}/${name}_trimmed_R1.fastq \
-    ${path_to_data}/working/trimmed_sequences/${genes[@]}/${name}_trimmed_R2.fastq 
-  else # If there are multiple genes we have to not only remove primers, but also
-  # move trimmed reads to their gene-specific folders
-    # Check to see if there are 4 or two primers
-    if [ "${#primer_files[@]}" -eq 4 ]; then # If there are 4 primers, then we have
-    # to run cutadapt twice, once to look for reverse complemented primers on the
-    # 3' end. These primers are not mandatory, and reads are kept even if primers
-    # are not found. This outputs fastq files (instead of fastq.gz), and it keeps
-    # them in the raw folder.
-      cutadapt \
-      -a file:${primerRrc} \
-      -A file:${primerFrc} \
-      -e 0.2 --cores=$NSLOTS -O 10 --quiet \
-        -o ${path_to_data}/raw/${name}_trimmed_R1.fastq \
-      -p ${path_to_data}/raw/${name}_trimmed_R2.fastq \
-      ${path_to_data}/raw/${namepre}_R1${namepost} \
-      ${path_to_data}/raw/${namepre}_R2${namepost}
-      # Run cutadapt the second time to find the normal primers on the 5' end and move
-      # reads into their gene-specific folders. We also remove both reads if 
-      # either does not have a primer sequence removed
-      cutadapt \
-      -g file:${primerF} \
-      -G file:${primerR} \
-      -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed --quiet \
-      -o ${path_to_data}/working/trimmed_sequences/{name}/${name}_trimmed_R1.fastq \
-      -p ${path_to_data}/working/trimmed_sequences/{name}/${name}_trimmed_R2.fastq \
-      ${path_to_data}/raw/${name}_trimmed_R1.fastq \
-      ${path_to_data}/raw/${name}_trimmed_R2.fastq
-      # This removes the fastq 3' trimmed reads from the raw folder
-      rm ${path_to_data}/raw/${name}_trimmed_R1.fastq ${path_to_data}/raw/${name}_trimmed_R2.fastq
-      # This runs through each gene in the list of genes, and gzips all the fastq files
-      # in the gene-specific trimmed sequences folder
-      for gene in ${genes[@]}; do
-        gzip -2 \
-        ${path_to_data}/working/trimmed_sequences/${gene}/${name}_trimmed_R1.fastq \
-        ${path_to_data}/working/trimmed_sequences/${gene}/${name}_trimmed_R2.fastq
-      done
-    else # If there is only 2 primer arguments, we only need to run the 5' primer
-    # trimming, removing both reads if either does not have a primer sequence removed
-      cutadapt \
-      -g file:${primerF} \
-      -G file:${primerR} \
-      -e 0.2 --minimum-length 30 --cores=$NSLOTS --discard-untrimmed --quiet \
-      -o ${path_to_data}/working/trimmed_sequences/{name}/${name}_trimmed_R1.fastq \
-      -p ${path_to_data}/working/trimmed_sequences/{name}/${name}_trimmed_R2.fastq \
-      ${path_to_data}/raw/${namepre}_R1${namepost} \
-      ${path_to_data}/raw/${namepre}_R2${namepost}
-      # This runs through each gene in the list of genes, and gzips all the fastq files
-      # in the gene-specific trimmed sequences folder      
-      for gene in ${genes[@]}; do
-        gzip -2 \
-        ${path_to_data}/working/trimmed_sequences/${gene}/${name}_trimmed_R1.fastq \
-        ${path_to_data}/working/trimmed_sequences/${gene}/${name}_trimmed_R2.fastq
-      done
-    fi
+      -o "${path_to_data}/working/trimmed_sequences/${gene}/${name}_trimmed_R1.fastq" \
+      -p "${path_to_data}/working/trimmed_sequences/${gene}/${name}_trimmed_R2.fastq" \
+      "${path_to_data}/raw/demultiplexed_sequences/${gene}/${name}_trimmed_R1.fastq" \
+      "${path_to_data}/raw/demultiplexed_sequences/${gene}/${name}_trimmed_R2.fastq"
+    done
+  else
+    echo "Your reads for "${gene}" should not have potential read-through, so we only removed primers from the 5' end of each read."
+    cp "${path_to_data}/raw/demultiplexed_sequences/${gene}/"* \
+     "${path_to_data}/working/trimmed_sequences/${gene}/"
   fi
 done
+
+# This runs through each gene in the list of genes, and gzips all the fastq files
+# in the gene-specific trimmed sequences folder   
+for gene in "${genes[@]}"; do
+  gzip -2 \
+  "${path_to_data}/working/trimmed_sequences/${gene}/"*
+done
+
 # Finally, we start the R script for quality plot formation, passing the gene name as a variable
-Rscript R_scripts/2_quality.R ${genes[@]}
+Rscript R_scripts/2_quality.R "${genes[@]}"
 
 echo = `date` job $JOB_NAME done
