@@ -80,7 +80,7 @@ for gene in "${genes[@]}"; do
       cutadapt \
       -a file:"${path_to_primers}/${gene}-F_RC.fas" \
       -A file:"${path_to_primers}/${gene}-R_RC.fas" \
-      -e 0.2 --cores=$NSLOTS -O 6 --quiet \
+      -e 0.2 --cores=$NSLOTS -O 6 --quiet --minimum-length 30 \
       -o "${path_to_data}/working/trimmed_sequences/${gene}/${name}_trimmed_R1.fastq" \
       -p "${path_to_data}/working/trimmed_sequences/${gene}/${name}_trimmed_R2.fastq" \
       "${path_to_data}/raw/demultiplexed_sequences/${gene}/${name}_trimmed_R1.fastq" \
