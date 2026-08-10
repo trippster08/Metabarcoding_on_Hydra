@@ -30,7 +30,7 @@ if ! compgen -G "${path_to_raw}"/*.fastq.gz > /dev/null; then
   # Make the raw directory path relative to current directory (so find can exclude it)
   raw_rel="./$(realpath --relative-to="." "$path_to_raw")"
 
-  find . \
+  find -L . \
     -mindepth 2 \
     -type f \
     -name '*.fastq.gz' \
