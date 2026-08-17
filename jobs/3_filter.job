@@ -25,10 +25,9 @@ r1=${2}
 r2=${3}
 
 #
-# We only need the truncation values and number of genes for the filtering
+# We only need the truncation values and gene name
 Rscript R_scripts/3_filter.R ${gene} ${r1} ${r2}
-# After filtering, since we are only passing the list of genes, we can get gene
-# number from this
+# The only argument from the shell script is gene name, so we pass that to R
 Rscript R_scripts/4_error.R ${gene}
 Rscript R_scripts/5_denoise.R ${gene}
 Rscript R_scripts/6_merge.R ${gene}

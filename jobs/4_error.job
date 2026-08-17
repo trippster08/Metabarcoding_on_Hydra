@@ -21,8 +21,7 @@ echo + NSLOTS = $NSLOTS
 #
 gene=${1}   # Extract gene name
 #
-# All arguments from shell script are just a list of genes, so we just pass on the
-# entire array
+# The only argument from the shell script is gene name, so we pass that to R
 Rscript R_scripts/4_error.R ${gene}
 Rscript R_scripts/5_denoise.R ${gene}
 Rscript R_scripts/6_merge.R ${gene}
