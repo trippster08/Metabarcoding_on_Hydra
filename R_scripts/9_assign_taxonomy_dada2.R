@@ -69,7 +69,7 @@ taxonomy <- dada2::assignTaxonomy(
 save(
   taxonomy,
   file = paste0(
-    "9_data/working/taxonomy_rdp",
+    "data/working/9_taxonomy_rdp_",
     gene,
     ".Rdata"
   )
