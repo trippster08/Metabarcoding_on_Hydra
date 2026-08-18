@@ -65,6 +65,14 @@ taxonomy <- dada2::assignTaxonomy(
   verbose = TRUE
 )
 
+# Convert ASV to ASV-md5 hash
+taxonomy_md5 <- tibble::as_tibble(taxonomy$tax, rownames = "ASV") %>%
+  dplyr::mutate(md5 = repseq_nochim_md5_asv$md5)
+boot_md5 <- tibble::as_tibble(taxonomy$boot, rownames = "ASV") %>%
+  dplyr::mutate(md5 = repseq_nochim_md5_asv$md5)
+
+
+
 # Save this object, it took a long time to get.
 save(
   taxonomy,
@@ -76,16 +84,26 @@ save(
 )
 
 write.table(
-  taxonomy$tax,
-  file = paste0("data/results/", gene, "dada2_taxonomy_tax.tsv"),
+  taxonomy_md5,
+  file = paste0(
+    "data/results/",
+    gene,
+    "/",
+    project_name,
+    "_dada2_taxonomy_tax.tsv"),
   quote = FALSE,
   sep = "\t",
   row.names = FALSE
 )
 
 write.table(
-  taxonomy$boot,
-  file = paste0("data/results/", gene, "dada2_taxonomy_boot.tsv"),
+  boot_md5,
+  file = paste0(
+    "data/results/",
+    gene,
+    "/",
+    project_name,
+    "_dada2_taxonomy_boot.tsv"),
   quote = FALSE,
   sep = "\t",
   row.names = FALSE
