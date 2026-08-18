@@ -67,9 +67,21 @@ taxonomy <- dada2::assignTaxonomy(
 
 # Convert ASV to ASV-md5 hash
 taxonomy_md5 <- tibble::as_tibble(taxonomy$tax, rownames = "ASV") %>%
-  dplyr::mutate(md5 = repseq_nochim_md5_asv$md5)
+  dplyr::left_join(
+    repseq_nochim_md5_asv %>% dplyr::select(ASV, md5),
+    by = "ASV"
+  ) %>%
+  dplyr::select(!ASV) %>%
+  dplyr::select(md5, dplyr::everything())
 boot_md5 <- tibble::as_tibble(taxonomy$boot, rownames = "ASV") %>%
-  dplyr::mutate(md5 = repseq_nochim_md5_asv$md5)
+  dplyr::left_join(
+    repseq_nochim_md5_asv %>% dplyr::select(ASV, md5),
+    by = "ASV"
+  ) %>%
+  dplyr::select(!ASV) %>%
+  dplyr::select(md5, dplyr::everything())
+
+
 
 
 
@@ -77,7 +89,7 @@ boot_md5 <- tibble::as_tibble(taxonomy$boot, rownames = "ASV") %>%
 save(
   taxonomy,
   file = paste0(
-    "data/working/9_taxonomy_rdp_",
+    "data/working/09_taxonomy_rdp_",
     gene,
     ".Rdata"
   )
