@@ -3,7 +3,7 @@
 #$ -S /bin/sh
 #$ -pe mthread 12
 #$ -q mThM.q
-#$ -l mres=288G,h_data=24G,h_vmem=48G,himem
+#$ -l mres=288G,h_data=24G,h_vmem=24G,himem
 #$ -cwd
 #$ -j y
 #$ -N trimmed
@@ -36,9 +36,5 @@ blastn \
 -num_threads $NSLOTS \
 -max_target_seqs 5 \
 -outfmt "6 qseqid sacc staxids sscinames scomnames qcovs pident"
-
-
-
-
 
 echo = `date` job $JOB_NAME done
