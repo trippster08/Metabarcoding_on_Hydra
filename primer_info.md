@@ -15,3 +15,5 @@ If you are using a short gene region that may have read-through (i.e. the sequen
 
 Custom primers should be saved in the primer folder, along with the rest of the primers.
 
+Please consider adding your new primers to our permanant database (so they will be included in the download for every analsys). Contact me for more information.
+
